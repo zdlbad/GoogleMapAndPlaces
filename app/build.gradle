@@ -6,6 +6,7 @@ android {
         applicationId "com.example.zhangdonglin.googlemapsandplace"
         minSdkVersion 15
         targetSdkVersion 27
+        multiDexEnabled true
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -31,5 +32,6 @@ dependencies {
     compile 'com.google.maps.android:android-maps-utils:0.4.4'
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'com.google.code.gson:gson:2.3'
+    compile 'com.android.support:multidex:1.0.3'
 
 }
