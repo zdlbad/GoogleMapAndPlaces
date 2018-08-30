@@ -32,6 +32,8 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCcLw8zgIjhCqC1QeCBXv7NVGAUFuChKq8"/>
 
+        <meta-data android:name="com.google.android.gms.appstate.APP_ID"
+            android:value="com.example.zhangdonglin.googlemapsandplace" />
 
     </application>
 

@@ -8,8 +8,11 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -31,7 +34,9 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.drive.Drive;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.Place;
@@ -84,7 +89,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     //widgets
     private AutoCompleteTextView mSearchText;
-    private ImageView mGps, mInfo, mPlacePicker, mToilet, mParking, mNavigation;
+    private ImageView mGps, mInfo, mPlacePicker, mToilet, mParking, mNavigation, mToiletCaller, mParkingCaller;
 
     //vars
     private Boolean mLocationPermissionsGranted = false;
@@ -98,7 +103,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        Log.d(TAG,"onCreate: called.");
+        Log.d(TAG, "onCreate: called.");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         mSearchText = (AutoCompleteTextView) findViewById(R.id.input_search);
@@ -106,26 +111,42 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //mInfo = (ImageView) findViewById(R.id.place_info);
         //mPlacePicker = (ImageView) findViewById(R.id.place_picker);
         mToilet = (ImageView) findViewById(R.id.toilet);
+        mToiletCaller =  (ImageView) findViewById(R.id.toilet_caller);
         mParking = (ImageView) findViewById(R.id.parking);
+        mParkingCaller =  (ImageView) findViewById(R.id.parking_caller);
         mNavigation = (ImageView) findViewById(R.id.ic_navigation);
-        mNavigation.setVisibility(View.INVISIBLE);
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API).build();
+        mGoogleApiClient.connect();
         getLocationPermission();
+
     }
 
     private void getLocationPermission() {
         Log.d(TAG, "getLocationPermission: getting location permissions.");
         String[] permissions = {FINE_LOCATION, COARSE_LOCATION};
 
-        if (ContextCompat.checkSelfPermission(this.getApplicationContext(), FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            if (ContextCompat.checkSelfPermission(this.getApplicationContext(), COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-                mLocationPermissionsGranted = true;
-                initMap();
-            }else {
-                ActivityCompat.requestPermissions(this, permissions, LOCATION_PERMISSION_REQUEST_CODE);
-            }
-        }else {
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(), FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, permissions, LOCATION_PERMISSION_REQUEST_CODE);
         }
+
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(), COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, permissions, LOCATION_PERMISSION_REQUEST_CODE);
+        }
+
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(), FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this.getApplicationContext(), COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ){
+            mLocationPermissionsGranted = true;
+            initMap();
+        }
+    }
+
+    private void initMap() {
+        Log.d(TAG, "initMap: intialising the map");
+        //Toast.makeText(this, "initMap: intialising the map", Toast.LENGTH_SHORT).show();
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -134,13 +155,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         if (mLocationPermissionsGranted) {
+            //Toast.makeText(this, "going to get current location", Toast.LENGTH_SHORT).show();
             getDeviceLocation();
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                            != PackageManager.PERMISSION_GRANTED) {
+                    != PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this, "ACCESS_FINE_LOCATION not premised", Toast.LENGTH_SHORT).show();
                 return;
             }
+
+            if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this, "ACCESS_COARSE_LOCATION not premised", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             mMap.getUiSettings().setZoomControlsEnabled(true);
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
@@ -157,6 +185,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
             });
             init();
+        } else {
+            Toast.makeText(this, "Lack of permission", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -209,6 +239,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+
         mGps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -217,9 +248,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+        mToiletCaller.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mToilet.getVisibility() == View.VISIBLE){
+                    mToilet.setVisibility(View.INVISIBLE);
+                }else {
+                    mToilet.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        mToilet.setVisibility(View.INVISIBLE);
         mToilet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mToilet.setVisibility(View.INVISIBLE);
                 clearMap();
                 destLatlng = null;
                 showKeyPoint();
@@ -238,9 +282,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+        mParkingCaller.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mParking.getVisibility() == View.VISIBLE){
+                    mParking.setVisibility(View.INVISIBLE);
+                }else {
+                    mParking.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        mParking.setVisibility(View.INVISIBLE);
         mParking.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mParking.setVisibility(View.INVISIBLE);
                 clearMap();
                 destLatlng = null;
                 showKeyPoint();
@@ -259,6 +316,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+        mNavigation.setVisibility(View.INVISIBLE);
         mNavigation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -271,6 +329,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 TaskRequestDirections findPath = new TaskRequestDirections();
                 findPath.execute(url);
                 mNavigation.setVisibility(View.INVISIBLE);
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destLatlng,13f));
             }
         });
 
@@ -289,6 +348,67 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void clearMap(){
         mMap.clear();
+    }
+
+    private void showKeyPoint(){
+        Log.d(TAG, "showKeyPoint: method called");
+        if (currentLatlng != null){
+            Log.d(TAG, "showKeyPoint: add current");
+            mMap.addMarker(new MarkerOptions().position(currentLatlng));
+        }
+
+        if (remoteLatlng!= null && destLatlng == null){
+            Log.d(TAG, "showKeyPoint: add remotemelbou");
+            MarkerOptions markerOptions = new MarkerOptions().position(remoteLatlng).title(remotePlaceTitle);
+            mMap.addMarker(markerOptions).showInfoWindow();
+        }
+
+        if (destLatlng != null){
+            Log.d(TAG, "showKeyPoint: add destination");
+            MarkerOptions markerOptions = new MarkerOptions().position(destLatlng).title("Destination");
+            mMap.addMarker(markerOptions).showInfoWindow();
+        }
+    }
+
+    private void showToiletSpots(ArrayList<Double[]> spotList) {
+        Log.d(TAG, "method: showSpots called ");
+
+        if (spotList.size() != 0){
+            for (Double[] oneSpot : spotList ){
+                LatLng latlng = new LatLng(oneSpot[0], oneSpot[1]);
+                MarkerOptions options = new MarkerOptions()
+                        .position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).alpha(0.8f);
+                mMap.addMarker(options);
+            }
+        }else{
+            Log.d(TAG, "method: showSpots : no spot found ");
+            Toast.makeText(MapActivity.this, "No Nearby Toilets found", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showParkingSpots(JsonArray spotArray){
+        Log.d(TAG, "method: showSpots called ");
+
+        if (spotArray.size() != 0) {
+            for (int i = 0; i < spotArray.size(); i++) {
+                JsonObject oneSpot = spotArray.get(i).getAsJsonObject();
+                Double lat = oneSpot.get("lat").getAsDouble();
+                Double lon = oneSpot.get("lon").getAsDouble();
+                String status = oneSpot.get("status").toString();
+                LatLng latlng = new LatLng(lat, lon);
+                MarkerOptions options = null;
+                if (status.equals("\"Present\"")){
+                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).alpha(0.8f);
+                }else{
+                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(0f)).alpha(0.5f);
+                }
+                mMap.addMarker(options);
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
+            }
+        }else{
+            Log.d(TAG, "method: showSpots : no spot found ");
+            Toast.makeText(MapActivity.this, "No Nearby Parking Place found", Toast.LENGTH_SHORT).show();
+        }
     }
 
     //South Longitude is negative，North Longitude is positive; East Latitude is positive，West Latitude is negative.
@@ -401,75 +521,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return results;
     }
 
-    private void showKeyPoint(){
-        Log.d(TAG, "showKeyPoint: method called");
-        if (currentLatlng != null){
-            Log.d(TAG, "showKeyPoint: add current");
-            mMap.addMarker(new MarkerOptions().position(currentLatlng));
-        }
-
-        if (remoteLatlng!= null){
-            Log.d(TAG, "showKeyPoint: add remotemelbou");
-            MarkerOptions markerOptions = new MarkerOptions().position(remoteLatlng).title(remotePlaceTitle);
-            mMap.addMarker(markerOptions).showInfoWindow();
-        }
-
-        if (destLatlng != null){
-            Log.d(TAG, "showKeyPoint: add destination");
-            MarkerOptions markerOptions = new MarkerOptions().position(destLatlng).title("Destination");
-            mMap.addMarker(markerOptions).showInfoWindow();
-        }
-    }
-
-    private void showToiletSpots(ArrayList<Double[]> spotList) {
-        Log.d(TAG, "method: showSpots called ");
-
-        if (spotList.size() != 0){
-            for (Double[] oneSpot : spotList ){
-                LatLng latlng = new LatLng(oneSpot[0], oneSpot[1]);
-                MarkerOptions options = new MarkerOptions()
-                        .position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).alpha(0.8f);
-                mMap.addMarker(options);
-            }
-        }else{
-            Log.d(TAG, "method: showSpots : no spot found ");
-            Toast.makeText(MapActivity.this, "No Nearby Toilets found", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void showParkingSpots(JsonArray spotArray){
-        Log.d(TAG, "method: showSpots called ");
-
-        if (spotArray.size() != 0) {
-            for (int i = 0; i < spotArray.size(); i++) {
-                JsonObject oneSpot = spotArray.get(i).getAsJsonObject();
-                Double lat = oneSpot.get("lat").getAsDouble();
-                Double lon = oneSpot.get("lon").getAsDouble();
-                String status = oneSpot.get("status").toString();
-                LatLng latlng = new LatLng(lat, lon);
-                MarkerOptions options = null;
-                if (status.equals("\"Present\"")){
-                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).alpha(0.8f);
-                }else{
-                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(0f)).alpha(0.5f);
-                }
-                mMap.addMarker(options);
-            }
-        }else{
-            Log.d(TAG, "method: showSpots : no spot found ");
-            Toast.makeText(MapActivity.this, "No Nearby Parking Place found", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void initMap() {
-        Log.d(TAG, "initMap: intialising the map");
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(MapActivity.this);
-    }
-
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+        Toast.makeText(this, "failed google api client connect", Toast.LENGTH_SHORT).show();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -509,18 +563,30 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private void getDeviceLocation(){
         Log.d(TAG, "getDeviceLocation: getting the device's current locatioin");
+        Toast.makeText(MapActivity.this, "getDeviceLocation: getting the device's current locatioin", Toast.LENGTH_SHORT).show();
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(1000);
 
         try{
             if (mLocationPermissionsGranted) {
                 Task location = mFusedLocationProviderClient.getLastLocation();
+
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()){
                             Log.d(TAG, "onComplete: found location!");
                             Location currentLocation = (Location) task.getResult();
+
+                            if (currentLocation == null) {
+                                Log.d(TAG, "onComplete: task result not found.");
+                                Toast.makeText(MapActivity.this, "unable to find current location", Toast.LENGTH_SHORT).show();
+                            }
+
                             currentLatlng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                            Log.d(TAG, "onComplete: currentLatlng set!");
                             moveCamera(currentLatlng, DEFAULT_ZOOM, "My Location");
                             remotePlaceTitle = "";
                         }else {

@@ -66,16 +66,14 @@
         />
 
     <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_below="@id/ic_gps"
-        android:layout_marginRight="10dp"
-        android:layout_alignParentRight = "true"
-        android:layout_marginTop = "10dp"
-        android:scaleType="centerCrop"
         android:id="@+id/ic_navigation"
-        android:src="@drawable/ic_navigation"
-        />
+        android:layout_width="56dp"
+        android:layout_height="57dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="66dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_navigation" />
 
 
     <!--<ImageView-->
@@ -89,25 +87,60 @@
         <!--android:src="@drawable/ic_info"-->
         <!--/>-->
 
-    <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_below="@id/relLayout1"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="15dp"
-        android:scaleType="centerCrop"
-        android:id="@+id/toilet"
-        android:src="@drawable/ic_toilet"/>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/toilet_group"
+        android:layout_below="@id/relLayout1">
 
-    <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_below="@id/toilet"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="15dp"
-        android:scaleType="centerCrop"
-        android:id="@+id/parking"
-        android:src="@drawable/ic_parking"/>
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="15dp"
+            android:scaleType="centerCrop"
+            android:id="@+id/toilet_caller"
+            android:src="@drawable/ic_toilet"/>
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_toRightOf="@id/toilet_caller"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="15dp"
+            android:scaleType="centerCrop"
+            android:id="@+id/toilet"
+            android:src="@drawable/ic_magnify"/>
+    </RelativeLayout>
+
+
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/parking_group"
+        android:layout_below="@id/toilet_group">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="15dp"
+            android:scaleType="centerCrop"
+            android:id="@+id/parking_caller"
+            android:src="@drawable/ic_parking"/>
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_toRightOf="@id/parking_caller"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="15dp"
+            android:scaleType="centerCrop"
+            android:id="@+id/parking"
+            android:src="@drawable/ic_magnify"/>
+    </RelativeLayout>
+
 
     <!--<ImageView-->
     <!--android:layout_width="40dp"-->

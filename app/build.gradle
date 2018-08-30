@@ -28,7 +28,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     //google play services
-    compile 'com.google.android.gms:play-services:11.4.0'
+    compile 'com.google.android.gms:play-services:11.6.0'
     compile 'com.google.maps.android:android-maps-utils:0.4.4'
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'com.google.code.gson:gson:2.3'
