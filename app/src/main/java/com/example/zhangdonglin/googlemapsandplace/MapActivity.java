@@ -4,7 +4,10 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -120,7 +123,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .addApi(LocationServices.API).build();
         mGoogleApiClient.connect();
         getLocationPermission();
-
     }
 
     private void getLocationPermission() {
@@ -563,7 +565,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private void getDeviceLocation(){
         Log.d(TAG, "getDeviceLocation: getting the device's current locatioin");
-        Toast.makeText(MapActivity.this, "getDeviceLocation: getting the device's current locatioin", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(MapActivity.this, "getDeviceLocation: getting the device's current locatioin", Toast.LENGTH_SHORT).show();
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -583,10 +585,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             if (currentLocation == null) {
                                 Log.d(TAG, "onComplete: task result not found.");
                                 Toast.makeText(MapActivity.this, "unable to find current location", Toast.LENGTH_SHORT).show();
+                                currentLatlng = new LatLng(-37.8179,144.959);
+                            }else{
+                                currentLatlng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                                Log.d(TAG, "onComplete: currentLatlng set!");
                             }
-
-                            currentLatlng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-                            Log.d(TAG, "onComplete: currentLatlng set!");
                             moveCamera(currentLatlng, DEFAULT_ZOOM, "My Location");
                             remotePlaceTitle = "";
                         }else {

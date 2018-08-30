@@ -23,7 +23,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="paddingPercent" value="-5" />
+                                                <entry key="paddingPercent" value="10" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -34,7 +34,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="jar:file:/Applications/Android%20Studio.app/Contents/plugins/android/lib/android.jar!/images/material_design_icons/maps/ic_near_me_black_24dp.xml" />
+                                                <entry key="url" value="jar:file:/Applications/Android%20Studio.app/Contents/plugins/android/lib/android.jar!/images/material_design_icons/maps/ic_directions_car_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -55,8 +55,7 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="assetType" value="TEXT" />
-                                      <entry key="outputName" value="ic_toiletText" />
+                                      <entry key="outputName" value="ic_car" />
                                       <entry key="theme" value="CUSTOM" />
                                       <entry key="themeColor" value="0b0b0b" />
                                     </map>
@@ -153,7 +152,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputIconType" value="LAUNCHER_LEGACY" />
+                            <entry key="outputIconType" value="ACTIONBAR" />
                           </map>
                         </option>
                       </PersistentState>
