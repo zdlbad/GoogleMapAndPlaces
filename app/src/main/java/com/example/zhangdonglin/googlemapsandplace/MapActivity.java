@@ -103,6 +103,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Marker mMarker;
     private LatLng currentLatlng, destLatlng, remoteLatlng;
     private String remotePlaceTitle;
+    private Parking parking = new Parking();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -114,9 +115,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //mInfo = (ImageView) findViewById(R.id.place_info);
         //mPlacePicker = (ImageView) findViewById(R.id.place_picker);
         mToilet = (ImageView) findViewById(R.id.toilet);
-        mToiletCaller =  (ImageView) findViewById(R.id.toilet_caller);
+        //mToiletCaller =  (ImageView) findViewById(R.id.toilet_caller);
         mParking = (ImageView) findViewById(R.id.parking);
-        mParkingCaller =  (ImageView) findViewById(R.id.parking_caller);
+        //mParkingCaller =  (ImageView) findViewById(R.id.parking_caller);
         mNavigation = (ImageView) findViewById(R.id.ic_navigation);
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addOnConnectionFailedListener(this)
@@ -250,22 +251,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        mToiletCaller.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mToilet.getVisibility() == View.VISIBLE){
-                    mToilet.setVisibility(View.INVISIBLE);
-                }else {
-                    mToilet.setVisibility(View.VISIBLE);
-                }
-            }
-        });
 
-        mToilet.setVisibility(View.INVISIBLE);
+        mToilet.setVisibility(View.VISIBLE);
         mToilet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mToilet.setVisibility(View.INVISIBLE);
+                mToilet.setVisibility(View.VISIBLE);
                 clearMap();
                 destLatlng = null;
                 showKeyPoint();
@@ -284,22 +275,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        mParkingCaller.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mParking.getVisibility() == View.VISIBLE){
-                    mParking.setVisibility(View.INVISIBLE);
-                }else {
-                    mParking.setVisibility(View.VISIBLE);
-                }
-            }
-        });
 
-        mParking.setVisibility(View.INVISIBLE);
+        mParking.setVisibility(View.VISIBLE);
         mParking.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mParking.setVisibility(View.INVISIBLE);
+                mParking.setVisibility(View.VISIBLE);
                 clearMap();
                 destLatlng = null;
                 showKeyPoint();
@@ -480,52 +461,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters);
         LatLng southwestCorner = latLngBounds.southwest; // -
         LatLng northeastCorner = latLngBounds.northeast; // +
-        Double south = southwestCorner.longitude; // -
-        Double north = northeastCorner.longitude; // +
-        Double east = northeastCorner.latitude; // +
-        Double west = southwestCorner.latitude; // -
+        parking.setSouth(southwestCorner.longitude);
+        parking.setNorth(northeastCorner.longitude);
+        parking.setEast(northeastCorner.latitude);
+        parking.setWest(southwestCorner.latitude);
+        return parking.FindParkingSpots(baseUrl);
 
-        StringBuilder builder = new StringBuilder(baseUrl);
-        builder.append("lat < " + east + " and lat > " + west + " and lon < " + north + " and lon > " + south);
-        String urlString = builder.toString();
-        Log.d(TAG, "url: URL:  " + urlString);
-
-        URL url = null;
-        HttpURLConnection conn = null;
-        boolean checkResult = false;
-        String serverResult = "";
-        //Making HTTP request
-        try {
-            url = new URL(urlString);
-            //open the connection
-            conn = (HttpURLConnection) url.openConnection();
-            //set the timeout
-            conn.setReadTimeout(10000);
-            conn.setConnectTimeout(15000);
-            //set the connection method to GET
-            conn.setRequestMethod("GET");
-            //add http headers to set your response type to json
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Accept", "application/json");
-            //Read the response
-            Scanner inStream = new Scanner(conn.getInputStream());
-            //read the input stream and store it as string
-            while (inStream.hasNextLine()){
-                serverResult += inStream.nextLine();
-            }
-            results = new JsonParser().parse(serverResult).getAsJsonArray();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            conn.disconnect();
-        }
-        return results;
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Toast.makeText(this, "failed google api client connect", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Failed google api client connect", Toast.LENGTH_SHORT).show();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

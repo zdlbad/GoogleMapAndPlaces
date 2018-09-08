@@ -71,7 +71,7 @@
         android:layout_height="57dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="66dp"
+        android:layout_marginBottom="58dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_navigation" />
 
@@ -99,10 +99,10 @@
             android:layout_marginLeft="10dp"
             android:layout_marginTop="15dp"
             android:scaleType="centerCrop"
-            android:id="@+id/toilet_caller"
+            android:id="@+id/toilet"
             android:src="@drawable/ic_toilet"/>
 
-        <ImageView
+        <!---ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_toRightOf="@id/toilet_caller"
@@ -110,7 +110,7 @@
             android:layout_marginTop="15dp"
             android:scaleType="centerCrop"
             android:id="@+id/toilet"
-            android:src="@drawable/ic_magnify"/>
+            android:src="@drawable/ic_magnify"/-->
     </RelativeLayout>
 
 
@@ -127,10 +127,10 @@
             android:layout_marginLeft="10dp"
             android:layout_marginTop="15dp"
             android:scaleType="centerCrop"
-            android:id="@+id/parking_caller"
+            android:id="@+id/parking"
             android:src="@drawable/ic_parking"/>
 
-        <ImageView
+        <!---ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_toRightOf="@id/parking_caller"
@@ -138,7 +138,7 @@
             android:layout_marginTop="15dp"
             android:scaleType="centerCrop"
             android:id="@+id/parking"
-            android:src="@drawable/ic_magnify"/>
+            android:src="@drawable/ic_magnify"/-->
     </RelativeLayout>
 
 
