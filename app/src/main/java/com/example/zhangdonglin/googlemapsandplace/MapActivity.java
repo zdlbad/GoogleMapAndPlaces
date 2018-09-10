@@ -87,12 +87,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final float DEFAULT_ZOOM = 15f;
     private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(new LatLng(-40, -168), new LatLng(71, 136));
     private static final int PLACE_PICKER_REQUEST = 1;
-    private static final String BASE_URL_TOILET = "https://data.melbourne.vic.gov.au/resource/dsec-5y6t.json?$where=";
-    private static final String BASE_URL_PARKING = "https://data.melbourne.vic.gov.au/resource/dtpv-d4pf.json?$where=";
 
     //widgets
     private AutoCompleteTextView mSearchText;
-    private ImageView mGps, mInfo, mPlacePicker, mToilet, mParking, mNavigation, mToiletCaller, mParkingCaller;
+    private ImageView mGps, mInfo, mPlacePicker, mToilet, mParking, mNavigation, mReset;
 
     //vars
     private Boolean mLocationPermissionsGranted = false;
@@ -104,6 +102,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private LatLng currentLatlng, destLatlng, remoteLatlng;
     private String remotePlaceTitle;
     private Parking parking = new Parking();
+    private Toilet toilet = new Toilet();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -118,6 +117,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //mToiletCaller =  (ImageView) findViewById(R.id.toilet_caller);
         mParking = (ImageView) findViewById(R.id.parking);
         //mParkingCaller =  (ImageView) findViewById(R.id.parking_caller);
+        mReset=(ImageView) findViewById(R.id.ic_reset);
         mNavigation = (ImageView) findViewById(R.id.ic_navigation);
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addOnConnectionFailedListener(this)
@@ -264,7 +264,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                     @Override
                     protected ArrayList<Double[]> doInBackground(Void... voids) {
-                        return findNearbyToilets(BASE_URL_TOILET, remoteLatlng,800);
+                        return findNearbyToilets( remoteLatlng,800);
                     }
 
                     @Override
@@ -288,7 +288,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                     @Override
                     protected JsonArray doInBackground(Void... voids) {
-                        return findNearbyParkings(BASE_URL_PARKING, remoteLatlng,800);
+                        return findNearbyParkings(remoteLatlng,800);
                     }
 
                     @Override
@@ -313,6 +313,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 findPath.execute(url);
                 mNavigation.setVisibility(View.INVISIBLE);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destLatlng,13f));
+            }
+        });
+
+        mReset.setVisibility(View.VISIBLE);
+        mReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = getIntent();
+                finish();
+                startActivity(intent);
             }
         });
 
@@ -395,66 +405,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     //South Longitude is negative，North Longitude is positive; East Latitude is positive，West Latitude is negative.
-    private ArrayList<Double[]> findNearbyToilets(String baseUrl, LatLng latLng, double radiusinMeters){
+    private ArrayList<Double[]> findNearbyToilets(LatLng latLng, double radiusinMeters){
 
         Log.d(TAG, "nethod: findNearbyToilets called ");
-        ArrayList<Double[]> results = new ArrayList<Double[]>();
         LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters);
         LatLng southwestCorner = latLngBounds.southwest; // -
         LatLng northeastCorner = latLngBounds.northeast; // +
-        Double south = southwestCorner.longitude; // -
-        Double north = northeastCorner.longitude; // +
-        Double east = northeastCorner.latitude; // +
-        Double west = southwestCorner.latitude; // -
-
-        StringBuilder builder = new StringBuilder(baseUrl);
-        builder.append("lat > \"" + east + "\" and lat < \"" + west + "\" and lon < \"" + north + "\" and lon > \"" + south + "\"");
-        String urlString = builder.toString();
-        Log.d(TAG, "url: URL:  " + urlString);
-
-        //String fakeUrl =  "https://data.melbourne.vic.gov.au/resource/dsec-5y6t.json?$where=lat > \"-37.459502430111115\"";
-
-        URL url = null;
-        HttpURLConnection conn = null;
-        boolean checkResult = false;
-        String serverResult = "";
-        //Making HTTP request
-        try {
-            url = new URL(urlString);
-            //open the connection
-            conn = (HttpURLConnection) url.openConnection();
-            //set the timeout
-            conn.setReadTimeout(10000);
-            conn.setConnectTimeout(15000);
-            //set the connection method to GET
-            conn.setRequestMethod("GET");
-            //add http headers to set your response type to json
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Accept", "application/json");
-            //Read the response
-            Scanner inStream = new Scanner(conn.getInputStream());
-            //read the input stream and store it as string
-            while (inStream.hasNextLine()){
-                serverResult += inStream.nextLine();
-            }
-            JsonArray rs = new JsonParser().parse(serverResult).getAsJsonArray();
-            for(int i = 0; i < rs.size(); i++)
-            {
-                JsonObject r = rs.get(i).getAsJsonObject();
-                Double[] result = new Double[2];
-                result[0] = r.get("lat").getAsDouble();
-                result[1] = r.get("lon").getAsDouble();
-                results.add(result);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            conn.disconnect();
-        }
-        return results;
+        toilet.setSouth(southwestCorner.longitude);
+        toilet.setNorth(northeastCorner.longitude);
+        toilet.setEast(northeastCorner.latitude);
+        toilet.setWest(southwestCorner.latitude);
+        return toilet.FindNearbyToilets();
     }
 
-    private JsonArray findNearbyParkings(String baseUrl, LatLng latLng, double radiusinMeters){
+    private JsonArray findNearbyParkings( LatLng latLng, double radiusinMeters){
 
         Log.d(TAG, "nethod: findNearbyParkings called ");
         JsonArray results = null;
@@ -465,7 +429,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         parking.setNorth(northeastCorner.longitude);
         parking.setEast(northeastCorner.latitude);
         parking.setWest(southwestCorner.latitude);
-        return parking.FindParkingSpots(baseUrl);
+        return parking.FindParkingSpots();
 
     }
 

@@ -1,23 +1,23 @@
 package com.example.zhangdonglin.googlemapsandplace;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Parking {
-    private static final String BASE_URL_PARKING = "https://data.melbourne.vic.gov.au/resource/dtpv-d4pf.json?$where=";
+public class Toilet {
+    private static final String BASE_URL_TOILET = "https://data.melbourne.vic.gov.au/resource/dsec-5y6t.json?$where=";
     private HttpURLConnection connection;
     private Double south;
     private Double north;
     private Double east;
     private Double west;
 
-    public Parking(){
+    public Toilet(){
         connection = null;
     }
 
@@ -38,8 +38,8 @@ public class Parking {
     }
 
     private String BuildURL(){
-        StringBuilder builder = new StringBuilder(BASE_URL_PARKING);
-        builder.append("lat < " + east + " and lat > " + west + " and lon < " + north + " and lon > " + south);
+        StringBuilder builder = new StringBuilder(BASE_URL_TOILET);
+        builder.append("lat > \"" + east + "\" and lat < \"" + west + "\" and lon < \"" + north + "\" and lon > \"" + south + "\"");
         return builder.toString();
     }
 
@@ -69,10 +69,10 @@ public class Parking {
         connection.disconnect();
     }
 
-    public JsonArray FindParkingSpots(){
+    public ArrayList<Double[]> FindNearbyToilets(){
 
         String serverResult = "";
-        JsonArray results = null;
+        ArrayList<Double[]> results = new ArrayList<Double[]>();
 
         if(MakeAPIConnection()) {
             try {
@@ -82,7 +82,15 @@ public class Parking {
                 while (inStream.hasNextLine()) {
                     serverResult += inStream.nextLine();
                 }
-                results = new JsonParser().parse(serverResult).getAsJsonArray();
+                JsonArray rs = new JsonParser().parse(serverResult).getAsJsonArray();
+                for(int i = 0; i < rs.size(); i++)
+                {
+                    JsonObject r = rs.get(i).getAsJsonObject();
+                    Double[] result = new Double[2];
+                    result[0] = r.get("lat").getAsDouble();
+                    result[1] = r.get("lon").getAsDouble();
+                    results.add(result);
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();

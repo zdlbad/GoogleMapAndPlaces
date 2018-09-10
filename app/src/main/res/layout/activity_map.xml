@@ -66,6 +66,15 @@
         />
 
     <ImageView
+        android:id="@+id/ic_reset"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignBottom="@+id/parking_group"
+        android:layout_alignEnd="@+id/relLayout1"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_reset" />
+
+    <ImageView
         android:id="@+id/ic_navigation"
         android:layout_width="56dp"
         android:layout_height="57dp"

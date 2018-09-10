@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+import java.util.TimerTask;
+import java.util.Timer;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -29,15 +31,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void init() {
-        Button btnMap = (Button) findViewById(R.id.btnMap);
-        btnMap.setOnClickListener(new View.OnClickListener() {
+    private void init(){
+        TimerTask task = new TimerTask() {
+
             @Override
-            public void onClick(View v) {
+            public void run() {
                 Intent intent = new Intent(MainActivity.this, MapActivity.class);
                 startActivity(intent);
             }
-        });
+        };
+        Timer t = new Timer();
+        t.schedule(task, 1000);
     }
 
     public boolean isServicesOK() {
@@ -60,7 +64,5 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     }
-
-
 
 }
