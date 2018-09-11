@@ -29,7 +29,7 @@ public class Building {
 
     private String BuildURL(){
         StringBuilder builder = new StringBuilder(BASE_URL_BUILDING);
-        builder.append("x_coordinate = " + latitude + " and y_coordinate = " + longitude + "and census_year = 2017" );
+        builder.append(" x_coordinate = " + latitude + " and y_coordinate = " + longitude + "and census_year = 2017" );
         return builder.toString();
     }
 
