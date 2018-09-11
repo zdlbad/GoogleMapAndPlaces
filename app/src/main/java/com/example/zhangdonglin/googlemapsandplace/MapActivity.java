@@ -90,7 +90,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     //widgets
     private AutoCompleteTextView mSearchText;
-    private ImageView mGps, mInfo, mPlacePicker, mToilet, mParking, mNavigation, mReset;
+    private ImageView mGps, mInfo, mPlacePicker, mToilet, mParking, mNavigation, mReset, mBuilding;
 
     //vars
     private Boolean mLocationPermissionsGranted = false;
@@ -103,6 +103,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private String remotePlaceTitle;
     private Parking parking = new Parking();
     private Toilet toilet = new Toilet();
+    private Building building = new Building();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -118,6 +119,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mParking = (ImageView) findViewById(R.id.parking);
         //mParkingCaller =  (ImageView) findViewById(R.id.parking_caller);
         mReset=(ImageView) findViewById(R.id.ic_reset);
+        mBuilding=(ImageView) findViewById(R.id.building);
         mNavigation = (ImageView) findViewById(R.id.ic_navigation);
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addOnConnectionFailedListener(this)
@@ -326,6 +328,29 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+        mBuilding.setVisibility(View.VISIBLE);
+        mBuilding.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBuilding.setVisibility(View.VISIBLE);
+                clearMap();
+                destLatlng = null;
+                showKeyPoint();
+                new AsyncTask<Void, Void, JsonArray>() {
+
+                    @Override
+                    protected JsonArray doInBackground(Void... voids) {
+                        return findBuildingAccessibility(remoteLatlng);
+                    }
+
+                    @Override
+                    protected void onPostExecute(JsonArray doubles) {
+                        showBuildingAccessibility(doubles);
+                    }
+                }.execute();
+            }
+        });
+
         Log.d(TAG, "init: initiating finished");
         hideSoftKeyboard();
     }
@@ -404,6 +429,35 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+    private void showBuildingAccessibility(JsonArray accessibility){
+        Log.d(TAG, "method: showSpots called ");
+        if (accessibility.size() != 0) {
+            for (int i = 0; i < accessibility.size(); i++) {
+                JsonObject oneSpot = accessibility.get(i).getAsJsonObject();
+                Double lat = oneSpot.get("lat").getAsDouble();
+                Double lon = oneSpot.get("lon").getAsDouble();
+                String rating = oneSpot.get("accessibility_rating").toString();
+                String level = oneSpot.get("accessibility_type").toString();
+                LatLng latlng = new LatLng(lat, lon);
+                MarkerOptions options = null;
+                if (rating.equals("\"0\"")){
+                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(0f)).alpha(0.5f);
+                }else if(rating.equals("\"3\"")){
+                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).alpha(0.8f);
+                }else if(rating.equals("\"1\"")){
+                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)).alpha(0.8f);
+                }else if(rating.equals("\"2\"")){
+                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)).alpha(0.8f);
+                }
+                mMap.addMarker(options);
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
+            }
+        }else{
+            Log.d(TAG, "method: showSpots : no data found ");
+            Toast.makeText(MapActivity.this, "No information on the building", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     //South Longitude is negative，North Longitude is positive; East Latitude is positive，West Latitude is negative.
     private ArrayList<Double[]> findNearbyToilets(LatLng latLng, double radiusinMeters){
 
@@ -431,6 +485,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         parking.setWest(southwestCorner.latitude);
         return parking.FindParkingSpots();
 
+    }
+
+    private JsonArray findBuildingAccessibility(LatLng latLng){
+        Log.d(TAG, "nethod: findBuildingAccessibility called ");
+        JsonArray results = null;
+        building.setLatitude(latLng.latitude);
+        building.setLongitude(latLng.longitude);
+        return building.FindBuildingAccessibility();
     }
 
     @Override

@@ -3,47 +3,37 @@ package com.example.zhangdonglin.googlemapsandplace;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
 
-public class Parking {
-    private static final String BASE_URL_PARKING = "https://data.melbourne.vic.gov.au/resource/dtpv-d4pf.json?$where=";
+public class Building {
     private HttpURLConnection connection;
-    private Double south;
-    private Double north;
-    private Double east;
-    private Double west;
+    private Double latitude;
+    private Double longitude;
+    private static final String BASE_URL_BUILDING = "https://data.melbourne.vic.gov.au/resource/q8hp-qgps.json?$where=";
 
-    public Parking(){
+
+
+    public Building(){
         connection = null;
     }
 
-    public void setNorth(Double north) {
-        this.north = north;
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
     }
 
-    public void setEast(Double east) {
-        this.east = east;
-    }
-
-    public void setWest(Double west) {
-        this.west = west;
-    }
-
-    public void setSouth(Double south) {
-        this.south = south;
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 
     private String BuildURL(){
-        StringBuilder builder = new StringBuilder(BASE_URL_PARKING);
-        builder.append("lat < " + east + " and lat > " + west + " and lon < " + north + " and lon > " + south);
+        StringBuilder builder = new StringBuilder(BASE_URL_BUILDING);
+        builder.append("x_coordinate = " + latitude + " and y_coordinate = " + longitude + "and census_year = 2017" );
         return builder.toString();
     }
 
-    public boolean MakeAPIConnection(){
+    private boolean MakeAPIConnection(){
         int code = 0;
         try {
             URL url = new URL(BuildURL());
@@ -69,11 +59,9 @@ public class Parking {
         connection.disconnect();
     }
 
-    public JsonArray FindParkingSpots(){
-
+    public JsonArray FindBuildingAccessibility(){
         String serverResult = "";
         JsonArray results = null;
-
         if(MakeAPIConnection()) {
             try {
                 //Read the response
@@ -83,7 +71,6 @@ public class Parking {
                     serverResult += inStream.nextLine();
                 }
                 results = new JsonParser().parse(serverResult).getAsJsonArray();
-
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {

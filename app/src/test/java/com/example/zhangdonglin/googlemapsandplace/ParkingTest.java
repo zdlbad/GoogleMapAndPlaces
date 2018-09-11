@@ -37,4 +37,10 @@ public class ParkingTest {
         parking.setWest(null);
     }
 
+    @Test
+    public void testMakeAPIConnection(){
+        boolean conn = parking.MakeAPIConnection();
+        assertEquals("Connection is made","true",conn);
+    }
+
 }
