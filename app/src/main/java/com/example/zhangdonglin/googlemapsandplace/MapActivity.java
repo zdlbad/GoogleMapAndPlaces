@@ -331,6 +331,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 finish();
                 startActivity(intent);*/
                 mSearchText.clearListSelection();
+                mSearchText.setText("");
+                remoteLatlng = currentLatlng;
+                moveCamera(remoteLatlng, DEFAULT_ZOOM, "My Location");
                 clearMap();
             }
         });
