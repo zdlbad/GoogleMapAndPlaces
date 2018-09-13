@@ -22,8 +22,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
 
         <TextView
@@ -80,6 +79,32 @@
 
         </LinearLayout>
     </RelativeLayout>
+
+    <!--<RelativeLayout-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/building_group"-->
+        <!--android:layout_below="@id/parking_group">-->
+    <!--<ImageView-->
+        <!--android:layout_width="40dp"-->
+        <!--android:layout_height="40dp"-->
+        <!--android:layout_marginLeft="10dp"-->
+        <!--android:layout_marginTop="15dp"-->
+        <!--android:scaleType="centerCrop"-->
+        <!--android:id="@+id/building"-->
+        <!--android:src="@drawable/ic_building"/>-->
+    <!--</RelativeLayout>-->
+
+    <!--<ImageView-->
+    <!--android:layout_width="40dp"-->
+    <!--android:layout_height="40dp"-->
+    <!--android:id="@+id/place_picker"-->
+    <!--android:layout_marginLeft="10dp"-->
+    <!--android:layout_marginTop="15dp"-->
+    <!--android:scaleType="centerCrop"-->
+    <!--android:layout_below="@+id/relLayout1"-->
+    <!--android:src="@drawable/ic_map"-->
+    <!--/>-->
 
     <include layout="@layout/bottom_sheet" />
 

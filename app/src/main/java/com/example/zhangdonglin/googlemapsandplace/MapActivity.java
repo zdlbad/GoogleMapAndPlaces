@@ -108,7 +108,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Parking parking = new Parking();
     private Toilet toilet = new Toilet();
     private Building building = new Building();
+
     private String mode = "Driving";
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -123,9 +125,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         //mToiletCaller =  (ImageView) findViewById(R.id.toilet_caller);
         mParking = (ImageView) findViewById(R.id.parking);
         //mParkingCaller =  (ImageView) findViewById(R.id.parking_caller);
+
         //mReset=(ImageView) findViewById(R.id.ic_reset);
         mBuilding=(ImageView) findViewById(R.id.building);
         mClearSearch = (ImageView) findViewById(R.id.clean_search);
+
+        //mReset=(ImageView) findViewById(R.id.ic_reset);
+        mBuilding=(ImageView) findViewById(R.id.building);
+
         mNavigation = (ImageView) findViewById(R.id.ic_navigation);
         mInfo = (ImageView) findViewById(R.id.ic_info);
         tInfo = (TextView) findViewById(R.id.text_info);
@@ -375,7 +382,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mClearSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //mSearchText.clearComposingText();
                 mSearchText.setText("");
             }
         });
@@ -391,8 +397,30 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+        mBuilding.setVisibility(View.VISIBLE);
+        mBuilding.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBuilding.setVisibility(View.VISIBLE);
+                clearMap();
+                destLatlng = null;
+                showKeyPoint();
+                new AsyncTask<Void, Void, JsonArray>() {
+
+                    @Override
+                    protected JsonArray doInBackground(Void... voids) {
+                        return findBuildingAccessibility(remoteLatlng);
+                    }
+
+                    @Override
+                    protected void onPostExecute(JsonArray doubles) {
+                        showBuildingAccessibility(doubles);
+                    }
+                }.execute();
+            }
+        });
+
         Log.d(TAG, "init: initiating finished");
-        hideSoftKeyboard();
     }
 
     public LatLngBounds toBounds(LatLng center, double radiusInMeters) {
