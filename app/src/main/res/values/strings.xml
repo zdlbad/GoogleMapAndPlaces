@@ -1,5 +1,13 @@
 <resources>
     <string name="app_name">Swivel</string>
     <string name="google_maps_API_key">AIzaSyCcLw8zgIjhCqC1QeCBXv7NVGAUFuChKq8</string>
+    <string name="info">Product introduction is a business process through which a new
+        product is launched, debuted or published in the market for general users and or businesses.
+        The product introduction process is executed mainly by the sales and marketing division of
+        an organization, and is applied when a product is completely authorized and tested to be
+        used by its end users or customers. In the tech world, the introduction of a new product
+        can generate a lot of buzz, especially if the product is cutting edge. Marketers often bank
+        on generating this kind of consumer response to help sell their product.
+        Product introduction may also be called a product launch.</string>
 
 </resources>

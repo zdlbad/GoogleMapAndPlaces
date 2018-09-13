@@ -43,7 +43,7 @@ public class Parking {
         return builder.toString();
     }
 
-    private boolean MakeAPIConnection(){
+    public boolean MakeAPIConnection(){
         int code = 0;
         try {
             URL url = new URL(BuildURL());

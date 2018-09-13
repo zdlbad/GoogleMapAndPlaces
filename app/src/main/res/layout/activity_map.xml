@@ -1,49 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <RelativeLayout
-        android:id="@+id/relLayout1"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/white_border"
-        android:elevation="10dp">
-
-        <AutoCompleteTextView
-            android:id="@+id/input_search"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerVertical="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="10dp"
-            android:background="@null"
-            android:hint="Enter Address, City or Zip Code."
-            android:imeOptions="actionSearch"
-            android:textColor="#000"
-            android:textSize="15sp" />
-
-        <!--<ImageView-->
-            <!--android:id="@+id/ic_magnify"-->
-            <!--android:layout_width="30dp"-->
-            <!--android:layout_height="30dp"-->
-            <!--android:layout_centerVertical="true"-->
-            <!--android:layout_alignParentEnd="true"-->
-            <!--android:layout_alignParentRight="true"-->
-            <!--android:layout_marginEnd="10dp"-->
-            <!--android:layout_marginRight="10dp"-->
-            <!--android:src="@drawable/ic_magnify" />-->
-
-    </RelativeLayout>
-
+    <!--map-->
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -53,114 +15,72 @@
         android:layout_alignParentTop="true"
         tools:context=".MapActivity" />
 
-    <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_below="@id/relLayout1"
-        android:layout_marginRight="10dp"
-        android:layout_alignParentRight = "true"
-        android:layout_marginTop = "10dp"
-        android:scaleType="centerCrop"
-        android:id="@+id/ic_gps"
-        android:src="@drawable/ic_gps"
-        />
-
-    <ImageView
-        android:id="@+id/ic_reset"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignBottom="@+id/parking_group"
-        android:layout_alignEnd="@+id/relLayout1"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_reset" />
-
-    <ImageView
-        android:id="@+id/ic_navigation"
-        android:layout_width="56dp"
-        android:layout_height="57dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="58dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_navigation" />
-
-
-    <!--<ImageView-->
-        <!--android:layout_width="40dp"-->
-        <!--android:layout_height="40dp"-->
-        <!--android:layout_below="@id/relLayout1"-->
-        <!--android:layout_marginLeft="10dp"-->
-        <!--android:layout_marginTop="15dp"-->
-        <!--android:scaleType="centerCrop"-->
-        <!--android:id="@+id/place_info"-->
-        <!--android:src="@drawable/ic_info"-->
-        <!--/>-->
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/toilet_group"
-        android:layout_below="@id/relLayout1">
-
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="15dp"
-            android:scaleType="centerCrop"
-            android:id="@+id/toilet"
-            android:src="@drawable/ic_toilet"/>
-
-        <!---ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_toRightOf="@id/toilet_caller"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="15dp"
-            android:scaleType="centerCrop"
-            android:id="@+id/toilet"
-            android:src="@drawable/ic_magnify"/-->
-    </RelativeLayout>
 
 
 
     <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/parking_group"
-        android:layout_below="@id/toilet_group">
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="15dp"
-            android:scaleType="centerCrop"
-            android:id="@+id/parking"
-            android:src="@drawable/ic_parking"/>
 
-        <!---ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_toRightOf="@id/parking_caller"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="15dp"
-            android:scaleType="centerCrop"
-            android:id="@+id/parking"
-            android:src="@drawable/ic_magnify"/-->
+        <TextView
+            android:id="@+id/text_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_margin="20dp"
+            android:layout_toLeftOf="@+id/icon_group_layout"
+            android:text="@string/info"
+            android:textColor="@android:color/white"
+            android:background="@drawable/info_background"/>
+
+        <LinearLayout
+            android:id="@+id/icon_group_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentRight = "true"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="5dp"
+            android:background="@drawable/icon_group_background">
+
+            <ImageView
+                android:id="@+id/ic_info"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin= "10dp"
+                android:src="@drawable/ic_info"
+                />
+
+            <ImageView
+                android:id="@+id/ic_gps"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin= "10dp"
+                android:src="@drawable/ic_gps"
+                />
+
+            <ImageView
+                android:id="@+id/ic_navigation"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin= "10dp"
+                android:src="@drawable/ic_navigation" />
+
+            <!--<ImageView-->
+                <!--android:id="@+id/ic_reset"-->
+                <!--android:layout_width="40dp"-->
+                <!--android:layout_height="40dp"-->
+                <!--android:layout_margin= "10dp"-->
+                <!--android:src="@drawable/ic_reset" />-->
+
+
+        </LinearLayout>
     </RelativeLayout>
 
+    <include layout="@layout/bottom_sheet" />
 
-    <!--<ImageView-->
-    <!--android:layout_width="40dp"-->
-    <!--android:layout_height="40dp"-->
-    <!--android:id="@+id/place_picker"-->
-    <!--android:layout_marginLeft="10dp"-->
-    <!--android:layout_marginTop="15dp"-->
-    <!--android:scaleType="centerCrop"-->
-    <!--android:layout_below="@+id/relLayout1"-->
-    <!--android:src="@drawable/ic_map"-->
-    <!--/>-->
-
-
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>
