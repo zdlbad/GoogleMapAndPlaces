@@ -1,5 +1,6 @@
 package com.example.zhangdonglin.googlemapsandplace;
 
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.JsonWriter;
@@ -38,6 +39,8 @@ public class ToiletManager {
     private Double north;
     private Double east;
     private Double west;
+    public ArrayList<Toilet> resultList;
+    public Toilet sampleToilet;
 
     //firebase var
     private FirebaseDatabase myFirebaseDatabase;
@@ -46,7 +49,9 @@ public class ToiletManager {
 
 
     public ToiletManager(){
+        sampleToilet = new Toilet();
         connection = null;
+        resultList = new ArrayList<Toilet>();
         myFirebaseDatabase = FirebaseDatabase.getInstance();
         myRef = myFirebaseDatabase.getReference().child("toilet");
         myRef.addValueEventListener(new ValueEventListener() {
@@ -59,7 +64,6 @@ public class ToiletManager {
 
             }
         });
-
     }
 
     public void setNorth(Double north) {
@@ -76,6 +80,10 @@ public class ToiletManager {
 
     public void setSouth(Double south) {
         this.south = south;
+    }
+
+    public void setSampleToilet(Toilet sampleToilet){
+        this.sampleToilet = sampleToilet;
     }
 
     private String BuildURL(){
@@ -134,34 +142,46 @@ public class ToiletManager {
         return results;
     }
 
-    public void searchByLatRange(){
-        Query q = myRef.orderByChild("lat").startAt(east+"").endAt(west+"");
+    public void searchByLatRange() {
+        Query q = myRef.orderByChild("lat").startAt(east + "").endAt(west + "");
         q.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                int count = 0;
-                for (DataSnapshot o : dataSnapshot.getChildren()){
-                    HashMap<String,Object> child = (HashMap<String,Object>) o.getValue();
-                    List<Object> f = (List)child.values();
-                    JsonObject k = (JsonObject) f.get(0);
-                    Log.d(TAG, "get lat: " + k.toString());
+                resultList.clear();
 
-//                    String g = k.replaceAll("([a-zA-Z0-9-. \\)\\(_]+)", "\"$0\"");
-//                    Log.d(TAG, "get lat: " + g);
-//                    JsonObject l = new JsonParser().parse(g).getAsJsonObject();
-//                    Log.d(TAG, "!!!!!!!!!" + l.toString());
-                    count += 1;
+                int count = 0;
+                for (DataSnapshot o : dataSnapshot.getChildren()) {
+                    Toilet oneToilet = o.getValue(Toilet.class);
+                    resultList.add(oneToilet);
+
                 }
-                Log.d(TAG, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + count);
+                Log.d(TAG, "==========Search after LatRange Query===========got: " + resultList.size());
+
+                filter();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
             }
         });
-
-
     }
 
+    private void filter() {
+        ArrayList<Toilet> newList = new ArrayList<Toilet>();
+        for (Toilet oneToilet : resultList) {
+            if (oneToilet.checkLng(south, north) && oneToilet.checkWithSample(sampleToilet)) {
+                newList.add(oneToilet);
+            }
+        }
+        resultList = newList;
+        Log.d(TAG, "==============Search after Filter==========got: " + resultList.size());
+    }
+
+    public ArrayList<Toilet> getResultList() {
+        return resultList;
+    }
+
+    public Toilet getSampleToilet() {
+        return sampleToilet;
+    }
 }

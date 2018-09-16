@@ -11,4 +11,15 @@
         buildings in Melbourne – CBD.\n\n
         Swivel is easy to use; just search for the desired destination and it will do the rest!</string>
 
+    <string-array name="yes_or_no">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+
+    <string-array name="distance">
+        <item>300</item>
+        <item>500</item>
+        <item>800</item>
+    </string-array>
+
 </resources>

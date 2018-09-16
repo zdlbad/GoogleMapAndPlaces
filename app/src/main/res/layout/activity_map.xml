@@ -55,8 +55,8 @@
 
             <ImageView
                 android:id="@+id/clean_search"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:layout_centerVertical="true"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
@@ -152,5 +152,7 @@
     <!--/>-->
 
     <include layout="@layout/bottom_sheet" />
+    <include layout="@layout/toilet_filter_bottomsheet" />
+
 
 </android.support.design.widget.CoordinatorLayout>

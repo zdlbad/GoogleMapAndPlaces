@@ -1,6 +1,8 @@
 package com.example.zhangdonglin.googlemapsandplace;
 
 import android.Manifest;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,6 +20,7 @@ import android.os.Handler;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -31,6 +34,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -99,6 +103,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private AutoCompleteTextView mSearchText;
     private ImageView mGps, mInfo, mPlacePicker, mToilet, mParking, mNavigation, mReset, mBuilding, mClearSearch;
     private TextView tInfo;
+    private BottomSheetBehavior toiletBottomSheetBehavior;
+    private View toiletFilterSheet;
+    private Spinner spWheelchair, spFemale, spMale;
 
     //vars
     private Boolean mLocationPermissionsGranted = false;
@@ -124,20 +131,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
         mSearchText = (AutoCompleteTextView) findViewById(R.id.input_search);
         mGps = (ImageView) findViewById(R.id.ic_gps);
-        //mInfo = (ImageView) findViewById(R.id.place_info);
-        //mPlacePicker = (ImageView) findViewById(R.id.place_picker);
         mToilet = (ImageView) findViewById(R.id.toilet);
-        //mToiletCaller =  (ImageView) findViewById(R.id.toilet_caller);
         mParking = (ImageView) findViewById(R.id.parking);
-        //mParkingCaller =  (ImageView) findViewById(R.id.parking_caller);
-
-        //mReset=(ImageView) findViewById(R.id.ic_reset);
         mBuilding=(ImageView) findViewById(R.id.building);
         mClearSearch = (ImageView) findViewById(R.id.clean_search);
-
-        //mReset=(ImageView) findViewById(R.id.ic_reset);
         mBuilding=(ImageView) findViewById(R.id.building);
-
         mNavigation = (ImageView) findViewById(R.id.ic_navigation);
         mInfo = (ImageView) findViewById(R.id.ic_info);
         tInfo = (TextView) findViewById(R.id.text_info);
@@ -146,7 +144,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .addApi(LocationServices.API).build();
         mGoogleApiClient.connect();
 
-
+        toiletFilterSheet = findViewById(R.id.toilet_filter_bottomsheet);
+        toiletBottomSheetBehavior = BottomSheetBehavior.from(toiletFilterSheet);
+        spWheelchair = (Spinner) findViewById(R.id.spin_toilet_wheelchair);
+        spFemale = (Spinner) findViewById(R.id.spin_toilet_female);
+        spMale = (Spinner) findViewById(R.id.spin_toilet_male);
 
         getLocationPermission();
     }
@@ -244,6 +246,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private void init(){
         Log.d(TAG, "init: initiating ");
+        setUpToiletBottomSheetSpiner();
+
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
                 .addApi(Places.GEO_DATA_API)
@@ -285,23 +289,32 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mToilet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(toiletBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                    toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+                else {
+                    toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
+
                 clearMap();
                 destLatlng = null;
                 showKeyPoint();
                 Toast.makeText(MapActivity.this, "Searching for nearby public toilets...", Toast.LENGTH_SHORT).show();
-                new AsyncTask<Void, Void, JsonArray>() {
+                new AsyncTask<Void, Void, Void>() {
 
                     @Override
-                    protected JsonArray doInBackground(Void... voids) {
-
-                        return findNearbyToilets( remoteLatlng,800);
+                    protected Void doInBackground(Void... voids) {
+                        findNearbyToilets( remoteLatlng,800);
+                        toiletManager.searchByLatRange();
+                        return null;
                     }
 
                     @Override
-                    protected void onPostExecute(JsonArray array) {
-                        showToiletSpots(array);
+                    protected void onPostExecute(Void v) {
+                        showToiletSpots(toiletManager.getResultList());
                     }
                 }.execute();
+
             }
         });
 
@@ -327,6 +340,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }.execute();
             }
         });
+
 
         mNavigation.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -464,21 +478,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    private void showToiletSpots(JsonArray spotArray) {
+    private void showToiletSpots(ArrayList<Toilet> toilets) {
         Log.d(TAG, "method: showSpots called ");
 
-        if (spotArray.size() != 0) {
-            for (int i = 0; i < spotArray.size(); i++) {
-                JsonObject oneSpot = spotArray.get(i).getAsJsonObject();
-                Double lat = oneSpot.get("lat").getAsDouble();
-                Double lon = oneSpot.get("lon").getAsDouble();
-                String wheelchair = oneSpot.get("wheelchair").toString();
-                if (wheelchair.equals("yes")) {
-                    LatLng latlng = new LatLng(lat, lon);
-                    MarkerOptions options = new MarkerOptions()
-                            .position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).alpha(0.8f);
-                    mMap.addMarker(options);
-                }
+        if (toilets.size() != 0) {
+            for (int i = 0; i < toilets.size(); i++) {
+                Toilet oneToilet = toilets.get(i);
+                Double lat = oneToilet.getLat();
+                Double lon = oneToilet.getLon();
+                LatLng latlng = new LatLng(lat, lon);
+                MarkerOptions options = new MarkerOptions()
+                        .position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).alpha(0.8f);
+                mMap.addMarker(options);
             }
         }else{
             Log.d(TAG, "method: showSpots : no spot found ");
@@ -541,18 +552,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     //South Longitude is negative，North Longitude is positive; East Latitude is positive，West Latitude is negative.
-    private JsonArray findNearbyToilets(LatLng latLng, double radiusinMeters){
+    private void findNearbyToilets(LatLng latLng, double radiusinMeters){
 
-        Log.d(TAG, "nethod: findNearbyToilets called ");
-        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters);
+        Log.d(TAG, "method: findNearbyToilets called ");
+        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters*0.7);
         LatLng southwestCorner = latLngBounds.southwest; // -
         LatLng northeastCorner = latLngBounds.northeast; // +
+
         toiletManager.setSouth(southwestCorner.longitude);
         toiletManager.setNorth(northeastCorner.longitude);
         toiletManager.setEast(northeastCorner.latitude);
         toiletManager.setWest(southwestCorner.latitude);
-        toiletManager.searchByLatRange();
-        return toiletManager.FindNearbyToilets();
     }
 
     private JsonArray findNearbyParkings( LatLng latLng, double radiusinMeters){
@@ -824,7 +834,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+    public void setUpToiletBottomSheetSpiner(){
+        spWheelchair.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spWheelchair.getSelectedItem().toString().toLowerCase().equals("yes")) {
+                    toiletManager.getSampleToilet().setWheelchair("yes");
+                }
+                if (spWheelchair.getSelectedItem().toString().toLowerCase().equals("no")) {
+                    toiletManager.getSampleToilet().setWheelchair("no");
+                }
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
 
     /*
         -------- google palces API actocomplete suggestions --------
