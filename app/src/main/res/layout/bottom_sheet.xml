@@ -9,6 +9,7 @@
     app:behavior_peekHeight="70dp"
     android:orientation="vertical"
     android:clickable="true"
+    android:outlineProvider="bounds"
     app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
     <!--&lt;!&ndash;drawer handle&ndash;&gt;-->
@@ -34,79 +35,87 @@
         android:id="@+id/toilet_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:background="@drawable/background"
+        android:elevation="5dp">
 
         <ImageView
             android:id="@+id/toilet"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginRight="40dp"
-            android:layout_marginEnd="40dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="60dp"
+            android:layout_marginEnd="60dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:layout_toLeftOf="@+id/parking"
             android:layout_toStartOf="@+id/parking"
             android:src="@drawable/ic_toilet_2"
-            android:elevation="10dp"/>
+            android:elevation="7dp"
+            android:background="@drawable/bg_circle"/>
 
         <ImageView
             android:id="@+id/parking"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginRight="40dp"
-            android:layout_marginEnd="40dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginRight="60dp"
+            android:layout_marginEnd="60dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:src="@drawable/ic_parking_2"
-            android:elevation="10dp"/>
+            android:elevation="8dp"
+            android:background="@drawable/bg_circle"/>
 
         <ImageView
             android:id="@+id/building"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:layout_toEndOf="@id/parking"
             android:layout_toRightOf="@id/parking"
-            android:src="@drawable/ic_building_2" />
+            android:src="@drawable/ic_building_2"
+            android:elevation="6dp"
+            android:background="@drawable/bg_circle"/>
 
     </RelativeLayout>
 
-    <!--places search bar-->
-    <RelativeLayout
-        android:id="@+id/places_search_bar"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/white_border">
+    <!--&lt;!&ndash;places search bar&ndash;&gt;-->
+    <!--<RelativeLayout-->
+        <!--android:id="@+id/places_search_bar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="50dp"-->
+        <!--android:layout_marginTop="10dp"-->
+        <!--android:background="@drawable/white_border"-->
+        <!--android:elevation="5dp">-->
 
-        <AutoCompleteTextView
-            android:id="@+id/input_search"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_toLeftOf="@+id/clean_search"
-            android:layout_centerVertical="true"
-            android:background="@null"
-            android:hint="Enter Address, City or Zip Code."
-            android:imeOptions="actionSearch"
-            android:textColor="#000"
-            android:textSize="15sp" />
+        <!--<AutoCompleteTextView-->
+            <!--android:id="@+id/input_search"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_marginStart="10dp"-->
+            <!--android:layout_marginLeft="10dp"-->
+            <!--android:layout_toLeftOf="@+id/clean_search"-->
+            <!--android:layout_toStartOf="@+id/clean_search"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:background="@null"-->
+            <!--android:hint="Where you want to go?"-->
+            <!--android:imeOptions="actionSearch"-->
+            <!--android:textColor="#000"-->
+            <!--android:textSize="15sp" />-->
 
-        <ImageView
-            android:id="@+id/clean_search"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginEnd="10dp"
-            android:layout_marginRight="10dp"
-            android:src="@drawable/ic_cross" />
+        <!--<ImageView-->
+            <!--android:id="@+id/clean_search"-->
+            <!--android:layout_width="30dp"-->
+            <!--android:layout_height="30dp"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:layout_alignParentRight="true"-->
+            <!--android:layout_marginEnd="10dp"-->
+            <!--android:layout_marginRight="10dp"-->
+            <!--android:src="@drawable/ic_cross" />-->
 
-    </RelativeLayout>
+    <!--</RelativeLayout>-->
 
 
     <ScrollView

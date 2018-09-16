@@ -1,20 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
+<!--<shape xmlns:android="http://schemas.android.com/apk/res/android">-->
 
-    <solid android:color="#F0666666"/>
+    <!--<solid android:color="#666666"/>-->
 
-    <!--<stroke android:width="3dp"-->
-        <!--android:color="#0FECFF" />-->
-    <!--<gradient-->
-    <!--android:startColor="#ffffffff"-->
-    <!--android:endColor="#110000FF"-->
-    <!--android:angle="90"/>-->
+    <!--&lt;!&ndash;<stroke android:width="3dp"&ndash;&gt;-->
+        <!--&lt;!&ndash;android:color="#0FECFF" />&ndash;&gt;-->
+    <!--&lt;!&ndash;<gradient&ndash;&gt;-->
+    <!--&lt;!&ndash;android:startColor="#ffffffff"&ndash;&gt;-->
+    <!--&lt;!&ndash;android:endColor="#110000FF"&ndash;&gt;-->
+    <!--&lt;!&ndash;android:angle="90"/>&ndash;&gt;-->
 
-    <!--<padding-->
-        <!--android:top="5dp"/>-->
+    <!--&lt;!&ndash;<padding&ndash;&gt;-->
+        <!--&lt;!&ndash;android:top="5dp"/>&ndash;&gt;-->
 
-    <corners
-        android:topLeftRadius="15dp"
-        android:topRightRadius="15dp"/>
+    <!--<corners-->
+        <!--android:topLeftRadius="15dp"-->
+        <!--android:topRightRadius="15dp"/>-->
 
-</shape>
+<!--</shape>-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#697ab927"/>
+            <corners
+                android:topLeftRadius="15dp"
+                android:topRightRadius="15dp"/>
+        </shape>
+    </item>
+
+</layer-list>

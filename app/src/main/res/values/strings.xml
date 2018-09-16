@@ -1,13 +1,14 @@
 <resources>
     <string name="app_name">Swivel</string>
     <string name="google_maps_API_key">AIzaSyCcLw8zgIjhCqC1QeCBXv7NVGAUFuChKq8</string>
-    <string name="info">Product introduction is a business process through which a new
-        product is launched, debuted or published in the market for general users and or businesses.
-        The product introduction process is executed mainly by the sales and marketing division of
-        an organization, and is applied when a product is completely authorized and tested to be
-        used by its end users or customers. In the tech world, the introduction of a new product
-        can generate a lot of buzz, especially if the product is cutting edge. Marketers often bank
-        on generating this kind of consumer response to help sell their product.
-        Product introduction may also be called a product launch.</string>
+    <string name="info">SWIVEL APP
+        Find wheelchair-accessible toilets and parking spaces.\n\n
+        Finding clean, accessible toilets and parking spaces can be a real challenge for wheelchair
+        users on the move. We know the amount of planning it takes to get to a desired location, so
+        we came up with a solution – ‘Swivel’.\n\n
+        Swivel gives you the power to locate and navigate wheelchair-friendly toilets and parking
+        spaces on an interactive map along with giving vital accessibility information across major
+        buildings in Melbourne – CBD.\n\n
+        Swivel is easy to use; just search for the desired destination and it will do the rest!</string>
 
 </resources>

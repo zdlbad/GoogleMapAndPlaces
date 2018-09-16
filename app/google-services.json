@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "178601389092",
+    "firebase_url": "https://swivel-48291.firebaseio.com",
+    "project_id": "swivel-48291",
+    "storage_bucket": "swivel-48291.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:178601389092:android:aaba8e86d2b26ced",
+        "android_client_info": {
+          "package_name": "com.example.zhangdonglin.googlemapsandplace"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "178601389092-qgtgpk2334q53fj5fi7uqdlnbi3uc4s5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.zhangdonglin.googlemapsandplace",
+            "certificate_hash": "64036a1aaac345f6dd55a2fb5c535069bb3b3068"
+          }
+        },
+        {
+          "client_id": "178601389092-00tts8jvti6urcld0f8i3gl1u2lq4ubk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3J0AdroE6z9mSF107YuPMCArP7_lI7O8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "178601389092-00tts8jvti6urcld0f8i3gl1u2lq4ubk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

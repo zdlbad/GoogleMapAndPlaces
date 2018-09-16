@@ -60,6 +60,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -106,7 +111,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private LatLng currentLatlng, destLatlng, remoteLatlng;
     private String remotePlaceTitle;
     private Parking parking = new Parking();
-    private Toilet toilet = new Toilet();
+    private ToiletManager toiletManager = new ToiletManager();
     private Building building = new Building();
 
     private String mode = "Driving";
@@ -140,8 +145,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
         mGoogleApiClient.connect();
+
+
+
         getLocationPermission();
     }
+
 
     private void getLocationPermission() {
         Log.d(TAG, "getLocationPermission: getting location permissions.");
@@ -280,16 +289,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 destLatlng = null;
                 showKeyPoint();
                 Toast.makeText(MapActivity.this, "Searching for nearby public toilets...", Toast.LENGTH_SHORT).show();
-                new AsyncTask<Void, Void, ArrayList<Double[]>>() {
+                new AsyncTask<Void, Void, JsonArray>() {
 
                     @Override
-                    protected ArrayList<Double[]> doInBackground(Void... voids) {
+                    protected JsonArray doInBackground(Void... voids) {
+
                         return findNearbyToilets( remoteLatlng,800);
                     }
 
                     @Override
-                    protected void onPostExecute(ArrayList<Double[]> doubles) {
-                        showToiletSpots(doubles);
+                    protected void onPostExecute(JsonArray array) {
+                        showToiletSpots(array);
                     }
                 }.execute();
             }
@@ -355,11 +365,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 //            }
 //        });
 
-        mBuilding.setVisibility(View.VISIBLE);
         mBuilding.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mBuilding.setVisibility(View.VISIBLE);
                 clearMap();
                 destLatlng = null;
                 showKeyPoint();
@@ -456,15 +464,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    private void showToiletSpots(ArrayList<Double[]> spotList) {
+    private void showToiletSpots(JsonArray spotArray) {
         Log.d(TAG, "method: showSpots called ");
 
-        if (spotList.size() != 0){
-            for (Double[] oneSpot : spotList ){
-                LatLng latlng = new LatLng(oneSpot[0], oneSpot[1]);
-                MarkerOptions options = new MarkerOptions()
-                        .position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).alpha(0.8f);
-                mMap.addMarker(options);
+        if (spotArray.size() != 0) {
+            for (int i = 0; i < spotArray.size(); i++) {
+                JsonObject oneSpot = spotArray.get(i).getAsJsonObject();
+                Double lat = oneSpot.get("lat").getAsDouble();
+                Double lon = oneSpot.get("lon").getAsDouble();
+                String wheelchair = oneSpot.get("wheelchair").toString();
+                if (wheelchair.equals("yes")) {
+                    LatLng latlng = new LatLng(lat, lon);
+                    MarkerOptions options = new MarkerOptions()
+                            .position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).alpha(0.8f);
+                    mMap.addMarker(options);
+                }
             }
         }else{
             Log.d(TAG, "method: showSpots : no spot found ");
@@ -527,17 +541,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     //South Longitude is negative，North Longitude is positive; East Latitude is positive，West Latitude is negative.
-    private ArrayList<Double[]> findNearbyToilets(LatLng latLng, double radiusinMeters){
+    private JsonArray findNearbyToilets(LatLng latLng, double radiusinMeters){
 
         Log.d(TAG, "nethod: findNearbyToilets called ");
         LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters);
         LatLng southwestCorner = latLngBounds.southwest; // -
         LatLng northeastCorner = latLngBounds.northeast; // +
-        toilet.setSouth(southwestCorner.longitude);
-        toilet.setNorth(northeastCorner.longitude);
-        toilet.setEast(northeastCorner.latitude);
-        toilet.setWest(southwestCorner.latitude);
-        return toilet.FindNearbyToilets();
+        toiletManager.setSouth(southwestCorner.longitude);
+        toiletManager.setNorth(northeastCorner.longitude);
+        toiletManager.setEast(northeastCorner.latitude);
+        toiletManager.setWest(southwestCorner.latitude);
+        toiletManager.searchByLatRange();
+        return toiletManager.FindNearbyToilets();
     }
 
     private JsonArray findNearbyParkings( LatLng latLng, double radiusinMeters){
