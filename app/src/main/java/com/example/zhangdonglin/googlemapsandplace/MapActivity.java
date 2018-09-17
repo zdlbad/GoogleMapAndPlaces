@@ -353,7 +353,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                     @Override
                     protected JsonArray doInBackground(Void... voids) {
-                        return findBuildingAccessibility(remoteLatlng);
+                        return findBuildingAccessibility(remoteLatlng, 50);
                     }
 
                     @Override
@@ -395,7 +395,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                     @Override
                     protected JsonArray doInBackground(Void... voids) {
-                        return findBuildingAccessibility(remoteLatlng);
+                        return findBuildingAccessibility(remoteLatlng, 50);
                     }
 
                     @Override
@@ -455,7 +455,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Double lon = oneToilet.getLon();
                 LatLng latlng = new LatLng(lat, lon);
                 MarkerOptions options = new MarkerOptions()
-                        .position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).alpha(0.8f);
+                        .position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_toilet_icon));
                 mMap.addMarker(options);
             }
         }else{
@@ -607,9 +607,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d(TAG, "method: showSpots : " + oneSpot.toString());
         MarkerOptions options = null;
         if (status.equals("Unoccupied")){
-            options = new MarkerOptions().title(bayId).position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).alpha(0.8f);
+            options = new MarkerOptions().title(bayId).position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_parking_icon));
         }else{
-            options = new MarkerOptions().title(bayId).position(latlng).icon(BitmapDescriptorFactory.defaultMarker(0f)).alpha(0.4f);
+            options = new MarkerOptions().title(bayId).position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_parking_redicon));;
         }
         mMap.addMarker(options);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
@@ -798,21 +798,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (accessibility.size() != 0) {
             for (int i = 0; i < accessibility.size(); i++) {
                 JsonObject oneSpot = accessibility.get(i).getAsJsonObject();
-                Double lat = oneSpot.get("lat").getAsDouble();
-                Double lon = oneSpot.get("lon").getAsDouble();
+                Double lat = oneSpot.get("y_coordinate").getAsDouble();
+                Double lon = oneSpot.get("x_coordinate").getAsDouble();
                 String rating = oneSpot.get("accessibility_rating").toString();
                 String level = oneSpot.get("accessibility_type").toString();
                 LatLng latlng = new LatLng(lat, lon);
                 MarkerOptions options = null;
                 if (rating.equals("\"0\"")){
-                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(0f)).alpha(0.5f);
+                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_red));
                 }else if(rating.equals("\"3\"")){
-                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).alpha(0.8f);
+                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_green));
                 }else if(rating.equals("\"1\"")){
-                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)).alpha(0.8f);
+                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_orange));
                 }else if(rating.equals("\"2\"")){
-                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)).alpha(0.8f);
+                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_lightgreen));
                 }
+                cleanMap();
                 mMap.addMarker(options);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
             }
@@ -824,11 +825,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     //South Longitude is negative，North Longitude is positive; East Latitude is positive，West Latitude is negative.
 
-    private JsonArray findBuildingAccessibility(LatLng latLng){
+    private JsonArray findBuildingAccessibility(LatLng latLng, double radiusinMeters){
         Log.d(TAG, "nethod: findBuildingAccessibility called ");
         JsonArray results = null;
-        building.setLatitude(latLng.latitude);
-        building.setLongitude(latLng.longitude);
+        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters);
+        LatLng southwestCorner = latLngBounds.southwest; // -
+        LatLng northeastCorner = latLngBounds.northeast; // +
+        building.setSouth(southwestCorner.longitude);
+        building.setNorth(northeastCorner.longitude);
+        building.setEast(northeastCorner.latitude);
+        building.setWest(southwestCorner.latitude);
         return building.FindBuildingAccessibility();
     }
 
