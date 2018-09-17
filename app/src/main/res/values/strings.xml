@@ -18,9 +18,15 @@
     </string-array>
 
     <string-array name="distance">
-        <item>1000m</item>
-        <item>600m</item>
         <item>300m</item>
+        <item>600m</item>
+        <item>1000m</item>
+    </string-array>
+
+    <string-array name="parking_time">
+        <item>\>30 mins</item>
+        <item>\>60 mins</item>
+        <item>\>120 mins</item>
     </string-array>
 
 </resources>

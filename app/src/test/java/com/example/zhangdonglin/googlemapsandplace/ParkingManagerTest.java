@@ -4,11 +4,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-import com.example.zhangdonglin.googlemapsandplace.Parking;
 
 
-public class ParkingTest {
-    private Parking parking;
+public class ParkingManagerTest {
+    private ParkingManager parkingManager;
     @Before
     public void setUp() throws Exception {
     }
@@ -19,27 +18,27 @@ public class ParkingTest {
 
     @Test (expected = NullPointerException.class)
     public void testNullsetNorth(){
-        parking.setNorth(null);
+        parkingManager.setNorth(null);
     }
 
     @Test (expected = NullPointerException.class)
     public void testNullsetSouth(){
-        parking.setSouth(null);
+        parkingManager.setSouth(null);
     }
 
     @Test (expected = NullPointerException.class)
     public void testNullsetEast(){
-        parking.setEast(null);
+        parkingManager.setEast(null);
     }
 
     @Test (expected = NullPointerException.class)
     public void testNullsetWest(){
-        parking.setWest(null);
+        parkingManager.setWest(null);
     }
 
     @Test
     public void testMakeAPIConnection(){
-        boolean conn = parking.MakeAPIConnection();
+        boolean conn = parkingManager.MakeAPIConnection();
         assertEquals("Connection is made","true",conn);
     }
 

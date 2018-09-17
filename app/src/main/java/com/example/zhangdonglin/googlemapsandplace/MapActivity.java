@@ -86,10 +86,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private AutoCompleteTextView mSearchText;
     private ImageView mGps, mInfo, mPlacePicker, mToilet, mParking, mNavigation, mReset, mBuilding, mClearSearch;
     private TextView tInfo;
-    private BottomSheetBehavior toiletBottomSheetBehavior;
-    private View toiletFilterSheet;
-    private Spinner spWheelchair, spFemale, spMale, spDistance;
-    private Button btToiletSearch;
+    private BottomSheetBehavior toiletBottomSheetBehavior, parkingBottomSheetBehavior;
+    private View toiletFilterSheet, parkingFilterSheet;
+    private Spinner spToiletFilterWheelchair, spToiletFilterFemale, spToiletFilterMale, spToiletFilterDistance;
+    private Spinner spParkingFilterDuration, spParkingFilterDisableOnly, spParkingFilterCharge, spParkingFilterDistance, spParkingAvailable;
+    private Button btToiletSearch, btParkingSearch;
 
 
     //vars
@@ -102,7 +103,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private LatLng currentLatlng, destLatlng, remoteLatlng;
     private String remotePlaceTitle;
-    private Parking parking = new Parking();
+    private ParkingManager parkingManager = new ParkingManager();
     private ToiletManager toiletManager = new ToiletManager();
     private Building building = new Building();
 
@@ -128,20 +129,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
         mGoogleApiClient.connect();
-        creatToiletWidgetsInFilterSheet();
-        
+
+
+        createToiletWidgetsInFilterSheet();
+        createParkingWidgetsInFilterSheet();
 
         getLocationPermission();
-    }
-
-    private void creatToiletWidgetsInFilterSheet(){
-        toiletFilterSheet = findViewById(R.id.toilet_filter_bottomsheet);
-        toiletBottomSheetBehavior = BottomSheetBehavior.from(toiletFilterSheet);
-        spWheelchair = (Spinner) findViewById(R.id.spin_toilet_wheelchair);
-        spFemale = (Spinner) findViewById(R.id.spin_toilet_female);
-        spMale = (Spinner) findViewById(R.id.spin_toilet_male);
-        spDistance = (Spinner) findViewById(R.id.spin_toilet_distance);
-        btToiletSearch = (Button) findViewById(R.id.button_toilet_search);
     }
 
 
@@ -237,7 +230,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private void init(){
         Log.d(TAG, "init: initiating ");
+
         registerToiletBottomSheetWidgets();
+        registerParkingBottomSheetWidgets();
 
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
@@ -267,48 +262,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
 
 
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                clearMap();
+                MarkerOptions options = new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                remoteLatlng = latLng;
+                mMap.addMarker(options);
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, mMap.getCameraPosition().zoom));
+            }
+        });
+
+
         mGps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "mGps: clicked gps icon");
                 Toast.makeText(MapActivity.this, "Moving to current location...", Toast.LENGTH_SHORT).show();
                 getDeviceLocation();
-            }
-        });
-
-
-        mToilet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(toiletBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-                    toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                }
-                else {
-                    toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                }
-            }
-        });
-
-
-        mParking.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearMap();
-                destLatlng = null;
-                showKeyPoint();
-                Toast.makeText(MapActivity.this, "Searching for nearby parking places...", Toast.LENGTH_SHORT).show();
-                new AsyncTask<Void, Void, JsonArray>() {
-
-                    @Override
-                    protected JsonArray doInBackground(Void... voids) {
-                        return findNearbyParkings(remoteLatlng,800);
-                    }
-
-                    @Override
-                    protected void onPostExecute(JsonArray doubles) {
-                        showParkingSpots(doubles);
-                    }
-                }.execute();
             }
         });
 
@@ -449,6 +420,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+
+    // ======================== Toilet related code here =========================
     public void showToiletSpots(ArrayList<Toilet> toilets) {
         Log.d(TAG, "method: showSpots called ");
 
@@ -468,30 +441,309 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    private void showParkingSpots(JsonArray spotArray){
+    private void createToiletWidgetsInFilterSheet(){
+        toiletFilterSheet = findViewById(R.id.toilet_filter_bottomsheet);
+        toiletBottomSheetBehavior = BottomSheetBehavior.from(toiletFilterSheet);
+        spToiletFilterWheelchair = (Spinner) findViewById(R.id.spin_toilet_wheelchair);
+        spToiletFilterFemale = (Spinner) findViewById(R.id.spin_toilet_female);
+        spToiletFilterMale = (Spinner) findViewById(R.id.spin_toilet_male);
+        spToiletFilterDistance = (Spinner) findViewById(R.id.spin_toilet_distance);
+        btToiletSearch = (Button) findViewById(R.id.button_toilet_search);
+    }
+
+    public void registerToiletBottomSheetWidgets(){
+        spToiletFilterWheelchair.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spToiletFilterWheelchair.getSelectedItem().toString().toLowerCase().equals("yes")) {
+                    toiletManager.getSampleToilet().setWheelchair("yes");
+                }else if (spToiletFilterWheelchair.getSelectedItem().toString().toLowerCase().equals("no")) {
+                    toiletManager.getSampleToilet().setWheelchair("no");
+                }else{
+                    toiletManager.getSampleToilet().setWheelchair("");
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spToiletFilterFemale.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spToiletFilterFemale.getSelectedItem().toString().toLowerCase().equals("yes")) {
+                    toiletManager.getSampleToilet().setFemale("yes");
+                }else if (spToiletFilterFemale.getSelectedItem().toString().toLowerCase().equals("no")) {
+                    toiletManager.getSampleToilet().setFemale("no");
+                }else {
+                    toiletManager.getSampleToilet().setFemale("");
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spToiletFilterMale.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spToiletFilterMale.getSelectedItem().toString().toLowerCase().equals("yes")) {
+                    toiletManager.getSampleToilet().setMale("yes");
+                }else if (spToiletFilterMale.getSelectedItem().toString().toLowerCase().equals("no")) {
+                    toiletManager.getSampleToilet().setMale("no");
+                }else{
+                    toiletManager.getSampleToilet().setMale("");
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spToiletFilterDistance.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spToiletFilterDistance.getSelectedItem().toString().toLowerCase().equals("1000m")) {
+                    toiletManager.setDistance(1000);
+                }else if (spToiletFilterDistance.getSelectedItem().toString().toLowerCase().equals("600m")) {
+                    toiletManager.setDistance(600);
+                }else{
+                    toiletManager.setDistance(300);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        btToiletSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(toiletBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                    toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+                else {
+                    toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
+                clearMap();
+                destLatlng = null;
+                showKeyPoint();
+                setToiletManagerRadius(remoteLatlng,toiletManager.getDistance());
+                Toast.makeText(MapActivity.this, "Searching for nearby public toilets...", Toast.LENGTH_SHORT).show();
+                toiletManager.searchByLatRange(MapActivity.this);
+            }
+        });
+
+        mToilet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(toiletBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                    toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+                else {
+                    toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
+            }
+        });
+
+    }
+
+    private void setToiletManagerRadius(LatLng latLng, double radiusinMeters){
+
+        Log.d(TAG, "method: setToiletManagerRadius called ");
+        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters*0.7);
+        LatLng southwestCorner = latLngBounds.southwest; // -
+        LatLng northeastCorner = latLngBounds.northeast; // +
+
+        toiletManager.setSouth(southwestCorner.longitude);
+        toiletManager.setNorth(northeastCorner.longitude);
+        toiletManager.setEast(northeastCorner.latitude);
+        toiletManager.setWest(southwestCorner.latitude);
+    }
+
+
+    // ======================== Parking related code here ==========================
+
+    public void showParkingSpot(ParkingSpot oneSpot){
         Log.d(TAG, "method: showSpots called ");
 
-        if (spotArray.size() != 0) {
-            for (int i = 0; i < spotArray.size(); i++) {
-                JsonObject oneSpot = spotArray.get(i).getAsJsonObject();
-                Double lat = oneSpot.get("lat").getAsDouble();
-                Double lon = oneSpot.get("lon").getAsDouble();
-                String status = oneSpot.get("status").toString();
-                LatLng latlng = new LatLng(lat, lon);
-                MarkerOptions options = null;
-                if (status.equals("\"Present\"")){
-                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).alpha(0.8f);
-                }else{
-                    options = new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(0f)).alpha(0.5f);
-                }
-                mMap.addMarker(options);
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
-            }
+        String bayId = oneSpot.getBayID();
+        Double lat = oneSpot.getLat();
+        Double lon = oneSpot.getLon();
+        String status = oneSpot.getStatus();
+        LatLng latlng = new LatLng(lat, lon);
+        Log.d(TAG, "method: showSpots : " + oneSpot.toString());
+        MarkerOptions options = null;
+        if (status.equals("Unoccupied")){
+            options = new MarkerOptions().title(bayId).position(latlng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).alpha(0.8f);
         }else{
-            Log.d(TAG, "method: showSpots : no spot found ");
-            Toast.makeText(MapActivity.this, "No Nearby Parking Place found", Toast.LENGTH_SHORT).show();
+            options = new MarkerOptions().title(bayId).position(latlng).icon(BitmapDescriptorFactory.defaultMarker(0f)).alpha(0.4f);
         }
+        mMap.addMarker(options);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
     }
+
+    private void createParkingWidgetsInFilterSheet(){
+        parkingFilterSheet = findViewById(R.id.parking_filter_bottomsheet);
+        parkingBottomSheetBehavior = BottomSheetBehavior.from(parkingFilterSheet);
+        spParkingFilterDuration = (Spinner) findViewById(R.id.spin_parking_duration);
+        spParkingFilterDistance = (Spinner) findViewById(R.id.spin_parking_distance);
+        spParkingFilterCharge = (Spinner) findViewById(R.id.spin_parking_pay);
+        spParkingAvailable = (Spinner) findViewById(R.id.spin_parking_available);
+        spParkingFilterDisableOnly = (Spinner) findViewById(R.id.spin_parking_disableOnly);
+        btParkingSearch = (Button) findViewById(R.id.button_parking_search);
+    }
+
+    private void registerParkingBottomSheetWidgets(){
+        spParkingFilterCharge.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spParkingFilterCharge.getSelectedItem().toString().toLowerCase().equals("yes")) {
+                    parkingManager.getSampleParkingSpot().setNeedToPay("yes");
+                }else if (spParkingFilterCharge.getSelectedItem().toString().toLowerCase().equals("no")) {
+                    parkingManager.getSampleParkingSpot().setNeedToPay("no");
+                }else{
+                    parkingManager.getSampleParkingSpot().setNeedToPay("");
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spParkingFilterDistance.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spParkingFilterDistance.getSelectedItem().toString().toLowerCase().equals("1000m")) {
+                    parkingManager.setDistance(1000);
+                }else if (spParkingFilterDistance.getSelectedItem().toString().toLowerCase().equals("600m")) {
+                    parkingManager.setDistance(600);
+                }else {
+                    parkingManager.setDistance(300);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spParkingFilterDuration.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spParkingFilterDuration.getSelectedItem().toString().toLowerCase().equals(">120 mins")) {
+                    parkingManager.getSampleParkingSpot().setNormalDuration(120);
+                }else if (spParkingFilterDuration.getSelectedItem().toString().toLowerCase().equals(">60 mins")) {
+                    parkingManager.getSampleParkingSpot().setNormalDuration(60);
+                }else{
+                    parkingManager.getSampleParkingSpot().setNormalDuration(30);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spParkingFilterDisableOnly.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spParkingFilterDisableOnly.getSelectedItem().toString().toLowerCase().equals("yes")) {
+                    parkingManager.getSampleParkingSpot().setDisableOnly("yes");
+                }else if (spParkingFilterDisableOnly.getSelectedItem().toString().toLowerCase().equals("no")) {
+                    parkingManager.getSampleParkingSpot().setDisableOnly("no");
+                }else{
+                    parkingManager.getSampleParkingSpot().setDisableOnly("");
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spParkingAvailable.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spParkingAvailable.getSelectedItem().toString().toLowerCase().equals("yes")) {
+                    parkingManager.getSampleParkingSpot().setStatus("Unoccupied");
+                }else if (spParkingAvailable.getSelectedItem().toString().toLowerCase().equals("no")) {
+                    parkingManager.getSampleParkingSpot().setStatus("Present");
+                }else{
+                    parkingManager.getSampleParkingSpot().setDisableOnly("");
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+
+        btParkingSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(parkingBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                    parkingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+                else {
+                    parkingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
+                clearMap();
+                destLatlng = null;
+                showKeyPoint();
+                Toast.makeText(MapActivity.this, "Searching for nearby parking places...", Toast.LENGTH_SHORT).show();
+                setParkingManagerRadius(remoteLatlng,parkingManager.getDistance());
+                parkingManager.searchParkingAndFilterAndShow(MapActivity.this);
+            }
+        });
+
+        mParking.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(parkingBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                    parkingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+                else {
+                    parkingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
+            }
+        });
+    }
+
+    private void setParkingManagerRadius( LatLng latLng, double radiusinMeters){
+
+        Log.d(TAG, "nethod: setParkingManagerRadius called ");
+        JsonArray results = null;
+        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters);
+        LatLng southwestCorner = latLngBounds.southwest; // -
+        LatLng northeastCorner = latLngBounds.northeast; // +
+        parkingManager.setSouth(southwestCorner.longitude);
+        parkingManager.setNorth(northeastCorner.longitude);
+        parkingManager.setEast(northeastCorner.latitude);
+        parkingManager.setWest(southwestCorner.latitude);
+
+    }
+
+
+
+    // ======================== Building related code here ==========================
 
     private void showBuildingAccessibility(JsonArray accessibility){
         Log.d(TAG, "method: showSpots called ");
@@ -523,33 +775,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     //South Longitude is negative，North Longitude is positive; East Latitude is positive，West Latitude is negative.
-    private void setToiletRadius(LatLng latLng, double radiusinMeters){
 
-        Log.d(TAG, "method: findNearbyToilets called ");
-        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters*0.7);
-        LatLng southwestCorner = latLngBounds.southwest; // -
-        LatLng northeastCorner = latLngBounds.northeast; // +
 
-        toiletManager.setSouth(southwestCorner.longitude);
-        toiletManager.setNorth(northeastCorner.longitude);
-        toiletManager.setEast(northeastCorner.latitude);
-        toiletManager.setWest(southwestCorner.latitude);
-    }
-
-    private JsonArray findNearbyParkings( LatLng latLng, double radiusinMeters){
-
-        Log.d(TAG, "nethod: findNearbyParkings called ");
-        JsonArray results = null;
-        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters);
-        LatLng southwestCorner = latLngBounds.southwest; // -
-        LatLng northeastCorner = latLngBounds.northeast; // +
-        parking.setSouth(southwestCorner.longitude);
-        parking.setNorth(northeastCorner.longitude);
-        parking.setEast(northeastCorner.latitude);
-        parking.setWest(southwestCorner.latitude);
-        return parking.FindParkingSpots();
-
-    }
 
     private JsonArray findBuildingAccessibility(LatLng latLng){
         Log.d(TAG, "nethod: findBuildingAccessibility called ");
@@ -558,6 +785,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         building.setLongitude(latLng.longitude);
         return building.FindBuildingAccessibility();
     }
+
+
+
+
+    // ======================== Metro related code here ==========================
+
+
+
+
+
+
+
+
+
+
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -805,94 +1047,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    public void registerToiletBottomSheetWidgets(){
-        spWheelchair.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (spWheelchair.getSelectedItem().toString().toLowerCase().equals("yes")) {
-                    toiletManager.getSampleToilet().setWheelchair("yes");
-                }else if (spWheelchair.getSelectedItem().toString().toLowerCase().equals("no")) {
-                    toiletManager.getSampleToilet().setWheelchair("no");
-                }else{
-                    toiletManager.getSampleToilet().setWheelchair("");
-                }
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        spFemale.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (spFemale.getSelectedItem().toString().toLowerCase().equals("yes")) {
-                    toiletManager.getSampleToilet().setFemale("yes");
-                }else if (spFemale.getSelectedItem().toString().toLowerCase().equals("no")) {
-                    toiletManager.getSampleToilet().setFemale("no");
-                }else {
-                    toiletManager.getSampleToilet().setFemale("");
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        spMale.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (spMale.getSelectedItem().toString().toLowerCase().equals("yes")) {
-                    toiletManager.getSampleToilet().setMale("yes");
-                }else if (spMale.getSelectedItem().toString().toLowerCase().equals("no")) {
-                    toiletManager.getSampleToilet().setMale("no");
-                }else{
-                    toiletManager.getSampleToilet().setMale("");
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        spDistance.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (spDistance.getSelectedItem().toString().toLowerCase().equals("1000m")) {
-                    toiletManager.setDistance(1000);
-                }else if (spDistance.getSelectedItem().toString().toLowerCase().equals("600m")) {
-                    toiletManager.setDistance(600);
-                }else{
-                    toiletManager.setDistance(300);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        btToiletSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearMap();
-                destLatlng = null;
-                showKeyPoint();
-                setToiletRadius(remoteLatlng,toiletManager.getDistance());
-                Toast.makeText(MapActivity.this, "Searching for nearby public toilets...", Toast.LENGTH_SHORT).show();
-                toiletManager.searchByLatRange(MapActivity.this);
-            }
-        });
-
-
-    }
 
     /*
         -------- google palces API actocomplete suggestions --------
