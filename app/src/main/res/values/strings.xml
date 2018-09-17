@@ -20,10 +20,23 @@
         <item>No</item>
     </string-array>
 
+    <string-array name="metro_pid">
+        <item>--</item>
+        <item>Dot Matrix</item>
+        <item>LCD</item>
+        <item>No</item>
+    </string-array>
+
     <string-array name="distance">
         <item>300m</item>
         <item>600m</item>
         <item>1000m</item>
+    </string-array>
+
+    <string-array name="metro_distance">
+        <item>500m</item>
+        <item>1000m</item>
+        <item>2000m</item>
     </string-array>
 
     <string-array name="parking_time">

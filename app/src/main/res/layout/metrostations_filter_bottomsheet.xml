@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/metro_filter_bottomsheet"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/background_filter"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="0dp"
+    android:orientation="vertical"
+    android:clickable="true"
+    android:outlineProvider="bounds"
+    app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
+    <!--doing nothing-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+
+    </LinearLayout>
+
+    <!--filter content-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/background_filter_content">
+        <!--lift -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Have Lift: "/>
+
+            <Spinner
+                android:id="@+id/spin_metro_lift"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:entries="@array/yes_or_no"/>
+        </LinearLayout>
+
+        <!--PID-->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PID Type: "/>
+
+            <Spinner
+                android:id="@+id/spin_metro_pid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/metro_pid"/>
+        </LinearLayout>
+
+        <!--he_loop-->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="center">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Have Ramp Loop: "/>
+
+            <Spinner
+                android:id="@+id/spin_metro_loop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/yes_or_no"/>
+        </LinearLayout>
+
+        <!--Distance-->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="center">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Distance: "/>
+
+            <Spinner
+                android:id="@+id/spin_metro_distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/metro_distance"/>
+        </LinearLayout>
+
+        <!--doing nothing-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"></LinearLayout>
+
+        <!--search Button-->
+        <Button
+            android:id="@+id/button_metro_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Search"
+            android:background="@drawable/background_icon_search"
+            android:layout_marginBottom="15dp"
+            android:elevation="10dp"
+            />
+    </LinearLayout>
+
+
+</LinearLayout>

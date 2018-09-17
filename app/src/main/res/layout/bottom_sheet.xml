@@ -26,42 +26,52 @@
             android:id="@+id/toilet"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginRight="60dp"
-            android:layout_marginEnd="60dp"
-            android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:layout_toLeftOf="@+id/parking"
-            android:layout_toStartOf="@+id/parking"
-            android:src="@drawable/ic_toilet_2"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/bg_circle"
-            android:elevation="10dp"/>
+            android:elevation="10dp"
+            android:src="@drawable/ic_toilet_2" />
 
         <!--parking image-->
         <ImageView
             android:id="@+id/parking"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_centerHorizontal="true"
-            android:layout_marginRight="60dp"
-            android:layout_marginEnd="60dp"
-            android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:src="@drawable/ic_parking_2"
+            android:layout_toEndOf="@+id/toilet"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/bg_circle"
-            android:elevation="10dp"/>
+            android:elevation="10dp"
+            android:src="@drawable/ic_parking_2" />
+
+        <!--train image-->
+        <ImageView
+            android:id="@+id/ic_metro_station"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_toEndOf="@+id/parking"
+            android:layout_marginBottom="10dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_circle"
+            android:elevation="10dp"
+            android:src="@drawable/ic_train" />
 
         <!--building image-->
         <ImageView
             android:id="@+id/building"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginTop="10dp"
+            android:layout_toEndOf="@+id/ic_metro_station"
+            android:layout_marginStart="40dp"
             android:layout_marginBottom="10dp"
-            android:layout_toEndOf="@id/parking"
-            android:layout_toRightOf="@id/parking"
-            android:src="@drawable/ic_building_2"
+            android:layout_marginTop="10dp"
             android:background="@drawable/bg_circle"
-            android:elevation="10dp"/>
+            android:elevation="10dp"
+            android:src="@drawable/ic_building_2" />
+
 
     </RelativeLayout>
 

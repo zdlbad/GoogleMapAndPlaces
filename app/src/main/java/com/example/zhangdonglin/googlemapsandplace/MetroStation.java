@@ -8,9 +8,16 @@ public class MetroStation {
     private String lift;
     private String pids;
     private String station;
-    private Double[] coordinates;
+    private Double lat;
+    private Double lon;
 
     public MetroStation() {
+        this.he_loop = "";
+        this.lift = "";
+        this.pids = "";
+        this.station = "";
+        this.lat = 0.0;
+        this.lon = 0.0;
     }
 
     public String getHe_loop() {
@@ -45,12 +52,20 @@ public class MetroStation {
         this.station = station;
     }
 
-    public Double[] getCoordinates() {
-        return coordinates;
+    public Double getLat() {
+        return lat;
     }
 
-    public void setCoordinates(Double[] coordinates) {
-        this.coordinates = coordinates;
+    public void setLat(String lat) {
+        this.lat = Double.parseDouble(lat);
+    }
+
+    public Double getLon() {
+        return lon;
+    }
+
+    public void setLon(String lon) {
+        this.lon = Double.parseDouble(lon);
     }
 
     @Override
@@ -60,7 +75,37 @@ public class MetroStation {
                 ", lift='" + lift + '\'' +
                 ", pids='" + pids + '\'' +
                 ", station='" + station + '\'' +
-                ", coordinates=" + Arrays.toString(coordinates) +
+                ", lat=" + lat +
+                ", lon=" + lon +
                 '}';
+    }
+
+    public boolean checkWithSample(MetroStation sample) {
+        if (sample.getHe_loop() != ""){
+            if (!sample.getHe_loop().equals(this.he_loop)){
+                return false;
+            }
+        }
+
+        if (sample.getStation() != ""){
+            if (!sample.getStation().equals(this.station)){
+                return false;
+            }
+        }
+
+        if (sample.getLift() != ""){
+            if (!sample.getLift().equals(this.lift)){
+                return false;
+            }
+        }
+
+        if (sample.getPids() != ""){
+            if (!sample.getPids().equals(this.pids)){
+                return false;
+            }
+        }
+
+        return true;
+
     }
 }

@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -85,13 +86,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     //widgets
     private AutoCompleteTextView mSearchText;
-    private ImageView mGps, mInfo, mPlacePicker, mToilet, mParking, mNavigation, mReset, mBuilding, mClearSearch;
+    private ImageView mGps, mInfo, mPlacePicker, mToilet, mParking, mNavigation, mReset, mBuilding, mClearSearch, mMetro;
     private TextView tInfo;
-    private BottomSheetBehavior toiletBottomSheetBehavior, parkingBottomSheetBehavior;
-    private View toiletFilterSheet, parkingFilterSheet;
+    private BottomSheetBehavior toiletBottomSheetBehavior, parkingBottomSheetBehavior, metroBottomSheetBehavior;
+    private View toiletFilterSheet, parkingFilterSheet, metroFilterSheet;
     private Spinner spToiletFilterWheelchair, spToiletFilterFemale, spToiletFilterMale, spToiletFilterDistance;
     private Spinner spParkingFilterDuration, spParkingFilterDisableOnly, spParkingFilterCharge, spParkingFilterDistance, spParkingAvailable;
-    private Button btToiletSearch, btParkingSearch;
+    private Spinner spMetroLoop, spMetroLift, spMetroPid, spMetroDistance;
+    private Button btToiletSearch, btParkingSearch, btMetroSearch;
 
 
     //vars
@@ -133,8 +135,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mGoogleApiClient.connect();
 
 
-        createToiletWidgetsInFilterSheet();
-        createParkingWidgetsInFilterSheet();
+        createToiletWidgets();
+        createParkingWidgetst();
+        createMetroWidgets();
 
         getLocationPermission();
     }
@@ -236,6 +239,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         registerToiletBottomSheetWidgets();
         registerParkingBottomSheetWidgets();
+        registerMetroBottomSheetWidgets();
 
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
@@ -292,10 +296,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 if (destLatlng != null) {
-
-                    setMetroStationManagerRadius(destLatlng, 2000);
-                    metroStationManager.searchByLatRange(MapActivity.this);
-
                     Uri.Builder directionsBuilder = new Uri.Builder()
                             .scheme("https")
                             .authority("www.google.com")
@@ -395,6 +395,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                     @Override
                     protected JsonArray doInBackground(Void... voids) {
+                        Toast.makeText(MapActivity.this, "Searching for building...", Toast.LENGTH_SHORT).show();
                         return findBuildingAccessibility(remoteLatlng, 50);
                     }
 
@@ -464,7 +465,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    private void createToiletWidgetsInFilterSheet(){
+    private void createToiletWidgets(){
         toiletFilterSheet = findViewById(R.id.toilet_filter_bottomsheet);
         toiletBottomSheetBehavior = BottomSheetBehavior.from(toiletFilterSheet);
         spToiletFilterWheelchair = (Spinner) findViewById(R.id.spin_toilet_wheelchair);
@@ -615,7 +616,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
     }
 
-    private void createParkingWidgetsInFilterSheet(){
+    private void createParkingWidgetst(){
         parkingFilterSheet = findViewById(R.id.parking_filter_bottomsheet);
         parkingBottomSheetBehavior = BottomSheetBehavior.from(parkingFilterSheet);
         spParkingFilterDuration = (Spinner) findViewById(R.id.spin_parking_duration);
@@ -780,14 +781,134 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         metroStationManager.setWest(southwestCorner.latitude);
     }
 
+    public void showMetroStations(ArrayList<MetroStation> resultList) {
+        Log.d(TAG, "method: showMetroStations called ");
 
+        if (resultList.size() != 0) {
+            for (int i = 0; i < resultList.size(); i++) {
+                MetroStation oneStation = resultList.get(i);
+                Double lat = oneStation.getLat();
+                Double lon = oneStation.getLon();
+                LatLng latlng = new LatLng(lat, lon);
+                MarkerOptions options = new MarkerOptions()
+                        .position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_toilet_icon));
+                mMap.addMarker(options);
+            }
+        }else{
+            Log.d(TAG, "method: showSpots : no spot found ");
+            Toast.makeText(MapActivity.this, "No Nearby Metro Stations found", Toast.LENGTH_SHORT).show();
+        }
+    }
 
+    public void createMetroWidgets(){
+        metroFilterSheet = findViewById(R.id.metro_filter_bottomsheet);
+        metroBottomSheetBehavior = BottomSheetBehavior.from(metroFilterSheet);
+        spMetroDistance = (Spinner) findViewById(R.id.spin_metro_distance);
+        spMetroPid = (Spinner) findViewById(R.id.spin_metro_pid);
+        spMetroLift = (Spinner) findViewById(R.id.spin_metro_lift);
+        spMetroLoop = (Spinner) findViewById(R.id.spin_metro_loop);
+        btMetroSearch = (Button) findViewById(R.id.button_metro_search);
+        mMetro = (ImageView) findViewById(R.id.ic_metro_station);
+    }
 
+    public void registerMetroBottomSheetWidgets(){
+        spMetroLoop.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spMetroLoop.getSelectedItem().toString().toLowerCase().equals("yes")) {
+                    metroStationManager.getSampleStation().setHe_loop("Yes");
+                }else if (spMetroLoop.getSelectedItem().toString().toLowerCase().equals("no")) {
+                    metroStationManager.getSampleStation().setHe_loop("No");
+                }else{
+                    metroStationManager.getSampleStation().setHe_loop("");
+                }
 
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
 
+            }
+        });
 
+        spMetroLift.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spMetroLift.getSelectedItem().toString().toLowerCase().equals("yes")) {
+                    metroStationManager.getSampleStation().setLift("Yes");
+                }else if (spMetroLift.getSelectedItem().toString().toLowerCase().equals("no")) {
+                    metroStationManager.getSampleStation().setLift("No");
+                }else {
+                    metroStationManager.getSampleStation().setLift("");
+                }
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spMetroPid.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spMetroPid.getSelectedItem().toString().equals("--")) {
+                    metroStationManager.getSampleStation().setPids("");
+                }else{
+                    metroStationManager.getSampleStation().setPids(spMetroPid.getSelectedItem().toString());
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spMetroDistance.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spMetroDistance.getSelectedItem().toString().toLowerCase().equals("1000m")) {
+                    metroStationManager.setDistance(1000);
+                }else if (spMetroDistance.getSelectedItem().toString().toLowerCase().equals("500m")) {
+                    metroStationManager.setDistance(500);
+                }else{
+                    metroStationManager.setDistance(2000);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        btMetroSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                metroBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                cleanMap();
+                destLatlng = null;
+                showKeyPoint();
+                setMetroStationManagerRadius(remoteLatlng,metroStationManager.getDistance());
+                Toast.makeText(MapActivity.this, "Searching for nearby metro stations...", Toast.LENGTH_SHORT).show();
+                metroStationManager.searchByLatRange(MapActivity.this);
+            }
+        });
+
+        mMetro.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(metroBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                    metroBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+                else {
+                    metroBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
+            }
+        });
+
+    }
 
 
 
