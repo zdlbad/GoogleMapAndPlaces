@@ -1,38 +1,29 @@
 package com.example.zhangdonglin.googlemapsandplace;
 
 import android.Manifest;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -42,7 +33,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.drive.Drive;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
@@ -64,14 +54,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.maps.android.PolyUtil;
 import com.google.maps.android.SphericalUtil;
 
@@ -86,7 +70,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener{
 
@@ -105,7 +88,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private TextView tInfo;
     private BottomSheetBehavior toiletBottomSheetBehavior;
     private View toiletFilterSheet;
-    private Spinner spWheelchair, spFemale, spMale;
+    private Spinner spWheelchair, spFemale, spMale, spDistance;
+    private Button btToiletSearch;
+
 
     //vars
     private Boolean mLocationPermissionsGranted = false;
@@ -143,14 +128,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
         mGoogleApiClient.connect();
+        creatToiletWidgetsInFilterSheet();
+        
 
+        getLocationPermission();
+    }
+
+    private void creatToiletWidgetsInFilterSheet(){
         toiletFilterSheet = findViewById(R.id.toilet_filter_bottomsheet);
         toiletBottomSheetBehavior = BottomSheetBehavior.from(toiletFilterSheet);
         spWheelchair = (Spinner) findViewById(R.id.spin_toilet_wheelchair);
         spFemale = (Spinner) findViewById(R.id.spin_toilet_female);
         spMale = (Spinner) findViewById(R.id.spin_toilet_male);
-
-        getLocationPermission();
+        spDistance = (Spinner) findViewById(R.id.spin_toilet_distance);
+        btToiletSearch = (Button) findViewById(R.id.button_toilet_search);
     }
 
 
@@ -246,7 +237,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private void init(){
         Log.d(TAG, "init: initiating ");
-        setUpToiletBottomSheetSpiner();
+        registerToiletBottomSheetWidgets();
 
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
@@ -295,27 +286,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 else {
                     toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 }
-
-                clearMap();
-                destLatlng = null;
-                showKeyPoint();
-                Toast.makeText(MapActivity.this, "Searching for nearby public toilets...", Toast.LENGTH_SHORT).show();
-                setToiletRadius(remoteLatlng,800);
-                toiletManager.searchByLatRange(MapActivity.this);
-//                new AsyncTask<Void, Void, Void>() {
-//
-//                    @Override
-//                    protected Void doInBackground(Void... voids) {
-//                        toiletManager.searchByLatRange();
-//                        return null;
-//                    }
-//
-//                    @Override
-//                    protected void onPostExecute(Void v) {
-//                        showToiletSpots(toiletManager.getResultList());
-//                    }
-//                }.execute();
-
             }
         });
 
@@ -835,15 +805,35 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    public void setUpToiletBottomSheetSpiner(){
+    public void registerToiletBottomSheetWidgets(){
         spWheelchair.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 if (spWheelchair.getSelectedItem().toString().toLowerCase().equals("yes")) {
                     toiletManager.getSampleToilet().setWheelchair("yes");
-                }
-                if (spWheelchair.getSelectedItem().toString().toLowerCase().equals("no")) {
+                }else if (spWheelchair.getSelectedItem().toString().toLowerCase().equals("no")) {
                     toiletManager.getSampleToilet().setWheelchair("no");
+                }else{
+                    toiletManager.getSampleToilet().setWheelchair("");
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spFemale.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spFemale.getSelectedItem().toString().toLowerCase().equals("yes")) {
+                    toiletManager.getSampleToilet().setFemale("yes");
+                }else if (spFemale.getSelectedItem().toString().toLowerCase().equals("no")) {
+                    toiletManager.getSampleToilet().setFemale("no");
+                }else {
+                    toiletManager.getSampleToilet().setFemale("");
                 }
             }
 
@@ -852,6 +842,56 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             }
         });
+
+        spMale.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spMale.getSelectedItem().toString().toLowerCase().equals("yes")) {
+                    toiletManager.getSampleToilet().setMale("yes");
+                }else if (spMale.getSelectedItem().toString().toLowerCase().equals("no")) {
+                    toiletManager.getSampleToilet().setMale("no");
+                }else{
+                    toiletManager.getSampleToilet().setMale("");
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spDistance.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spDistance.getSelectedItem().toString().toLowerCase().equals("1000m")) {
+                    toiletManager.setDistance(1000);
+                }else if (spDistance.getSelectedItem().toString().toLowerCase().equals("600m")) {
+                    toiletManager.setDistance(600);
+                }else{
+                    toiletManager.setDistance(300);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        btToiletSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearMap();
+                destLatlng = null;
+                showKeyPoint();
+                setToiletRadius(remoteLatlng,toiletManager.getDistance());
+                Toast.makeText(MapActivity.this, "Searching for nearby public toilets...", Toast.LENGTH_SHORT).show();
+                toiletManager.searchByLatRange(MapActivity.this);
+            }
+        });
+
+
     }
 
     /*

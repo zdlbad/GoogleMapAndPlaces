@@ -88,7 +88,7 @@
             android:layout_alignParentRight = "true"
             android:layout_alignParentEnd="true"
             android:layout_margin="5dp"
-            android:background="@drawable/icon_group_background"
+            android:background="@drawable/backgroud_icon_group"
             android:elevation="10dp">
 
             <ImageView

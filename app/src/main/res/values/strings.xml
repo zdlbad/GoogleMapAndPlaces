@@ -12,14 +12,15 @@
         Swivel is easy to use; just search for the desired destination and it will do the rest!</string>
 
     <string-array name="yes_or_no">
+        <item>--</item>
         <item>Yes</item>
         <item>No</item>
     </string-array>
 
     <string-array name="distance">
-        <item>300</item>
-        <item>500</item>
-        <item>800</item>
+        <item>1000m</item>
+        <item>600m</item>
+        <item>300m</item>
     </string-array>
 
 </resources>
