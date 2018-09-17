@@ -1,93 +1,66 @@
 package com.example.zhangdonglin.googlemapsandplace;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
-
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Scanner;
+import java.util.Arrays;
 
 public class MetroStation {
-    private static final String BASE_URL_PARKING = "https://data.melbourne.vic.gov.au/resource/dtpv-d4pf.json?$where=";
-    private HttpURLConnection connection;
-    private Double south;
-    private Double north;
-    private Double east;
-    private Double west;
 
-    public MetroStation(){
-        connection = null;
+    private String he_loop;
+    private String lift;
+    private String pids;
+    private String station;
+    private Double[] coordinates;
+
+    public MetroStation() {
     }
 
-    public void setNorth(Double north) {
-        this.north = north;
+    public String getHe_loop() {
+        return he_loop;
     }
 
-    public void setEast(Double east) {
-        this.east = east;
+    public void setHe_loop(String he_loop) {
+        this.he_loop = he_loop;
     }
 
-    public void setWest(Double west) {
-        this.west = west;
+    public String getLift() {
+        return lift;
     }
 
-    public void setSouth(Double south) {
-        this.south = south;
+    public void setLift(String lift) {
+        this.lift = lift;
     }
 
-    private String BuildURL(){
-        StringBuilder builder = new StringBuilder(BASE_URL_PARKING);
-        builder.append("lat < " + east + " and lat > " + west + " and lon < " + north + " and lon > " + south);
-        return builder.toString();
+    public String getPids() {
+        return pids;
     }
 
-    public boolean MakeAPIConnection(){
-        int code = 0;
-        try {
-            URL url = new URL(BuildURL());
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setReadTimeout(10000);
-            connection.setConnectTimeout(15000);
-            //set the connection method to GET
-            connection.setRequestMethod("GET");
-            //add http headers to set your response type to json
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setRequestProperty("Accept", "application/json");
-            code = connection.getResponseCode();
-        }catch(Exception ex){
-            ex.printStackTrace();
-        }
-        if(code == 200)
-            return true;
-        else
-            return false;
+    public void setPids(String pids) {
+        this.pids = pids;
     }
 
-    private void RemoveAPIConnection(){
-        connection.disconnect();
+    public String getStation() {
+        return station;
     }
 
-    public JsonArray FindParkingSpots(){
+    public void setStation(String station) {
+        this.station = station;
+    }
 
-        String serverResult = "";
-        JsonArray results = null;
+    public Double[] getCoordinates() {
+        return coordinates;
+    }
 
-        if(MakeAPIConnection()) {
-            try {
-                //Read the response
-                Scanner inStream = new Scanner(connection.getInputStream());
-                //read the input stream and store it as string
-                while (inStream.hasNextLine()) {
-                    serverResult += inStream.nextLine();
-                }
-                results = new JsonParser().parse(serverResult).getAsJsonArray();
+    public void setCoordinates(Double[] coordinates) {
+        this.coordinates = coordinates;
+    }
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                RemoveAPIConnection();
-            }
-        }
-        return results;
+    @Override
+    public String toString() {
+        return "MetroStation{" +
+                "he_loop='" + he_loop + '\'' +
+                ", lift='" + lift + '\'' +
+                ", pids='" + pids + '\'' +
+                ", station='" + station + '\'' +
+                ", coordinates=" + Arrays.toString(coordinates) +
+                '}';
     }
 }

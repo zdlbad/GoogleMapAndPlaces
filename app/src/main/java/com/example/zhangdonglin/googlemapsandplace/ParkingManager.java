@@ -2,14 +2,9 @@ package com.example.zhangdonglin.googlemapsandplace;
 
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.text.style.TtsSpan;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -20,13 +15,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Scanner;
 
 public class ParkingManager {
@@ -179,7 +170,7 @@ public class ParkingManager {
 
                             @Override
                             public void onCancelled(@NonNull DatabaseError databaseError) {
-                                mapActivity.clearMap();
+                                mapActivity.cleanMap();
                             }
                         });
                     }

@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -106,6 +107,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private ParkingManager parkingManager = new ParkingManager();
     private ToiletManager toiletManager = new ToiletManager();
     private Building building = new Building();
+    private MetroStationManager metroStationManager = new MetroStationManager();
 
     private String mode = "Driving";
 
@@ -266,7 +268,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                clearMap();
+                cleanMap();
                 MarkerOptions options = new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
                 remoteLatlng = latLng;
                 mMap.addMarker(options);
@@ -281,6 +283,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Log.d(TAG, "mGps: clicked gps icon");
                 Toast.makeText(MapActivity.this, "Moving to current location...", Toast.LENGTH_SHORT).show();
                 getDeviceLocation();
+
             }
         });
 
@@ -288,21 +291,38 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mNavigation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (destLatlng != null){
-                    clearMap();
-                    showKeyPoint();
-                    Toast.makeText(MapActivity.this, "Navigating to destination, mode: " + mode, Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "mNavigation: clicked navigation icon");
-                    String url = getRequestedUrl(currentLatlng, destLatlng);
-                    Log.d(TAG, "mNavigation: clicked navigation icon, show currentLatlng " + currentLatlng.latitude + " || " + currentLatlng.longitude);
-                    Log.d(TAG, "mNavigation: clicked navigation icon, show destLatlng " + destLatlng.latitude + " || " + destLatlng.longitude);
-                    TaskRequestDirections findPath = new TaskRequestDirections();
-                    findPath.execute(url);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destLatlng,13f));
+                if (destLatlng != null) {
+
+                    setMetroStationManagerRadius(destLatlng, 2000);
+                    metroStationManager.searchByLatRange(MapActivity.this);
+
+                    Uri.Builder directionsBuilder = new Uri.Builder()
+                            .scheme("https")
+                            .authority("www.google.com")
+                            .appendPath("maps")
+                            .appendPath("dir")
+                            .appendPath("")
+                            .appendQueryParameter("api", "1")
+                            .appendQueryParameter("destination", destLatlng.latitude + "," + destLatlng.longitude);
+                    startActivity(new Intent(Intent.ACTION_VIEW, directionsBuilder.build()));
+                }else{
+                    Toast.makeText(MapActivity.this, "No Destination is chosen, click on a marker.", Toast.LENGTH_SHORT).show();
                 }
-                else{
-                    Toast.makeText(MapActivity.this, "No Destination is Choosen.", Toast.LENGTH_SHORT).show();
-                }
+//                if (destLatlng != null){
+//                    cleanMap();
+//                    showKeyPoint();
+//                    Toast.makeText(MapActivity.this, "Navigating to destination, mode: " + mode, Toast.LENGTH_SHORT).show();
+//                    Log.d(TAG, "mNavigation: clicked navigation icon");
+//                    String url = getRequestedUrl(currentLatlng, destLatlng);
+//                    Log.d(TAG, "mNavigation: clicked navigation icon, show currentLatlng " + currentLatlng.latitude + " || " + currentLatlng.longitude);
+//                    Log.d(TAG, "mNavigation: clicked navigation icon, show destLatlng " + destLatlng.latitude + " || " + destLatlng.longitude);
+//                    TaskRequestDirections findPath = new TaskRequestDirections();
+//                    findPath.execute(url);
+//                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destLatlng,13f));
+//                }
+//                else{
+//                    Toast.makeText(MapActivity.this, "No Destination is Choosen.", Toast.LENGTH_SHORT).show();
+//                }
 
             }
         });
@@ -318,14 +338,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 //                mSearchText.setText("");
 //                remoteLatlng = currentLatlng;
 //                moveCamera(remoteLatlng, DEFAULT_ZOOM, "My Location");
-//                clearMap();
+//                cleanMap();
 //            }
 //        });
 
         mBuilding.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                clearMap();
+                cleanMap();
                 destLatlng = null;
                 showKeyPoint();
                 Toast.makeText(MapActivity.this, "Searching for building accessibility info...", Toast.LENGTH_SHORT).show();
@@ -348,6 +368,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 mSearchText.setText("");
+                cleanMap();
             }
         });
 
@@ -367,7 +388,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 mBuilding.setVisibility(View.VISIBLE);
-                clearMap();
+                cleanMap();
                 destLatlng = null;
                 showKeyPoint();
                 new AsyncTask<Void, Void, JsonArray>() {
@@ -388,6 +409,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d(TAG, "init: initiating finished");
     }
 
+    // ======================== functional code here =========================
     public LatLngBounds toBounds(LatLng center, double radiusInMeters) {
         double distanceFromCenterToCorner = radiusInMeters * Math.sqrt(2.0);
         LatLng southwestCorner =
@@ -397,7 +419,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return new LatLngBounds(southwestCorner, northeastCorner);
     }
 
-    public void clearMap(){
+    public void cleanMap(){
         mMap.clear();
     }
 
@@ -535,7 +557,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 else {
                     toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 }
-                clearMap();
+                cleanMap();
                 destLatlng = null;
                 showKeyPoint();
                 setToiletManagerRadius(remoteLatlng,toiletManager.getDistance());
@@ -706,7 +728,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 else {
                     parkingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 }
-                clearMap();
+                cleanMap();
                 destLatlng = null;
                 showKeyPoint();
                 Toast.makeText(MapActivity.this, "Searching for nearby parking places...", Toast.LENGTH_SHORT).show();
@@ -743,6 +765,31 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
 
+    // ======================== Metro related code here ==========================
+
+    private void setMetroStationManagerRadius(LatLng latLng, double radiusinMeters){
+
+        Log.d(TAG, "method: setMetroStationManagerRadius called ");
+        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters*0.7);
+        LatLng southwestCorner = latLngBounds.southwest; // -
+        LatLng northeastCorner = latLngBounds.northeast; // +
+
+        metroStationManager.setSouth(southwestCorner.longitude);
+        metroStationManager.setNorth(northeastCorner.longitude);
+        metroStationManager.setEast(northeastCorner.latitude);
+        metroStationManager.setWest(southwestCorner.latitude);
+    }
+
+
+
+
+
+
+
+
+
+
+
 
     // ======================== Building related code here ==========================
 
@@ -777,8 +824,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     //South Longitude is negative，North Longitude is positive; East Latitude is positive，West Latitude is negative.
 
-
-
     private JsonArray findBuildingAccessibility(LatLng latLng){
         Log.d(TAG, "nethod: findBuildingAccessibility called ");
         JsonArray results = null;
@@ -786,18 +831,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         building.setLongitude(latLng.longitude);
         return building.FindBuildingAccessibility();
     }
-
-
-
-
-    // ======================== Metro related code here ==========================
-
-
-
-
-
-
-
 
 
 
@@ -1077,7 +1110,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             final Place place = places.get(0);
             Log.d(TAG, "onResult: Place details:" + place.getAttributions());
 
-            clearMap();
+            cleanMap();
             remotePlaceTitle = new String(place.getName().toString());
             remoteLatlng = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude);
             moveCamera(place.getLatLng(), DEFAULT_ZOOM, remotePlaceTitle);
