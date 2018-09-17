@@ -123,8 +123,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mClearSearch = (ImageView) findViewById(R.id.clean_search);
         mBuilding=(ImageView) findViewById(R.id.building);
         mNavigation = (ImageView) findViewById(R.id.ic_navigation);
-        mInfo = (ImageView) findViewById(R.id.ic_info);
-        tInfo = (TextView) findViewById(R.id.text_info);
+//        mInfo = (ImageView) findViewById(R.id.ic_info);
+//        tInfo = (TextView) findViewById(R.id.text_info);
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
@@ -229,6 +229,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void init(){
+
         Log.d(TAG, "init: initiating ");
 
         registerToiletBottomSheetWidgets();
@@ -350,16 +351,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        tInfo.setVisibility(View.INVISIBLE);
-        mInfo.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                if (tInfo.getVisibility() == View.INVISIBLE)
-                    tInfo.setVisibility(View.VISIBLE);
-                else
-                    tInfo.setVisibility(View.INVISIBLE);
-            }
-        });
+//        tInfo.setVisibility(View.INVISIBLE);
+//        mInfo.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                if (tInfo.getVisibility() == View.INVISIBLE)
+//                    tInfo.setVisibility(View.VISIBLE);
+//                else
+//                    tInfo.setVisibility(View.INVISIBLE);
+//            }
+//        });
 
         mBuilding.setVisibility(View.VISIBLE);
         mBuilding.setOnClickListener(new View.OnClickListener() {

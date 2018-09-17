@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -17,8 +18,6 @@
         tools:context=".MapActivity" />
 
 
-
-
     <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
@@ -31,10 +30,10 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="5dp"
-            android:background="@drawable/white_border"
+            android:background="@drawable/background_search_bar"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:elevation="5dp">
+            android:elevation="10dp">
 
             <AutoCompleteTextView
                 android:id="@+id/input_search"
@@ -42,13 +41,13 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="7dp"
                 android:layout_marginBottom="7dp"
-                android:layout_marginStart="5dp"
-                android:layout_marginLeft="5dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
                 android:layout_toLeftOf="@+id/clean_search"
                 android:layout_toStartOf="@+id/clean_search"
                 android:layout_centerVertical="true"
                 android:background="@android:color/white"
-                android:hint="Where you want to go?"
+                android:hint="  Where you want to go?"
                 android:imeOptions="actionSearch"
                 android:textColor="#000"
                 android:textSize="15sp" />
@@ -67,18 +66,7 @@
         </RelativeLayout>
 
 
-        <TextView
-            android:id="@+id/text_info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="left"
-            android:layout_margin="10dp"
-            android:layout_below="@+id/places_search_bar"
-            android:layout_toLeftOf="@+id/icon_group_layout"
-            android:text="@string/info"
-            android:textColor="@android:color/white"
-            android:background="@drawable/info_background"/>
-
+        <!--navigation group-->
         <LinearLayout
             android:id="@+id/icon_group_layout"
             android:layout_width="wrap_content"
@@ -88,23 +76,17 @@
             android:layout_alignParentRight = "true"
             android:layout_alignParentEnd="true"
             android:layout_margin="5dp"
-            android:background="@drawable/backgroud_icon_group"
-            android:elevation="10dp">
+            android:background="@drawable/backgroud_navigation_group"
+            android:elevation="15dp">
 
-            <ImageView
-                android:id="@+id/ic_info"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_margin= "10dp"
-                android:src="@drawable/ic_info"
-                />
 
             <ImageView
                 android:id="@+id/ic_gps"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_margin= "10dp"
-                android:src="@drawable/ic_gps"
+                android:elevation="10dp"
+                android:src="@mipmap/ic_mylocation_2_round"
                 />
 
             <ImageView
@@ -114,42 +96,9 @@
                 android:layout_margin= "10dp"
                 android:src="@mipmap/ic_navigation_2_round" />
 
-            <!--<ImageView-->
-                <!--android:id="@+id/ic_reset"-->
-                <!--android:layout_width="40dp"-->
-                <!--android:layout_height="40dp"-->
-                <!--android:layout_margin= "10dp"-->
-                <!--android:src="@drawable/ic_reset" />-->
-
 
         </LinearLayout>
     </RelativeLayout>
-
-    <!--<RelativeLayout-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:id="@+id/building_group"-->
-        <!--android:layout_below="@id/parking_group">-->
-    <!--<ImageView-->
-        <!--android:layout_width="40dp"-->
-        <!--android:layout_height="40dp"-->
-        <!--android:layout_marginLeft="10dp"-->
-        <!--android:layout_marginTop="15dp"-->
-        <!--android:scaleType="centerCrop"-->
-        <!--android:id="@+id/building"-->
-        <!--android:src="@drawable/ic_building"/>-->
-    <!--</RelativeLayout>-->
-
-    <!--<ImageView-->
-    <!--android:layout_width="40dp"-->
-    <!--android:layout_height="40dp"-->
-    <!--android:id="@+id/place_picker"-->
-    <!--android:layout_marginLeft="10dp"-->
-    <!--android:layout_marginTop="15dp"-->
-    <!--android:scaleType="centerCrop"-->
-    <!--android:layout_below="@+id/relLayout1"-->
-    <!--android:src="@drawable/ic_map"-->
-    <!--/>-->
 
     <include layout="@layout/bottom_sheet" />
     <include layout="@layout/toilet_filter_bottomsheet" />

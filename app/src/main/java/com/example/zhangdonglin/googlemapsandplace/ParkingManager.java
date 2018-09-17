@@ -184,6 +184,10 @@ public class ParkingManager {
                         });
                     }
                     Log.d(TAG, "==========Search after LatRange Query===========got: " + searchingResult.size());
+                    if (searchingResult.size() == 0){
+                        Toast.makeText(mapActivity, "No valid parking places found...", Toast.LENGTH_SHORT).show();
+
+                    }
                 }
 
 

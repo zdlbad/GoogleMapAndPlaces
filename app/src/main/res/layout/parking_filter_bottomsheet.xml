@@ -13,109 +13,130 @@
     android:outlineProvider="bounds"
     app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
-    <!--duration-->
+    <!--doing nothing-->
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:gravity="center">
+        android:layout_height="40dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Duration: "/>
-
-        <Spinner
-            android:id="@+id/spin_parking_duration"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:entries="@array/parking_time"/>
     </LinearLayout>
 
-    <!--charge-->
+    <!--filter content-->
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:gravity="center">
+        android:orientation="vertical"
+        android:background="@drawable/background_filter_content">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <!--duration-->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Need to Pay:"/>
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center">
 
-        <Spinner
-            android:id="@+id/spin_parking_pay"
-            android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Duration: "/>
+
+            <Spinner
+                android:id="@+id/spin_parking_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:entries="@array/parking_time"/>
+        </LinearLayout>
+
+        <!--distance-->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:entries="@array/yes_or_no"/>
-    </LinearLayout>
+            android:layout_margin="10dp"
+            android:gravity="center">
 
-    <!--disabled only-->
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:gravity="center">
 
-        <TextView
-            android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Distance: "/>
+
+            <Spinner
+                android:id="@+id/spin_parking_distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/distance"/>
+        </LinearLayout>
+
+        <!--charge-->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Disable Only:"/>
+            android:layout_margin="10dp"
+            android:gravity="center">
 
-        <Spinner
-            android:id="@+id/spin_parking_disableOnly"
-            android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Need to Pay:"/>
+
+            <Spinner
+                android:id="@+id/spin_parking_pay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/yes_or_no"/>
+        </LinearLayout>
+
+        <!--disabled only-->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:entries="@array/yes_or_no"/>
-    </LinearLayout>
+            android:layout_margin="10dp"
+            android:gravity="center">
 
-    <!--distance-->
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Disable Only:"/>
 
+            <Spinner
+                android:id="@+id/spin_parking_disableOnly"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/yes_or_no"/>
+        </LinearLayout>
 
-    <TextView
-            android:layout_width="wrap_content"
+        <!--status-->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Distance: "/>
-
-        <Spinner
-            android:id="@+id/spin_parking_distance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:entries="@array/distance"/>
-    </LinearLayout>
-
-    <!--status-->
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:gravity="center">
+            android:layout_margin="10dp"
+            android:gravity="center">
 
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Currently Available: "/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Currently Available: "/>
 
-        <Spinner
-            android:id="@+id/spin_parking_available"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:entries="@array/yes_or_no"/>
-    </LinearLayout>
+            <Spinner
+                android:id="@+id/spin_parking_available"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/yes_or_no"/>
+        </LinearLayout>
 
-    <Button
+        <!--doing nothing-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"></LinearLayout>
+
+        <!--search Button-->
+        <Button
         android:id="@+id/button_parking_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -125,6 +146,8 @@
         android:layout_marginBottom="15dp"
         android:elevation="10dp"
         />
+
+    </LinearLayout>
 
 
 </LinearLayout>

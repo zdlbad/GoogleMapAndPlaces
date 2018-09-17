@@ -1,15 +1,18 @@
 <resources>
     <string name="app_name">Swivel</string>
     <string name="google_maps_API_key">AIzaSyCcLw8zgIjhCqC1QeCBXv7NVGAUFuChKq8</string>
-    <string name="info">SWIVEL APP
+    <string name="info">SWIVEL APP\n\n
         Find wheelchair-accessible toilets and parking spaces.\n\n
         Finding clean, accessible toilets and parking spaces can be a real challenge for wheelchair
-        users on the move. We know the amount of planning it takes to get to a desired location, so
+        users on the move.
+        We know the amount of planning it takes to get to a desired location, so
         we came up with a solution – ‘Swivel’.\n\n
         Swivel gives you the power to locate and navigate wheelchair-friendly toilets and parking
         spaces on an interactive map along with giving vital accessibility information across major
         buildings in Melbourne – CBD.\n\n
-        Swivel is easy to use; just search for the desired destination and it will do the rest!</string>
+        Swivel is easy to use; just search for the desired destination and it will do the rest!\n\n\n</string>
+
+    <string name="group_signiture">--Wonder Team\n\n\n\n</string>
 
     <string-array name="yes_or_no">
         <item>--</item>
