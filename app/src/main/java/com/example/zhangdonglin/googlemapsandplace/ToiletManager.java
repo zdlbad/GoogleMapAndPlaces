@@ -82,10 +82,6 @@ public class ToiletManager {
         this.south = south;
     }
 
-    public void setSampleToilet(Toilet sampleToilet){
-        this.sampleToilet = sampleToilet;
-    }
-
     private String BuildURL(){
         StringBuilder builder = new StringBuilder(BASE_URL_TOILET);
         builder.append("lat > \"" + east + "\" and lat < \"" + west + "\" and lon < \"" + north + "\" and lon > \"" + south + "\"");
@@ -142,23 +138,23 @@ public class ToiletManager {
         return results;
     }
 
-    public void searchByLatRange() {
+    public void searchByLatRange(final MapActivity mapActivity) {
+        resultList.clear();
+        Log.d(TAG, "==============Search by Range First==========");
         Query q = myRef.orderByChild("lat").startAt(east + "").endAt(west + "");
         q.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                resultList.clear();
-
                 int count = 0;
                 for (DataSnapshot o : dataSnapshot.getChildren()) {
                     Toilet oneToilet = o.getValue(Toilet.class);
                     resultList.add(oneToilet);
-
                 }
                 Log.d(TAG, "==========Search after LatRange Query===========got: " + resultList.size());
-
                 filter();
+                mapActivity.showToiletSpots(resultList);
             }
+
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -166,7 +162,8 @@ public class ToiletManager {
         });
     }
 
-    private void filter() {
+    public void filter() {
+        Log.d(TAG, "==============Search by Filter then==========now:" + resultList.size());
         ArrayList<Toilet> newList = new ArrayList<Toilet>();
         for (Toilet oneToilet : resultList) {
             if (oneToilet.checkLng(south, north) && oneToilet.checkWithSample(sampleToilet)) {
@@ -178,6 +175,7 @@ public class ToiletManager {
     }
 
     public ArrayList<Toilet> getResultList() {
+        Log.d(TAG, "==============Get result list ==========now:" + resultList.size());
         return resultList;
     }
 

@@ -300,20 +300,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 destLatlng = null;
                 showKeyPoint();
                 Toast.makeText(MapActivity.this, "Searching for nearby public toilets...", Toast.LENGTH_SHORT).show();
-                new AsyncTask<Void, Void, Void>() {
-
-                    @Override
-                    protected Void doInBackground(Void... voids) {
-                        findNearbyToilets( remoteLatlng,800);
-                        toiletManager.searchByLatRange();
-                        return null;
-                    }
-
-                    @Override
-                    protected void onPostExecute(Void v) {
-                        showToiletSpots(toiletManager.getResultList());
-                    }
-                }.execute();
+                setToiletRadius(remoteLatlng,800);
+                toiletManager.searchByLatRange(MapActivity.this);
+//                new AsyncTask<Void, Void, Void>() {
+//
+//                    @Override
+//                    protected Void doInBackground(Void... voids) {
+//                        toiletManager.searchByLatRange();
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    protected void onPostExecute(Void v) {
+//                        showToiletSpots(toiletManager.getResultList());
+//                    }
+//                }.execute();
 
             }
         });
@@ -478,7 +479,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    private void showToiletSpots(ArrayList<Toilet> toilets) {
+    public void showToiletSpots(ArrayList<Toilet> toilets) {
         Log.d(TAG, "method: showSpots called ");
 
         if (toilets.size() != 0) {
@@ -552,7 +553,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     //South Longitude is negative，North Longitude is positive; East Latitude is positive，West Latitude is negative.
-    private void findNearbyToilets(LatLng latLng, double radiusinMeters){
+    private void setToiletRadius(LatLng latLng, double radiusinMeters){
 
         Log.d(TAG, "method: findNearbyToilets called ");
         LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters*0.7);
