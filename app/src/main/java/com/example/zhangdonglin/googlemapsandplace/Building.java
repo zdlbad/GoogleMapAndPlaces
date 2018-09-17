@@ -9,9 +9,11 @@ import java.util.Scanner;
 
 public class Building {
     private HttpURLConnection connection;
-    private Double latitude;
-    private Double longitude;
-    private static final String BASE_URL_BUILDING = "https://data.melbourne.vic.gov.au/resource/q8hp-qgps.json?$where=";
+    private Double north;
+    private Double south;
+    private Double east;
+    private Double west;
+    private static final String BASE_URL_BUILDING = "https://data.melbourne.vic.gov.au/resource/qabw-suvb.json?$where=";
 
 
 
@@ -19,19 +21,28 @@ public class Building {
         connection = null;
     }
 
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
+    public void setNorth(Double north) {
+        this.north = north;
     }
 
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
+    public void setSouth(Double south) {
+        this.south = south;
+    }
+
+    public void setEast(Double east) {
+        this.east = east;
+    }
+
+    public void setWest(Double west) {
+        this.west = west;
     }
 
     private String BuildURL(){
         StringBuilder builder = new StringBuilder(BASE_URL_BUILDING);
-        builder.append(" x_coordinate = " + latitude + " and y_coordinate = " + longitude + "and census_year = 2017" );
+        builder.append(" y_coordinate < " + east +" and y_coordinate > "+ west + " and x_coordinate < " + north +" and x_coordinate > "+ south );
         return builder.toString();
     }
+
 
     private boolean MakeAPIConnection(){
         int code = 0;
