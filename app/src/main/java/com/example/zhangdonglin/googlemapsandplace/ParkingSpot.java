@@ -666,71 +666,12 @@ public class ParkingSpot {
 
     @Override
     public String toString() {
-        return "ParkingSpot{" +
-                "lat=" + lat +
-                ", lon=" + lon +
-                ", status='" + status + '\'' +
-                ", normalDuration=" + normalDuration +
-                ", disDuration=" + disDuration +
-                ", disableOnly='" + disableOnly + '\'' +
-                ", needToPay='" + needToPay + '\'' +
-                ", BayID='" + BayID + '\'' +
-                ", Description1='" + Description1 + '\'' +
-                ", Description2='" + Description2 + '\'' +
-                ", Description3='" + Description3 + '\'' +
-                ", Description4='" + Description4 + '\'' +
-                ", Description5='" + Description5 + '\'' +
-                ", Description6='" + Description6 + '\'' +
-                ", DeviceID='" + DeviceID + '\'' +
-                ", DisabilityExt1='" + DisabilityExt1 + '\'' +
-                ", DisabilityExt2='" + DisabilityExt2 + '\'' +
-                ", DisabilityExt3='" + DisabilityExt3 + '\'' +
-                ", DisabilityExt4='" + DisabilityExt4 + '\'' +
-                ", DisabilityExt5='" + DisabilityExt5 + '\'' +
-                ", DisabilityExt6='" + DisabilityExt6 + '\'' +
-                ", Duration1='" + Duration1 + '\'' +
-                ", Duration2='" + Duration2 + '\'' +
-                ", Duration3='" + Duration3 + '\'' +
-                ", Duration4='" + Duration4 + '\'' +
-                ", Duration5='" + Duration5 + '\'' +
-                ", Duration6='" + Duration6 + '\'' +
-                ", EffectiveOnPH1='" + EffectiveOnPH1 + '\'' +
-                ", EffectiveOnPH2='" + EffectiveOnPH2 + '\'' +
-                ", EffectiveOnPH3='" + EffectiveOnPH3 + '\'' +
-                ", EffectiveOnPH4='" + EffectiveOnPH4 + '\'' +
-                ", EffectiveOnPH5='" + EffectiveOnPH5 + '\'' +
-                ", EffectiveOnPH6='" + EffectiveOnPH6 + '\'' +
-                ", EndTime1='" + EndTime1 + '\'' +
-                ", EndTime2='" + EndTime2 + '\'' +
-                ", EndTime3='" + EndTime3 + '\'' +
-                ", EndTime4='" + EndTime4 + '\'' +
-                ", EndTime5='" + EndTime5 + '\'' +
-                ", EndTime6='" + EndTime6 + '\'' +
-                ", FromDay1='" + FromDay1 + '\'' +
-                ", FromDay2='" + FromDay2 + '\'' +
-                ", FromDay3='" + FromDay3 + '\'' +
-                ", FromDay4='" + FromDay4 + '\'' +
-                ", FromDay5='" + FromDay5 + '\'' +
-                ", FromDay6='" + FromDay6 + '\'' +
-                ", StartTime1='" + StartTime1 + '\'' +
-                ", StartTime2='" + StartTime2 + '\'' +
-                ", StartTime3='" + StartTime3 + '\'' +
-                ", StartTime4='" + StartTime4 + '\'' +
-                ", StartTime5='" + StartTime5 + '\'' +
-                ", StartTime6='" + StartTime6 + '\'' +
-                ", ToDay1='" + ToDay1 + '\'' +
-                ", ToDay2='" + ToDay2 + '\'' +
-                ", ToDay3='" + ToDay3 + '\'' +
-                ", ToDay4='" + ToDay4 + '\'' +
-                ", ToDay5='" + ToDay5 + '\'' +
-                ", ToDay6='" + ToDay6 + '\'' +
-                ", TypeDesc1='" + TypeDesc1 + '\'' +
-                ", TypeDesc2='" + TypeDesc2 + '\'' +
-                ", TypeDesc3='" + TypeDesc3 + '\'' +
-                ", TypeDesc4='" + TypeDesc4 + '\'' +
-                ", TypeDesc5='" + TypeDesc5 + '\'' +
-                ", TypeDesc6='" + TypeDesc6 + '\'' +
-                '}';
+        return  " Status='" + status + '\'' + '\n' +
+                " NormalDuration=" + normalDuration + '\n' +
+                " DisDuration=" + disDuration + '\n' +
+                " DisableOnly='" + disableOnly + '\'' + '\n' +
+                " NeedToPay='" + needToPay + '\'' + '\n' +
+                " BayID='" + BayID + '\'';
     }
 
     // ======= check duration based on current time and dayOfWeek

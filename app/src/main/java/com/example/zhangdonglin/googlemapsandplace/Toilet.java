@@ -96,16 +96,12 @@ public class Toilet {
 
     @Override
     public String toString() {
-        return "Toilet{" +
-                "baby_facil='" + baby_facil + '\'' +
-                ", female='" + female + '\'' +
-                ", male='" + male + '\'' +
-                ", name='" + name + '\'' +
-                ", operator='" + operator + '\'' +
-                ", wheelchair='" + wheelchair + '\'' +
-                ", lat=" + lat +
-                ", lon=" + lon +
-                '}';
+        return  " Baby_facil='" + baby_facil + '\'' + '\n' +
+                " Female='" + female + '\'' + '\n' +
+                " Male='" + male + '\'' + '\n' +
+                " Name='" + name + '\'' + '\n' +
+                " Operator='" + operator + '\'' + '\n' +
+                " Wheelchair='" + wheelchair + '\'';
     }
 
     public boolean checkWithSample(Toilet sample){

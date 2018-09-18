@@ -70,14 +70,10 @@ public class MetroStation {
 
     @Override
     public String toString() {
-        return "MetroStation{" +
-                "he_loop='" + he_loop + '\'' +
-                ", lift='" + lift + '\'' +
-                ", pids='" + pids + '\'' +
-                ", station='" + station + '\'' +
-                ", lat=" + lat +
-                ", lon=" + lon +
-                '}';
+        return  " He_loop='" + he_loop + '\'' + '\n' +
+                " Lift='" + lift + '\'' + '\n' +
+                " Pids='" + pids + '\'' + '\n' +
+                " Station='" + station + '\'';
     }
 
     public boolean checkWithSample(MetroStation sample) {
