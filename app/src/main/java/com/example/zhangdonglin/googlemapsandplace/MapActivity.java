@@ -712,7 +712,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Double lon = oneStation.getLon();
                 LatLng latlng = new LatLng(lat, lon);
                 MarkerOptions options = new MarkerOptions()
-                        .position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_toilet_icon));
+                        .position(latlng).title(oneStation.getStation()).snippet(oneStation.toString()).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_toilet_icon));
                 mMap.addMarker(options);
             }
         }else{

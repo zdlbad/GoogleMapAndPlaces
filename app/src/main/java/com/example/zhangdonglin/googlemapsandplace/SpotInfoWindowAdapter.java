@@ -23,14 +23,22 @@ public class SpotInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         TextView tvTitle = (TextView) view.findViewById(R.id.spot_info_title);
 
         if (!title.equals("")) {
-            tvTitle.setText(title);
+            if (title != null){
+                tvTitle.setText(title);
+            }else{
+                tvTitle.setText("Unknown Title");
+            }
         }
 
         String snippet = marker.getSnippet();
         TextView tvSnippet = (TextView) view.findViewById(R.id.spot_info_content);
 
         if (!snippet.equals("")){
-            tvSnippet.setText(snippet);
+            if (snippet != null){
+                tvSnippet.setText(snippet);
+            }else{
+                tvSnippet.setText("Unknown Content");
+            }
         }
     }
 
