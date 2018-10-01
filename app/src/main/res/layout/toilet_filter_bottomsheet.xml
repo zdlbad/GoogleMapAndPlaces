@@ -16,7 +16,25 @@
     <!--doing nothing-->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp">
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:id="@+id/toilet_filter_handle">
+
+        <!--toilet image-->
+        <ImageView
+            android:id="@+id/toilet"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/bg_circle"
+            android:elevation="10dp"
+            android:src="@drawable/ic_toilet_3" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="Searching Filter For Public Toilets"/>
 
     </LinearLayout>
 
@@ -35,56 +53,22 @@
             android:layout_marginBottom="10dp"
             android:gravity="center">
 
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_wheelchair_accessible"/>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textStyle="bold"
                 android:text="Wheelchair Accessible: "/>
 
             <Spinner
                 android:id="@+id/spin_toilet_wheelchair"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:entries="@array/yes_or_no"/>
-        </LinearLayout>
-
-        <!--Female-->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="For Female: "/>
-
-            <Spinner
-                android:id="@+id/spin_toilet_female"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/yes_or_no"/>
-        </LinearLayout>
-
-        <!--Male-->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:gravity="center">
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="For Male: "/>
-
-            <Spinner
-                android:id="@+id/spin_toilet_male"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:entries="@array/yes_or_no"/>
         </LinearLayout>
 
@@ -96,10 +80,16 @@
             android:layout_margin="10dp"
             android:gravity="center">
 
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_distance"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textStyle="bold"
                 android:text="Distance: "/>
 
             <Spinner

@@ -3,6 +3,7 @@ package com.example.zhangdonglin.googlemapsandplace;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -142,11 +143,20 @@ public class ToiletManager {
                 int count = 0;
                 for (DataSnapshot o : dataSnapshot.getChildren()) {
                     Toilet oneToilet = o.getValue(Toilet.class);
+                    LatLng remote = mapActivity.remoteLatlng;
+                    Double distance = MyTools.getDistanceFromLatLonInMeter(remote.latitude, remote.longitude, oneToilet.getLat(), oneToilet.getLon());
+                    oneToilet.setDistance(MyTools.roundDouble(distance));
                     resultList.add(oneToilet);
                 }
                 Log.d(TAG, "==========Search after LatRange Query===========got: " + resultList.size());
                 filter();
                 mapActivity.showToiletSpots(resultList);
+
+                ArrayList<Object> objectArrayList = new ArrayList<>();
+                for (Toilet oneToilet: resultList){
+                    objectArrayList.add((Object) oneToilet);
+                }
+                mapActivity.showSearchingResultList(objectArrayList);
             }
 
 

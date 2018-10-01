@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <!--toilet image-->
+    <ImageView
+        android:id="@+id/table_row_image"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="10dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_circle"
+        android:elevation="5dp"/>
+
+    <TextView
+        android:id="@+id/table_row_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"/>
+
+</LinearLayout>
+
+<!--<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent" >-->
+    <!--<TableRow>-->
+        <!--&lt;!&ndash;toilet image&ndash;&gt;-->
+        <!--<ImageView-->
+            <!--android:id="@+id/toilet_table_row_image"-->
+            <!--android:layout_width="25dp"-->
+            <!--android:layout_height="25dp"-->
+            <!--android:layout_marginEnd="10dp"-->
+            <!--android:background="@drawable/bg_circle"-->
+            <!--android:elevation="10dp"-->
+            <!--android:src="@drawable/ic_toilet_3" />-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/toilet_table_row_text"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="100dp" />-->
+    <!--</TableRow>-->
+<!--</TableLayout>-->

@@ -26,6 +26,7 @@ import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -64,12 +65,7 @@ import com.google.maps.android.SphericalUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,13 +84,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private AutoCompleteTextView mSearchText;
     private ImageView mGps, mInfo, mPlacePicker, mToilet, mParking, mNavigation, mReset, mBuilding, mClearSearch, mMetro;
     private TextView tInfo;
-    private BottomSheetBehavior toiletBottomSheetBehavior, parkingBottomSheetBehavior, metroBottomSheetBehavior;
-    private View toiletFilterSheet, parkingFilterSheet, metroFilterSheet;
+    private BottomSheetBehavior toiletBottomSheetBehavior, parkingBottomSheetBehavior, metroBottomSheetBehavior, bottomSheetBehavior;
+    private View toiletFilterSheet, parkingFilterSheet, metroFilterSheet, bottomSheet;
+    private View toiletFilterHandle, parkingFilterHandle, metroFilterHandle, bottomSheetHandle;
     private Spinner spToiletFilterWheelchair, spToiletFilterFemale, spToiletFilterMale, spToiletFilterDistance;
     private Spinner spParkingFilterDuration, spParkingFilterDisableOnly, spParkingFilterCharge, spParkingFilterDistance, spParkingAvailable;
     private Spinner spMetroLoop, spMetroLift, spMetroPid, spMetroDistance;
     private Button btToiletSearch, btParkingSearch, btMetroSearch;
-
 
     //vars
     private Boolean mLocationPermissionsGranted = false;
@@ -102,9 +98,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private PlaceAutocompleteAdapter mPlaceAutocompleteAdapter;
     private GoogleApiClient mGoogleApiClient;
-    private Marker mMarker;
 
-    private LatLng currentLatlng, destLatlng, remoteLatlng;
+    public LatLng currentLatlng, destLatlng, remoteLatlng;
     private String remotePlaceTitle;
     private ParkingManager parkingManager = new ParkingManager();
     private ToiletManager toiletManager = new ToiletManager();
@@ -112,7 +107,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private MetroStationManager metroStationManager = new MetroStationManager();
 
     private String mode = "Driving";
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -133,7 +127,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API).build();
         mGoogleApiClient.connect();
-
+        bottomSheet = findViewById(R.id.bottom_sheet);
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        bottomSheetHandle = findViewById(R.id.bottom_sheet_handle);
 
         createToiletWidgets();
         createParkingWidgetst();
@@ -177,7 +173,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                closeBottomSheet();
+            }
+        });
 
         mGps.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -189,39 +190,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-
         mNavigation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (destLatlng != null) {
-                    Uri.Builder directionsBuilder = new Uri.Builder()
-                            .scheme("https")
-                            .authority("www.google.com")
-                            .appendPath("maps")
-                            .appendPath("dir")
-                            .appendPath("")
-                            .appendQueryParameter("api", "1")
-                            .appendQueryParameter("destination", destLatlng.latitude + "," + destLatlng.longitude);
-                    startActivity(new Intent(Intent.ACTION_VIEW, directionsBuilder.build()));
-                }else{
-                    Toast.makeText(MapActivity.this, "No Destination is chosen, click on a marker.", Toast.LENGTH_SHORT).show();
-                }
-//                if (destLatlng != null){
-//                    cleanMap();
-//                    showKeyPoint();
-//                    Toast.makeText(MapActivity.this, "Navigating to destination, mode: " + mode, Toast.LENGTH_SHORT).show();
-//                    Log.d(TAG, "mNavigation: clicked navigation icon");
-//                    String url = getRequestedUrl(currentLatlng, destLatlng);
-//                    Log.d(TAG, "mNavigation: clicked navigation icon, show currentLatlng " + currentLatlng.latitude + " || " + currentLatlng.longitude);
-//                    Log.d(TAG, "mNavigation: clicked navigation icon, show destLatlng " + destLatlng.latitude + " || " + destLatlng.longitude);
-//                    TaskRequestDirections findPath = new TaskRequestDirections();
-//                    findPath.execute(url);
-//                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destLatlng,13f));
-//                }
-//                else{
-//                    Toast.makeText(MapActivity.this, "No Destination is Choosen.", Toast.LENGTH_SHORT).show();
-//                }
-
+                navigationToGoogle();
             }
         });
 
@@ -239,6 +211,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 //                cleanMap();
 //            }
 //        });
+//                if (destLatlng != null){
+//                    cleanMap();
+//                    showKeyPoint();
+//                    Toast.makeText(MapActivity.this, "Navigating to destination, mode: " + mode, Toast.LENGTH_SHORT).show();
+//                    Log.d(TAG, "mNavigation: clicked navigation icon");
+//                    String url = getRequestedUrl(currentLatlng, destLatlng);
+//                    Log.d(TAG, "mNavigation: clicked navigation icon, show currentLatlng " + currentLatlng.latitude + " || " + currentLatlng.longitude);
+//                    Log.d(TAG, "mNavigation: clicked navigation icon, show destLatlng " + destLatlng.latitude + " || " + destLatlng.longitude);
+//                    TaskRequestDirections findPath = new TaskRequestDirections();
+//                    findPath.execute(url);
+//                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destLatlng,13f));
+//                }
+//                else{
+//                    Toast.makeText(MapActivity.this, "No Destination is Choosen.", Toast.LENGTH_SHORT).show();
+//                }
 
         mBuilding.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -250,7 +237,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                     @Override
                     protected JsonArray doInBackground(Void... voids) {
-                        return findBuildingAccessibility(remoteLatlng, 50);
+                        return findBuildingAccessibility(remoteLatlng, 100);
                     }
 
                     @Override
@@ -302,6 +289,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 //                }.execute();
 //            }
 //        });
+        bottomSheetHandle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+                else {
+                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
+            }
+        });
 
         Log.d(TAG, "init: initiating finished");
     }
@@ -367,7 +365,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-
     // ======================== Toilet related code here =========================
     public void showToiletSpots(ArrayList<Toilet> toilets) {
         Log.d(TAG, "method: showSpots called ");
@@ -391,9 +388,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void createToiletWidgets(){
         toiletFilterSheet = findViewById(R.id.toilet_filter_bottomsheet);
         toiletBottomSheetBehavior = BottomSheetBehavior.from(toiletFilterSheet);
+        toiletFilterHandle = findViewById(R.id.toilet_filter_handle);
         spToiletFilterWheelchair = (Spinner) findViewById(R.id.spin_toilet_wheelchair);
-        spToiletFilterFemale = (Spinner) findViewById(R.id.spin_toilet_female);
-        spToiletFilterMale = (Spinner) findViewById(R.id.spin_toilet_male);
+//        spToiletFilterFemale = (Spinner) findViewById(R.id.spin_toilet_female);
+//        spToiletFilterMale = (Spinner) findViewById(R.id.spin_toilet_male);
         spToiletFilterDistance = (Spinner) findViewById(R.id.spin_toilet_distance);
         btToiletSearch = (Button) findViewById(R.id.button_toilet_search);
     }
@@ -418,41 +416,41 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        spToiletFilterFemale.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (spToiletFilterFemale.getSelectedItem().toString().toLowerCase().equals("yes")) {
-                    toiletManager.getSampleToilet().setFemale("yes");
-                }else if (spToiletFilterFemale.getSelectedItem().toString().toLowerCase().equals("no")) {
-                    toiletManager.getSampleToilet().setFemale("no");
-                }else {
-                    toiletManager.getSampleToilet().setFemale("");
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        spToiletFilterMale.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (spToiletFilterMale.getSelectedItem().toString().toLowerCase().equals("yes")) {
-                    toiletManager.getSampleToilet().setMale("yes");
-                }else if (spToiletFilterMale.getSelectedItem().toString().toLowerCase().equals("no")) {
-                    toiletManager.getSampleToilet().setMale("no");
-                }else{
-                    toiletManager.getSampleToilet().setMale("");
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+//        spToiletFilterFemale.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+//                if (spToiletFilterFemale.getSelectedItem().toString().toLowerCase().equals("yes")) {
+//                    toiletManager.getSampleToilet().setFemale("yes");
+//                }else if (spToiletFilterFemale.getSelectedItem().toString().toLowerCase().equals("no")) {
+//                    toiletManager.getSampleToilet().setFemale("no");
+//                }else {
+//                    toiletManager.getSampleToilet().setFemale("");
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
+//
+//        spToiletFilterMale.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+//                if (spToiletFilterMale.getSelectedItem().toString().toLowerCase().equals("yes")) {
+//                    toiletManager.getSampleToilet().setMale("yes");
+//                }else if (spToiletFilterMale.getSelectedItem().toString().toLowerCase().equals("no")) {
+//                    toiletManager.getSampleToilet().setMale("no");
+//                }else{
+//                    toiletManager.getSampleToilet().setMale("");
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
 
         spToiletFilterDistance.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -492,15 +490,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mToilet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(toiletBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-                    toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                }
-                else {
-                    toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                }
+                closeBottomSheet();
+                toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             }
         });
 
+        toiletFilterHandle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+        });
     }
 
     private void setToiletManagerRadius(LatLng latLng, double radiusinMeters){
@@ -516,9 +516,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         toiletManager.setWest(southwestCorner.latitude);
     }
 
-
     // ======================== Parking related code here ==========================
-
     public void showParkingSpot(ParkingSpot oneSpot){
         Log.d(TAG, "method: showSpots called ");
 
@@ -538,15 +536,35 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
     }
 
+//    public void showParkingSpotList(ArrayList<ParkingSpot> parkingSpots){
+//        Log.d(TAG, "method: showSpots called ");
+//
+//        String bayId = oneSpot.getBayID();
+//        Double lat = oneSpot.getLat();
+//        Double lon = oneSpot.getLon();
+//        String status = oneSpot.getStatus();
+//        LatLng latlng = new LatLng(lat, lon);
+//        Log.d(TAG, "method: showSpots : " + oneSpot.toString());
+//        MarkerOptions options = null;
+//        if (status.equals("Unoccupied")){
+//            options = new MarkerOptions().title("Parking:" + bayId).snippet(oneSpot.toString()).position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_parking_icon));
+//        }else{
+//            options = new MarkerOptions().title("Parking:" + bayId).snippet(oneSpot.toString()).position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_parking_redicon));;
+//        }
+//        mMap.addMarker(options);
+//        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
+//    }
+
     private void createParkingWidgetst(){
         parkingFilterSheet = findViewById(R.id.parking_filter_bottomsheet);
         parkingBottomSheetBehavior = BottomSheetBehavior.from(parkingFilterSheet);
         spParkingFilterDuration = (Spinner) findViewById(R.id.spin_parking_duration);
         spParkingFilterDistance = (Spinner) findViewById(R.id.spin_parking_distance);
         spParkingFilterCharge = (Spinner) findViewById(R.id.spin_parking_pay);
-        spParkingAvailable = (Spinner) findViewById(R.id.spin_parking_available);
-        spParkingFilterDisableOnly = (Spinner) findViewById(R.id.spin_parking_disableOnly);
+        //spParkingAvailable = (Spinner) findViewById(R.id.spin_parking_available);
+        //spParkingFilterDisableOnly = (Spinner) findViewById(R.id.spin_parking_disableOnly);
         btParkingSearch = (Button) findViewById(R.id.button_parking_search);
+        parkingFilterHandle = findViewById(R.id.parking_filter_handle);
     }
 
     private void registerParkingBottomSheetWidgets(){
@@ -605,42 +623,41 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        spParkingFilterDisableOnly.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (spParkingFilterDisableOnly.getSelectedItem().toString().toLowerCase().equals("yes")) {
-                    parkingManager.getSampleParkingSpot().setDisableOnly("yes");
-                }else if (spParkingFilterDisableOnly.getSelectedItem().toString().toLowerCase().equals("no")) {
-                    parkingManager.getSampleParkingSpot().setDisableOnly("no");
-                }else{
-                    parkingManager.getSampleParkingSpot().setDisableOnly("");
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        spParkingAvailable.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (spParkingAvailable.getSelectedItem().toString().toLowerCase().equals("yes")) {
-                    parkingManager.getSampleParkingSpot().setStatus("Unoccupied");
-                }else if (spParkingAvailable.getSelectedItem().toString().toLowerCase().equals("no")) {
-                    parkingManager.getSampleParkingSpot().setStatus("Present");
-                }else{
-                    parkingManager.getSampleParkingSpot().setDisableOnly("");
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
+//        spParkingFilterDisableOnly.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+//                if (spParkingFilterDisableOnly.getSelectedItem().toString().toLowerCase().equals("yes")) {
+//                    parkingManager.getSampleParkingSpot().setDisableOnly("yes");
+//                }else if (spParkingFilterDisableOnly.getSelectedItem().toString().toLowerCase().equals("no")) {
+//                    parkingManager.getSampleParkingSpot().setDisableOnly("no");
+//                }else{
+//                    parkingManager.getSampleParkingSpot().setDisableOnly("");
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
+//
+//        spParkingAvailable.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+//                if (spParkingAvailable.getSelectedItem().toString().toLowerCase().equals("yes")) {
+//                    parkingManager.getSampleParkingSpot().setStatus("Unoccupied");
+//                }else if (spParkingAvailable.getSelectedItem().toString().toLowerCase().equals("no")) {
+//                    parkingManager.getSampleParkingSpot().setStatus("Present");
+//                }else{
+//                    parkingManager.getSampleParkingSpot().setDisableOnly("");
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
 
         btParkingSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -662,12 +679,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mParking.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(parkingBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-                    parkingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                }
-                else {
-                    parkingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                }
+                closeBottomSheet();
+                parkingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            }
+        });
+
+        parkingFilterHandle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                parkingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             }
         });
     }
@@ -686,9 +706,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-
     // ======================== Metro related code here ==========================
-
     private void setMetroStationManagerRadius(LatLng latLng, double radiusinMeters){
 
         Log.d(TAG, "method: setMetroStationManagerRadius called ");
@@ -725,11 +743,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         metroFilterSheet = findViewById(R.id.metro_filter_bottomsheet);
         metroBottomSheetBehavior = BottomSheetBehavior.from(metroFilterSheet);
         spMetroDistance = (Spinner) findViewById(R.id.spin_metro_distance);
-        spMetroPid = (Spinner) findViewById(R.id.spin_metro_pid);
+        //spMetroPid = (Spinner) findViewById(R.id.spin_metro_pid);
         spMetroLift = (Spinner) findViewById(R.id.spin_metro_lift);
         spMetroLoop = (Spinner) findViewById(R.id.spin_metro_loop);
         btMetroSearch = (Button) findViewById(R.id.button_metro_search);
         mMetro = (ImageView) findViewById(R.id.ic_metro_station);
+        metroFilterHandle = findViewById(R.id.metro_filter_handle);
     }
 
     public void registerMetroBottomSheetWidgets(){
@@ -769,23 +788,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             }
         });
-
-        spMetroPid.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (spMetroPid.getSelectedItem().toString().equals("--")) {
-                    metroStationManager.getSampleStation().setPids("");
-                }else{
-                    metroStationManager.getSampleStation().setPids(spMetroPid.getSelectedItem().toString());
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
+//        spMetroPid.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+//                if (spMetroPid.getSelectedItem().toString().equals("--")) {
+//                    metroStationManager.getSampleStation().setPids("");
+//                }else{
+//                    metroStationManager.getSampleStation().setPids(spMetroPid.getSelectedItem().toString());
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
         spMetroDistance.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -819,21 +836,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mMetro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(metroBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-                    metroBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                }
-                else {
-                    metroBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                }
+                closeBottomSheet();
+                metroBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            }
+        });
+
+        metroFilterHandle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                metroBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             }
         });
 
     }
 
-
-
     // ======================== Building related code here ==========================
-
     private void showBuildingAccessibility(JsonArray accessibility){
         Log.d(TAG, "method: showSpots called ");
         if (accessibility.size() != 0) {
@@ -871,7 +888,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    //South Longitude is negative，North Longitude is positive; East Latitude is positive，West Latitude is negative.
+    //South Longitude is negative，North Longitude is positive;
+    //East Latitude is positive，West Latitude is negative.
 
     private JsonArray findBuildingAccessibility(LatLng latLng, double radiusinMeters){
         Log.d(TAG, "nethod: findBuildingAccessibility called ");
@@ -886,10 +904,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return building.FindBuildingAccessibility();
     }
 
-
-
     // ======================== functional code here =========================
-
     public LatLngBounds toBounds(LatLng center, double radiusInMeters) {
         double distanceFromCenterToCorner = radiusInMeters * Math.sqrt(2.0);
         LatLng southwestCorner =
@@ -901,6 +916,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void cleanMap(){
         mMap.clear();
+    }
+
+    private void closeBottomSheet() {
+        toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        parkingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        metroBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
     private void showKeyPoint(){
@@ -1031,10 +1053,43 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+    public void showSearchingResultList(ArrayList<Object> objects){
+        ListAdapter listAdapter = new ListAdapter(MapActivity.this, objects);
+        ListView list = (ListView)findViewById(R.id.search_result_list);
+        list.setAdapter(listAdapter);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                //Toast.makeText(MapActivity.this, "You Clicked at " +web[+ position], Toast.LENGTH_SHORT).show();
+            }
+        });
+        if (objects.size() != 0){
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
+    };
+
+    public void navigationToGoogle(){
+        if (destLatlng != null) {
+            Uri.Builder directionsBuilder = new Uri.Builder()
+                    .scheme("https")
+                    .authority("www.google.com")
+                    .appendPath("maps")
+                    .appendPath("dir")
+                    .appendPath("")
+                    .appendQueryParameter("api", "1")
+                    .appendQueryParameter("destination", destLatlng.latitude + "," + destLatlng.longitude);
+            startActivity(new Intent(Intent.ACTION_VIEW, directionsBuilder.build()));
+        }else{
+            Toast.makeText(MapActivity.this, "No Destination is chosen, click on a marker.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void setDestLatlng(Double lat, Double lon){
+        destLatlng = new LatLng(lat,lon);
+    }
 
     // ======================== permission code here =========================
-
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult: called.");
@@ -1076,54 +1131,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    private String getRequestedUrl(LatLng from, LatLng to) {
-        Log.d(TAG, "method: getRequestedUrl is called:");
-        String string_origin = "origin=" + from.latitude + "," + from.longitude;
-        String string_destination = "destination=" + to.latitude + "," + to.longitude;
-        String sensor = "sensor=false";
-        String mode = "mode=driving";
-        String param = string_origin+"&"+string_destination+"&"+sensor+"&"+mode;
-        String output = "json";
-        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + param; // + "&key=AIzaSyCcLw8zgIjhCqC1QeCBXv7NVGAUFuChKq8";
-        return url;
-    }
-
-    private String requesDirection(String reqUrl) throws IOException {
-        Log.d(TAG, "method: requesDirection is called: " + reqUrl);
-        String responseString = "";
-        InputStream inputStream = null;
-        HttpURLConnection httpURLConnection = null;
-        try{
-            URL url = new URL(reqUrl);
-            httpURLConnection = (HttpURLConnection) url.openConnection();
-            httpURLConnection.connect();
-
-            inputStream = httpURLConnection.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-            StringBuffer stringBuffer = new StringBuffer();
-            String line = "";
-            while ((line = bufferedReader.readLine()) != null) {
-                stringBuffer.append(line);
-            }
-
-            responseString = stringBuffer.toString();
-            bufferedReader.close();
-            inputStream.close();
-
-        }catch (Exception e) {
-            e.printStackTrace();
-        }finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
-            httpURLConnection.disconnect();
-        }
-        Log.d(TAG, "method: requesDirection get: " + responseString);
-        return responseString;
-    }
-
     public List<List<LatLng>> getLatlng(JSONObject jObject) {
         List<List<LatLng>> routes = new ArrayList<List<LatLng>>();
         JSONArray jRoutes = null;
@@ -1154,28 +1161,77 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return routes;
     }
 
-    public class TaskRequestDirections extends AsyncTask<String, Void, String> {
+//    private String getRequestedUrl(LatLng from, LatLng to) {
+//        Log.d(TAG, "method: getRequestedUrl is called:");
+//        String string_origin = "origin=" + from.latitude + "," + from.longitude;
+//        String string_destination = "destination=" + to.latitude + "," + to.longitude;
+//        String sensor = "sensor=false";
+//        String mode = "mode=driving";
+//        String param = string_origin+"&"+string_destination+"&"+sensor+"&"+mode;
+//        String output = "json";
+//        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + param; // + "&key=AIzaSyCcLw8zgIjhCqC1QeCBXv7NVGAUFuChKq8";
+//        return url;
+//    }
 
-        @Override
-        protected String doInBackground(String... strings) {
-            Log.d(TAG, "TaskRequsetDirections: method start");
-            String responseString = "";
-            try{
-                responseString = requesDirection(strings[0]);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return responseString;
-        }
+//    private String requesDirection(String reqUrl) throws IOException {
+//        Log.d(TAG, "method: requesDirection is called: " + reqUrl);
+//        String responseString = "";
+//        InputStream inputStream = null;
+//        HttpURLConnection httpURLConnection = null;
+//        try{
+//            URL url = new URL(reqUrl);
+//            httpURLConnection = (HttpURLConnection) url.openConnection();
+//            httpURLConnection.connect();
+//
+//            inputStream = httpURLConnection.getInputStream();
+//            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+//            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+//
+//            StringBuffer stringBuffer = new StringBuffer();
+//            String line = "";
+//            while ((line = bufferedReader.readLine()) != null) {
+//                stringBuffer.append(line);
+//            }
+//
+//            responseString = stringBuffer.toString();
+//            bufferedReader.close();
+//            inputStream.close();
+//
+//        }catch (Exception e) {
+//            e.printStackTrace();
+//        }finally {
+//            if (inputStream != null) {
+//                inputStream.close();
+//            }
+//            httpURLConnection.disconnect();
+//        }
+//        Log.d(TAG, "method: requesDirection get: " + responseString);
+//        return responseString;
+//    }
 
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
 
-            TaskParser taskParser = new TaskParser();
-            taskParser.execute(s);
-        }
-    }
+//    public class TaskRequestDirections extends AsyncTask<String, Void, String> {
+//
+//        @Override
+//        protected String doInBackground(String... strings) {
+//            Log.d(TAG, "TaskRequsetDirections: method start");
+//            String responseString = "";
+//            try{
+//                responseString = requesDirection(strings[0]);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//            return responseString;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String s) {
+//            super.onPostExecute(s);
+//
+//            TaskParser taskParser = new TaskParser();
+//            taskParser.execute(s);
+//        }
+//    }
 
     public class TaskParser extends AsyncTask<String, Void, List<List<LatLng>>> {
 
@@ -1216,9 +1272,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    /*
-        -------- google palces API actocomplete suggestions --------
-     */
+    // -------- google palces API actocomplete suggestions --------
     private AdapterView.OnItemClickListener mAutocompleteClickListener = new AdapterView.OnItemClickListener() {
 
         @Override

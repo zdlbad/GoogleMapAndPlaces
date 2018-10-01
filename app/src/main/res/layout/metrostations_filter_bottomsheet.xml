@@ -16,7 +16,25 @@
     <!--doing nothing-->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp">
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:id="@+id/metro_filter_handle">
+
+        <!--metro image-->
+        <ImageView
+            android:id="@+id/toilet"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/bg_circle"
+            android:elevation="10dp"
+            android:src="@drawable/ic_train" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="Searching Filter For Metro Stations"/>
 
     </LinearLayout>
 
@@ -35,9 +53,16 @@
             android:layout_marginBottom="10dp"
             android:gravity="center">
 
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_lift"/>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textStyle="bold"
                 android:text="Have Lift: "/>
 
             <Spinner
@@ -45,26 +70,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:entries="@array/yes_or_no"/>
-        </LinearLayout>
-
-        <!--PID-->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="PID Type: "/>
-
-            <Spinner
-                android:id="@+id/spin_metro_pid"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/metro_pid"/>
         </LinearLayout>
 
         <!--he_loop-->
@@ -75,11 +80,17 @@
             android:layout_margin="10dp"
             android:gravity="center">
 
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_ramp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Have Ramp Loop: "/>
+                android:textStyle="bold"
+                android:text="Have Ramp: "/>
 
             <Spinner
                 android:id="@+id/spin_metro_loop"
@@ -96,10 +107,16 @@
             android:layout_margin="10dp"
             android:gravity="center">
 
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_distance"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textStyle="bold"
                 android:text="Distance: "/>
 
             <Spinner

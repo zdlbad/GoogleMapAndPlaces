@@ -15,8 +15,6 @@ public class Building {
     private Double west;
     private static final String BASE_URL_BUILDING = "https://data.melbourne.vic.gov.au/resource/qabw-suvb.json?$where=";
 
-
-
     public Building(){
         connection = null;
     }
@@ -42,7 +40,6 @@ public class Building {
         builder.append(" y_coordinate < " + east +" and y_coordinate > "+ west + " and x_coordinate < " + north +" and x_coordinate > "+ south );
         return builder.toString();
     }
-
 
     private boolean MakeAPIConnection(){
         int code = 0;

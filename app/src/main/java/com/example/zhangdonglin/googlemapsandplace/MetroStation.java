@@ -2,7 +2,7 @@ package com.example.zhangdonglin.googlemapsandplace;
 
 import java.util.Arrays;
 
-public class MetroStation {
+public class MetroStation extends Object{
 
     private String he_loop;
     private String lift;
@@ -10,6 +10,7 @@ public class MetroStation {
     private String station;
     private Double lat;
     private Double lon;
+    private Double distance;
 
     public MetroStation() {
         this.he_loop = "";
@@ -18,6 +19,15 @@ public class MetroStation {
         this.station = "";
         this.lat = 0.0;
         this.lon = 0.0;
+        this.distance = 52.128;
+    }
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
     }
 
     public String getHe_loop() {
@@ -70,10 +80,10 @@ public class MetroStation {
 
     @Override
     public String toString() {
-        return  " He_loop='" + he_loop + '\'' + '\n' +
-                " Lift='" + lift + '\'' + '\n' +
-                " Pids='" + pids + '\'' + '\n' +
-                " Station='" + station + '\'';
+        return  " Distance: " + distance +  " meters" + '\n' +
+                " Station: " + station + '\n' +
+                " Ramp: " + he_loop + '\n' +
+                " Lift: " + lift ;
     }
 
     public boolean checkWithSample(MetroStation sample) {

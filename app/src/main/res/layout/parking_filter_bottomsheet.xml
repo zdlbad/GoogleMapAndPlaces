@@ -16,8 +16,25 @@
     <!--doing nothing-->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp">
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:id="@+id/parking_filter_handle">
 
+        <!--parking image-->
+        <ImageView
+            android:id="@+id/toilet"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/bg_circle"
+            android:elevation="10dp"
+            android:src="@drawable/ic_parking_2" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="Searching Filter For Public Parking"/>
     </LinearLayout>
 
     <!--filter content-->
@@ -36,9 +53,16 @@
             android:layout_marginBottom="10dp"
             android:gravity="center">
 
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_duration"/>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textStyle="bold"
                 android:text="Duration: "/>
 
             <Spinner
@@ -56,10 +80,16 @@
             android:layout_margin="10dp"
             android:gravity="center">
 
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_distance"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textStyle="bold"
                 android:text="Distance: "/>
 
             <Spinner
@@ -77,54 +107,20 @@
             android:layout_margin="10dp"
             android:gravity="center">
 
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_pay"/>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textStyle="bold"
                 android:text="Need to Pay:"/>
 
             <Spinner
                 android:id="@+id/spin_parking_pay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/yes_or_no"/>
-        </LinearLayout>
-
-        <!--disabled only-->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Disable Only:"/>
-
-            <Spinner
-                android:id="@+id/spin_parking_disableOnly"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/yes_or_no"/>
-        </LinearLayout>
-
-        <!--status-->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:gravity="center">
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Currently Available: "/>
-
-            <Spinner
-                android:id="@+id/spin_parking_available"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:entries="@array/yes_or_no"/>
@@ -144,8 +140,7 @@
         android:text="Search"
         android:background="@drawable/background_icon_search"
         android:layout_marginBottom="15dp"
-        android:elevation="10dp"
-        />
+        android:elevation="10dp"/>
 
     </LinearLayout>
 

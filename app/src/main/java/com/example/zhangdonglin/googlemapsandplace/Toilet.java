@@ -8,7 +8,7 @@ package com.example.zhangdonglin.googlemapsandplace;
 
 import android.util.Log;
 
-public class Toilet {
+public class Toilet extends Object{
     private String baby_facil;
     private String female;
     private String male;
@@ -17,6 +17,7 @@ public class Toilet {
     private String wheelchair;
     private Double lat;
     private Double lon;
+    private Double distance;
 
     public Toilet() {
         this.baby_facil = "";
@@ -27,7 +28,15 @@ public class Toilet {
         this.wheelchair = "";
         this.lat = 0.00;
         this.lon = 0.00;
+        this.distance = 137.34;
+    }
 
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
     }
 
     public String getBaby_facil() {
@@ -96,12 +105,11 @@ public class Toilet {
 
     @Override
     public String toString() {
-        return  " Baby_facil='" + baby_facil + '\'' + '\n' +
-                " Female='" + female + '\'' + '\n' +
-                " Male='" + male + '\'' + '\n' +
-                " Name='" + name + '\'' + '\n' +
-                " Operator='" + operator + '\'' + '\n' +
-                " Wheelchair='" + wheelchair + '\'';
+        return  " Distance: " + distance +  " meters" + '\n' +
+                " Baby_facil: " + baby_facil + '\n' +
+                " Female: " + female + '\n' +
+                " Male: " + male + '\n' +
+                " Wheelchair: " + wheelchair;
     }
 
     public boolean checkWithSample(Toilet sample){

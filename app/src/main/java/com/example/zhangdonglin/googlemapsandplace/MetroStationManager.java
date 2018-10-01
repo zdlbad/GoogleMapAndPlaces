@@ -3,6 +3,7 @@ package com.example.zhangdonglin.googlemapsandplace;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -87,6 +88,9 @@ public class MetroStationManager {
                     MetroStation oneStation = o.getValue(MetroStation.class);
                     Log.d(TAG, "===got: " + oneStation.toString());
                     if (oneStation.getLon() >= south && oneStation.getLon() <= north){
+                        LatLng remote = mapActivity.remoteLatlng;
+                        Double distance = MyTools.getDistanceFromLatLonInMeter(remote.latitude, remote.longitude, oneStation.getLat(), oneStation.getLon());
+                        oneStation.setDistance(MyTools.roundDouble(distance));
                         resultList.add(oneStation);
                         Log.d(TAG, "===got a valid one. ");
                     }else{
@@ -96,6 +100,12 @@ public class MetroStationManager {
                 Log.d(TAG, "==========Search after LatRange Query===========got: " + resultList.size());
                 filter();
                 mapActivity.showMetroStations(resultList);
+
+                ArrayList<Object> objectArrayList = new ArrayList<>();
+                for (MetroStation oneMetro: resultList){
+                    objectArrayList.add((Object) oneMetro);
+                }
+                mapActivity.showSearchingResultList(objectArrayList);
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {

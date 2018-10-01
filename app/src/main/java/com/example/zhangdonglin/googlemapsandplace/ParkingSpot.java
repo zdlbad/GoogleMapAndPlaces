@@ -12,7 +12,7 @@ import java.util.Date;
 // "location":{"type":"Point","coordinates":[144.945818509531,-37.816737889953]},
 // "lon":"144.94581850953125","st_marker_id":"13332E","status":"Unoccupied"}
 
-public class ParkingSpot {
+public class ParkingSpot extends Object{
 
 
     private Double lat;
@@ -22,6 +22,7 @@ public class ParkingSpot {
     private int disDuration;
     private String disableOnly;
     private String needToPay;
+    private Double distance;
 
     private String BayID;
 
@@ -100,6 +101,7 @@ public class ParkingSpot {
         this.disDuration = 0;
         this.disableOnly = "";
         this.needToPay = "";
+        this.distance = 102.5;
 
         this.BayID = "";
         this.Description1 = "";
@@ -158,6 +160,14 @@ public class ParkingSpot {
         this.TypeDesc5 = "";
         this.TypeDesc6 = "";
 
+    }
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
     }
 
     public Double getLat() {
@@ -666,12 +676,12 @@ public class ParkingSpot {
 
     @Override
     public String toString() {
-        return  " Status='" + status + '\'' + '\n' +
-                " NormalDuration=" + normalDuration + '\n' +
-                " DisDuration=" + disDuration + '\n' +
-                " DisableOnly='" + disableOnly + '\'' + '\n' +
-                " NeedToPay='" + needToPay + '\'' + '\n' +
-                " BayID='" + BayID + '\'';
+
+        return  " Distance: " + distance + " meters" + '\n' +
+                " Status: " + status + '\n' +
+                " NormalDuration: " + normalDuration + '\n' +
+                " DisableOnly: " + disableOnly  + '\n' +
+                " NeedToPay: " + needToPay;
     }
 
     // ======= check duration based on current time and dayOfWeek

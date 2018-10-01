@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -54,6 +55,7 @@ public class ParkingManager {
         });
         searchingResult = new ArrayList<ParkingSpot>();
         sampleParkingSpot = new ParkingSpot();
+        sampleParkingSpot.setStatus("Unoccupied");
     }
 
     public void setNorth(Double north) {
@@ -158,11 +160,21 @@ public class ParkingManager {
                                         Log.d(TAG, "------- one spot:" + oneParking.toString());
                                         if (oneParking.chechWithSampleSpot(sampleParkingSpot)) {
                                             Log.d(TAG, "------- one spot valid");
+                                            LatLng remote = mapActivity.remoteLatlng;
+                                            Double distance = MyTools.getDistanceFromLatLonInMeter(remote.latitude, remote.longitude, oneParking.getLat(), oneParking.getLon());
+                                            oneParking.setDistance(MyTools.roundDouble(distance));
                                             searchingResult.add(oneParking);
                                             mapActivity.showParkingSpot(oneParking);
                                         }else{
                                             Log.d(TAG, "!!!!!!! one spot invalid");
                                         }
+
+                                        ArrayList<Object> objectArrayList = new ArrayList<>();
+                                        for (ParkingSpot oneParkingSpot: searchingResult){
+                                            objectArrayList.add((Object) oneParkingSpot);
+                                        }
+                                        mapActivity.showSearchingResultList(objectArrayList);
+
 
                                     }
                                 }
