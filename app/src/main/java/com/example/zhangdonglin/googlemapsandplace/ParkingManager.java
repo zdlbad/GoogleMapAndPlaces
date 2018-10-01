@@ -152,31 +152,30 @@ public class ParkingManager {
                                         //
                                 }else {
                                     for (DataSnapshot o : dataSnapshot.getChildren()) {
-                                        ParkingSpot oneParking = o.getValue(ParkingSpot.class);
-                                        oneParking.setLat(lat);
-                                        oneParking.setLon(lon);
-                                        oneParking.setStatus(status);
-                                        oneParking.checkSpot();
-                                        Log.d(TAG, "------- one spot:" + oneParking.toString());
-                                        if (oneParking.chechWithSampleSpot(sampleParkingSpot)) {
-                                            Log.d(TAG, "------- one spot valid");
-                                            LatLng remote = mapActivity.remoteLatlng;
-                                            Double distance = MyTools.getDistanceFromLatLonInMeter(remote.latitude, remote.longitude, oneParking.getLat(), oneParking.getLon());
-                                            oneParking.setDistance(MyTools.roundDouble(distance));
-                                            searchingResult.add(oneParking);
-                                            mapActivity.showParkingSpot(oneParking);
-                                        }else{
-                                            Log.d(TAG, "!!!!!!! one spot invalid");
+                                        if (searchingResult.size() < 15){
+                                            ParkingSpot oneParking = o.getValue(ParkingSpot.class);
+                                            oneParking.setLat(lat);
+                                            oneParking.setLon(lon);
+                                            oneParking.setStatus(status);
+                                            oneParking.checkSpot();
+                                            Log.d(TAG, "------- one spot:" + oneParking.toString());
+                                            if (oneParking.chechWithSampleSpot(sampleParkingSpot)) {
+                                                Log.d(TAG, "------- one spot valid");
+                                                LatLng remote = mapActivity.remoteLatlng;
+                                                Double distance = MyTools.getDistanceFromLatLonInMeter(remote.latitude, remote.longitude, oneParking.getLat(), oneParking.getLon());
+                                                oneParking.setDistance(MyTools.roundDouble(distance));
+                                                searchingResult.add(oneParking);
+                                                mapActivity.showParkingSpot(oneParking);
+                                            }else{
+                                                Log.d(TAG, "!!!!!!! one spot invalid");
+                                            }
                                         }
-
-                                        ArrayList<Object> objectArrayList = new ArrayList<>();
-                                        for (ParkingSpot oneParkingSpot: searchingResult){
-                                            objectArrayList.add((Object) oneParkingSpot);
-                                        }
-                                        mapActivity.showSearchingResultList(objectArrayList);
-
-
                                     }
+                                    ArrayList<Object> objectArrayList = new ArrayList<>();
+                                    for (ParkingSpot oneParkingSpot: searchingResult){
+                                        objectArrayList.add((Object) oneParkingSpot);
+                                    }
+                                    mapActivity.showSearchingResultList(objectArrayList);
                                 }
                             }
 
@@ -197,7 +196,6 @@ public class ParkingManager {
 
             }
         }.execute();
-
     }
 
     private JsonArray searchParkingByRadius(){

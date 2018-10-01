@@ -678,10 +678,10 @@ public class ParkingSpot extends Object{
     public String toString() {
 
         return  " Distance: " + distance + " meters" + '\n' +
-                " Status: " + status + '\n' +
-                " NormalDuration: " + normalDuration + '\n' +
-                " DisableOnly: " + disableOnly  + '\n' +
-                " NeedToPay: " + needToPay;
+                " Status: " + status + '\n';
+//                " NormalDuration: " + normalDuration + '\n' +
+//                " DisableOnly: " + disableOnly  + '\n' +
+//                " NeedToPay: " + needToPay;
     }
 
     // ======= check duration based on current time and dayOfWeek

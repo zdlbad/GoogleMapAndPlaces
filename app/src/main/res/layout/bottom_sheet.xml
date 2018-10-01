@@ -27,7 +27,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginBottom="10dp"
-            android:layout_marginStart="50dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/bg_circle"
             android:elevation="10dp"
@@ -40,7 +40,7 @@
             android:layout_height="40dp"
             android:layout_marginBottom="10dp"
             android:layout_toEndOf="@+id/toilet"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="30dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/bg_circle"
             android:elevation="10dp"
@@ -53,7 +53,7 @@
             android:layout_height="40dp"
             android:layout_toEndOf="@+id/parking"
             android:layout_marginBottom="10dp"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="30dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/bg_circle"
             android:elevation="10dp"
@@ -65,13 +65,25 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_toEndOf="@+id/ic_metro_station"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="30dp"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/bg_circle"
             android:elevation="10dp"
             android:src="@drawable/ic_building_2" />
 
+        <!--garden image-->
+        <ImageView
+            android:id="@+id/garden"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_toEndOf="@+id/building"
+            android:layout_marginStart="30dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_circle"
+            android:elevation="10dp"
+            android:src="@drawable/ic_garden" />
 
     </RelativeLayout>
 

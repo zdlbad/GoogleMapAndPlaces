@@ -95,15 +95,15 @@
                 android:layout_margin= "10dp"
                 android:src="@mipmap/ic_navigation_2_round" />
 
-
         </LinearLayout>
 
     </RelativeLayout>
 
     <include layout="@layout/bottom_sheet" />
-    <include layout="@layout/toilet_filter_bottomsheet" />
-    <include layout="@layout/parking_filter_bottomsheet"/>
-    <include layout="@layout/metrostations_filter_bottomsheet"/>
+    <include layout="@layout/bottomsheet_toilet_filter" />
+    <include layout="@layout/bottomsheet_parking_filter"/>
+    <include layout="@layout/bottomsheet_metrostations_filter"/>
+    <include layout="@layout/bottomsheet_garden_filter" />
 
 
 </android.support.design.widget.CoordinatorLayout>

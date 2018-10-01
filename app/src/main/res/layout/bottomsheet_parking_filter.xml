@@ -22,7 +22,6 @@
 
         <!--parking image-->
         <ImageView
-            android:id="@+id/toilet"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_marginEnd="10dp"
@@ -99,32 +98,32 @@
                 android:entries="@array/distance"/>
         </LinearLayout>
 
-        <!--charge-->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:gravity="center">
+        <!--&lt;!&ndash;charge&ndash;&gt;-->
+        <!--<LinearLayout-->
+            <!--android:orientation="horizontal"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_margin="10dp"-->
+            <!--android:gravity="center">-->
 
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="10dp"
-                android:src="@drawable/ic_pay"/>
+            <!--<ImageView-->
+                <!--android:layout_width="40dp"-->
+                <!--android:layout_height="40dp"-->
+                <!--android:layout_marginEnd="10dp"-->
+                <!--android:src="@drawable/ic_pay"/>-->
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:text="Need to Pay:"/>
+            <!--<TextView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:textStyle="bold"-->
+                <!--android:text="Need to Pay:"/>-->
 
-            <Spinner
-                android:id="@+id/spin_parking_pay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/yes_or_no"/>
-        </LinearLayout>
+            <!--<Spinner-->
+                <!--android:id="@+id/spin_parking_pay"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:entries="@array/yes_or_no"/>-->
+        <!--</LinearLayout>-->
 
         <!--doing nothing-->
         <LinearLayout

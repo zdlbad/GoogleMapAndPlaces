@@ -82,15 +82,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     //widgets
     private AutoCompleteTextView mSearchText;
-    private ImageView mGps, mInfo, mPlacePicker, mToilet, mParking, mNavigation, mReset, mBuilding, mClearSearch, mMetro;
+    private ImageView mGps, mInfo, mPlacePicker, mToilet, mParking, mNavigation, mReset, mBuilding, mClearSearch, mMetro, mGarden;
     private TextView tInfo;
-    private BottomSheetBehavior toiletBottomSheetBehavior, parkingBottomSheetBehavior, metroBottomSheetBehavior, bottomSheetBehavior;
-    private View toiletFilterSheet, parkingFilterSheet, metroFilterSheet, bottomSheet;
-    private View toiletFilterHandle, parkingFilterHandle, metroFilterHandle, bottomSheetHandle;
+    private BottomSheetBehavior toiletBottomSheetBehavior, gardenBottomSheetBehavior, parkingBottomSheetBehavior, metroBottomSheetBehavior, bottomSheetBehavior;
+    private View toiletFilterSheet, gardenFilterSheet, parkingFilterSheet, metroFilterSheet, bottomSheet;
+    private View toiletFilterHandle, gardenFilterHandle, parkingFilterHandle, metroFilterHandle, bottomSheetHandle;
     private Spinner spToiletFilterWheelchair, spToiletFilterFemale, spToiletFilterMale, spToiletFilterDistance;
     private Spinner spParkingFilterDuration, spParkingFilterDisableOnly, spParkingFilterCharge, spParkingFilterDistance, spParkingAvailable;
     private Spinner spMetroLoop, spMetroLift, spMetroPid, spMetroDistance;
-    private Button btToiletSearch, btParkingSearch, btMetroSearch;
+    private Spinner spGardenFilterDistance;
+    private Button btToiletSearch, btParkingSearch, btMetroSearch, btGardenSearch;
 
     //vars
     private Boolean mLocationPermissionsGranted = false;
@@ -105,6 +106,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private ToiletManager toiletManager = new ToiletManager();
     private Building building = new Building();
     private MetroStationManager metroStationManager = new MetroStationManager();
+    private GardenManager gardenManager = new GardenManager();
 
     private String mode = "Driving";
 
@@ -117,9 +119,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mGps = (ImageView) findViewById(R.id.ic_gps);
         mToilet = (ImageView) findViewById(R.id.toilet);
         mParking = (ImageView) findViewById(R.id.parking);
-        mBuilding=(ImageView) findViewById(R.id.building);
+        mBuilding =(ImageView) findViewById(R.id.building);
         mClearSearch = (ImageView) findViewById(R.id.clean_search);
-        mBuilding=(ImageView) findViewById(R.id.building);
+        mBuilding = (ImageView) findViewById(R.id.building);
+        mGarden = (ImageView) findViewById(R.id.garden);
         mNavigation = (ImageView) findViewById(R.id.ic_navigation);
 //        mInfo = (ImageView) findViewById(R.id.ic_info);
 //        tInfo = (TextView) findViewById(R.id.text_info);
@@ -134,6 +137,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         createToiletWidgets();
         createParkingWidgetst();
         createMetroWidgets();
+        createGardenWidgets();
 
         getLocationPermission();
     }
@@ -145,6 +149,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         registerToiletBottomSheetWidgets();
         registerParkingBottomSheetWidgets();
         registerMetroBottomSheetWidgets();
+        registerGardenBottomSheetWidgets();
 
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
@@ -339,23 +344,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
-                    destLatlng = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
-                    Toast.makeText(MapActivity.this, "Click Navigation on top right for directions...", Toast.LENGTH_SHORT).show();
-                    //mMap.clear();
-                    marker.showInfoWindow();
-                    //showKeyPoint();
-                    return true;
+                destLatlng = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
+                Toast.makeText(MapActivity.this, "Click Navigation on top right for directions...", Toast.LENGTH_SHORT).show();
+                //mMap.clear();
+                marker.showInfoWindow();
+                closeBottomSheet();
+                //showKeyPoint();
+                return true;
                 }
             });
 
             mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                 @Override
                 public void onMapLongClick(LatLng latLng) {
-                    cleanMap();
-                    MarkerOptions options = new MarkerOptions().title("Your Choice").snippet("Select this place for navigation").position(latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                    remoteLatlng = latLng;
-                    mMap.addMarker(options);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, mMap.getCameraPosition().zoom));
+                cleanMap();
+                MarkerOptions options = new MarkerOptions().title("Your Choice").snippet("Select this place for navigation").position(latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                remoteLatlng = latLng;
+                mMap.addMarker(options);
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, mMap.getCameraPosition().zoom));
                 }
             });
 
@@ -366,25 +372,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     // ======================== Toilet related code here =========================
-    public void showToiletSpots(ArrayList<Toilet> toilets) {
-        Log.d(TAG, "method: showSpots called ");
-
-        if (toilets.size() != 0) {
-            for (int i = 0; i < toilets.size(); i++) {
-                Toilet oneToilet = toilets.get(i);
-                Double lat = oneToilet.getLat();
-                Double lon = oneToilet.getLon();
-                LatLng latlng = new LatLng(lat, lon);
-                MarkerOptions options = new MarkerOptions()
-                        .position(latlng).title("Public Toilet").snippet(oneToilet.toString()).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_toilet_icon));
-                mMap.addMarker(options);
-            }
-        }else{
-            Log.d(TAG, "method: showSpots : no spot found ");
-            Toast.makeText(MapActivity.this, "No Nearby Toilets found", Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private void createToiletWidgets(){
         toiletFilterSheet = findViewById(R.id.toilet_filter_bottomsheet);
         toiletBottomSheetBehavior = BottomSheetBehavior.from(toiletFilterSheet);
@@ -491,6 +478,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 closeBottomSheet();
+
                 toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             }
         });
@@ -516,6 +504,126 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         toiletManager.setWest(southwestCorner.latitude);
     }
 
+    public void showToiletSpots(ArrayList<Toilet> toilets) {
+        Log.d(TAG, "method: showSpots called ");
+
+        if (toilets.size() != 0) {
+            for (int i = 0; i < toilets.size(); i++) {
+                Toilet oneToilet = toilets.get(i);
+                Double lat = oneToilet.getLat();
+                Double lon = oneToilet.getLon();
+                LatLng latlng = new LatLng(lat, lon);
+                String wheelchair = oneToilet.getWheelchair().substring(0, 1).toUpperCase() + oneToilet.getWheelchair().substring(1);
+                MarkerOptions options = new MarkerOptions()
+                        .position(latlng).title("Public Toilet")
+                        .snippet(" Distance: " + oneToilet.getDistance()  + " " + '\n' + " Wheelchair: " + wheelchair + " ")
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_toilet));
+                mMap.addMarker(options);
+            }
+        }else{
+            Log.d(TAG, "method: showSpots : no spot found ");
+            Toast.makeText(MapActivity.this, "No Nearby Toilets found", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // ======================== Garden related code here =========================
+    private void createGardenWidgets(){
+        gardenFilterSheet = findViewById(R.id.garden_filter_bottomsheet);
+        gardenBottomSheetBehavior = BottomSheetBehavior.from(gardenFilterSheet);
+        gardenFilterHandle = findViewById(R.id.garden_filter_handle);
+//        spToiletFilterFemale = (Spinner) findViewById(R.id.spin_toilet_female);
+//        spToiletFilterMale = (Spinner) findViewById(R.id.spin_toilet_male);
+        spGardenFilterDistance = (Spinner) findViewById(R.id.spin_garden_distance);
+        btGardenSearch = (Button) findViewById(R.id.button_garden_search);
+    }
+
+    public void registerGardenBottomSheetWidgets(){
+        spGardenFilterDistance.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spGardenFilterDistance.getSelectedItem().toString().toLowerCase().equals("1000m")) {
+                    gardenManager.setDistance(1000);
+                }else if (spGardenFilterDistance.getSelectedItem().toString().toLowerCase().equals("600m")) {
+                    gardenManager.setDistance(600);
+                }else{
+                    gardenManager.setDistance(300);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        btGardenSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(gardenBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                    gardenBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+                else {
+                    gardenBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
+                cleanMap();
+                destLatlng = null;
+                setGardenManagerRadius(remoteLatlng,gardenManager.getDistance());
+                Toast.makeText(MapActivity.this, "Searching for nearby public parks...", Toast.LENGTH_SHORT).show();
+                gardenManager.searchByLatRange(MapActivity.this);
+            }
+        });
+
+        mGarden.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeBottomSheet();
+
+                gardenBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            }
+        });
+
+        gardenFilterHandle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gardenBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+        });
+    }
+
+    private void setGardenManagerRadius(LatLng latLng, double radiusinMeters){
+
+        Log.d(TAG, "method: setGardenManagerRadius called ");
+        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters);
+        LatLng southwestCorner = latLngBounds.southwest; // -
+        LatLng northeastCorner = latLngBounds.northeast; // +
+
+        gardenManager.setSouth(southwestCorner.longitude);
+        gardenManager.setNorth(northeastCorner.longitude);
+        gardenManager.setEast(northeastCorner.latitude);
+        gardenManager.setWest(southwestCorner.latitude);
+    }
+
+    public void showGardenSpots(ArrayList<Garden> gardens) {
+        Log.d(TAG, "method: showSpots called ");
+
+        if (gardens.size() != 0) {
+            for (int i = 0; i < gardens.size(); i++) {
+                Garden oneGarden = gardens.get(i);
+                Double lat = oneGarden.getLat();
+                Double lon = oneGarden.getLon();
+                LatLng latlng = new LatLng(lat, lon);
+                MarkerOptions options = new MarkerOptions()
+                        .position(latlng).title("Public Park")
+                        .snippet(oneGarden.toString())
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_garden));
+                mMap.addMarker(options);
+            }
+        }else{
+            Log.d(TAG, "method: showSpots : no spot found ");
+            Toast.makeText(MapActivity.this, "No Nearby Parks found", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     // ======================== Parking related code here ==========================
     public void showParkingSpot(ParkingSpot oneSpot){
         Log.d(TAG, "method: showSpots called ");
@@ -536,31 +644,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
     }
 
-//    public void showParkingSpotList(ArrayList<ParkingSpot> parkingSpots){
-//        Log.d(TAG, "method: showSpots called ");
-//
-//        String bayId = oneSpot.getBayID();
-//        Double lat = oneSpot.getLat();
-//        Double lon = oneSpot.getLon();
-//        String status = oneSpot.getStatus();
-//        LatLng latlng = new LatLng(lat, lon);
-//        Log.d(TAG, "method: showSpots : " + oneSpot.toString());
-//        MarkerOptions options = null;
-//        if (status.equals("Unoccupied")){
-//            options = new MarkerOptions().title("Parking:" + bayId).snippet(oneSpot.toString()).position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_parking_icon));
-//        }else{
-//            options = new MarkerOptions().title("Parking:" + bayId).snippet(oneSpot.toString()).position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_parking_redicon));;
-//        }
-//        mMap.addMarker(options);
-//        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
-//    }
-
     private void createParkingWidgetst(){
         parkingFilterSheet = findViewById(R.id.parking_filter_bottomsheet);
         parkingBottomSheetBehavior = BottomSheetBehavior.from(parkingFilterSheet);
         spParkingFilterDuration = (Spinner) findViewById(R.id.spin_parking_duration);
         spParkingFilterDistance = (Spinner) findViewById(R.id.spin_parking_distance);
-        spParkingFilterCharge = (Spinner) findViewById(R.id.spin_parking_pay);
+        //spParkingFilterCharge = (Spinner) findViewById(R.id.spin_parking_pay);
         //spParkingAvailable = (Spinner) findViewById(R.id.spin_parking_available);
         //spParkingFilterDisableOnly = (Spinner) findViewById(R.id.spin_parking_disableOnly);
         btParkingSearch = (Button) findViewById(R.id.button_parking_search);
@@ -568,24 +657,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void registerParkingBottomSheetWidgets(){
-        spParkingFilterCharge.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (spParkingFilterCharge.getSelectedItem().toString().toLowerCase().equals("yes")) {
-                    parkingManager.getSampleParkingSpot().setNeedToPay("yes");
-                }else if (spParkingFilterCharge.getSelectedItem().toString().toLowerCase().equals("no")) {
-                    parkingManager.getSampleParkingSpot().setNeedToPay("no");
-                }else{
-                    parkingManager.getSampleParkingSpot().setNeedToPay("");
-                }
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+//        spParkingFilterCharge.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+//                if (spParkingFilterCharge.getSelectedItem().toString().toLowerCase().equals("yes")) {
+//                    parkingManager.getSampleParkingSpot().setNeedToPay("yes");
+//                }else if (spParkingFilterCharge.getSelectedItem().toString().toLowerCase().equals("no")) {
+//                    parkingManager.getSampleParkingSpot().setNeedToPay("no");
+//                }else{
+//                    parkingManager.getSampleParkingSpot().setNeedToPay("");
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
 
         spParkingFilterDistance.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -730,7 +819,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Double lon = oneStation.getLon();
                 LatLng latlng = new LatLng(lat, lon);
                 MarkerOptions options = new MarkerOptions()
-                        .position(latlng).title(oneStation.getStation()).snippet(oneStation.toString()).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_toilet_icon));
+                        .position(latlng).title(oneStation.getStation())
+                        .snippet(oneStation.toString())
+                        .icon(BitmapDescriptorFactory
+                                .fromResource(R.drawable.marker_train));
                 mMap.addMarker(options);
             }
         }else{
