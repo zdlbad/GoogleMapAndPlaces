@@ -102,7 +102,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private GoogleApiClient mGoogleApiClient;
 
     public LatLng currentLatlng, destLatlng, remoteLatlng;
-    private String remotePlaceTitle;
     public ParkingManager parkingManager = new ParkingManager();
     public ToiletManager toiletManager = new ToiletManager();
     //private Building building = new Building();
@@ -362,7 +361,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 @Override
                 public void onMapLongClick(LatLng latLng) {
                 cleanMap();
-                MarkerOptions options = new MarkerOptions().title("Your Choice").snippet("Select this place for navigation").position(latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                MarkerOptions options = new MarkerOptions()
+                        .title("Selected Postion")
+                        .snippet("This is your Selected Positon")
+                        .position(latLng)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
                 remoteLatlng = latLng;
                 mMap.addMarker(options);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, mMap.getCameraPosition().zoom));
@@ -1062,15 +1065,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void showRemotePoint(){
         Log.d(TAG, "showKeyPoint: method called");
 
-        if (remoteLatlng!= null && destLatlng == null){
-            Log.d(TAG, "showKeyPoint: add remotemelbou");
+        if (remoteLatlng!= null){
+            Log.d(TAG, "showKeyPoint: add remote point");
             MarkerOptions markerOptions = new MarkerOptions()
                     .title("Selected Postion")
                     .snippet("This is your Selected Positon")
-                    .position(remoteLatlng).title(remotePlaceTitle);
-            mMap.addMarker(markerOptions).showInfoWindow();
+                    .position(remoteLatlng);
+            mMap.addMarker(markerOptions);
         }
-
     }
 
     private void getLocationPermission() {
@@ -1143,7 +1145,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                                 Log.d(TAG, "onComplete: currentLatlng set!");
                             }
                             moveCamera(currentLatlng, DEFAULT_ZOOM, "My Location");
-                            remotePlaceTitle = "";
                         }else {
                             Log.d(TAG, "onComplete: current location is null.");
                             Toast.makeText(MapActivity.this, "unable to find current location", Toast.LENGTH_SHORT).show();
@@ -1443,7 +1444,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             Log.d(TAG, "onResult: Place details:" + place.getAttributions());
 
             cleanMap();
-            remotePlaceTitle = new String(place.getName().toString());
+            String remotePlaceTitle = new String(place.getName().toString());
             remoteLatlng = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude);
             moveCamera(place.getLatLng(), DEFAULT_ZOOM, remotePlaceTitle);
             places.release();
