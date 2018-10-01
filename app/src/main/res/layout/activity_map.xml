@@ -104,6 +104,7 @@
     <include layout="@layout/bottomsheet_parking_filter"/>
     <include layout="@layout/bottomsheet_metrostations_filter"/>
     <include layout="@layout/bottomsheet_garden_filter" />
+    <include layout="@layout/bottomsheet_building_filter" />
 
 
 </android.support.design.widget.CoordinatorLayout>

@@ -2,7 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/toilet_filter_bottomsheet"
+    android:id="@+id/building_filter_bottomsheet"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/background_filter"
@@ -18,22 +18,22 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:gravity="center"
-        android:id="@+id/toilet_filter_handle">
+        android:id="@+id/building_filter_handle">
 
-        <!--toilet image-->
+        <!--building image-->
         <ImageView
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_marginEnd="10dp"
             android:background="@drawable/background_circle_white"
             android:elevation="10dp"
-            android:src="@drawable/ic_toilet_3" />
+            android:src="@drawable/ic_building_2" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:text="Searching Filter For Public Toilets"/>
+            android:text="Searching Filter For Buildings"/>
 
     </LinearLayout>
 
@@ -43,33 +43,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="@drawable/background_filter_content">
-        <!--wheelchair accessable-->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginBottom="10dp"
-            android:gravity="center">
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="10dp"
-                android:src="@drawable/ic_wheelchair_accessible"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:text="Wheelchair Accessible: "/>
-
-            <Spinner
-                android:id="@+id/spin_toilet_wheelchair"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:entries="@array/yes_or_no"/>
-        </LinearLayout>
 
         <!--Distance-->
         <LinearLayout
@@ -92,7 +65,7 @@
                 android:text="Distance: "/>
 
             <Spinner
-                android:id="@+id/spin_toilet_distance"
+                android:id="@+id/spin_building_distance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:entries="@array/distance"/>
@@ -105,7 +78,7 @@
 
         <!--search Button-->
         <Button
-            android:id="@+id/button_toilet_search"
+            android:id="@+id/button_building_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

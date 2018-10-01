@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -21,6 +22,7 @@ public class GardenManager {
     private Double east;
     private Double west;
     public ArrayList<Garden> resultList;
+    public ArrayList<Marker> markerList;
     private Garden sampleGarden;
     public int distance;
 
@@ -32,6 +34,7 @@ public class GardenManager {
     public GardenManager(){
         sampleGarden = new Garden();
         resultList = new ArrayList<Garden>();
+        markerList = new ArrayList<Marker>();
         myFirebaseDatabase = FirebaseDatabase.getInstance();
         myRef = myFirebaseDatabase.getReference().child("garden");
         myRef.addValueEventListener(new ValueEventListener() {
@@ -76,6 +79,7 @@ public class GardenManager {
 
     public void searchByLatRange(final MapActivity mapActivity) {
         resultList.clear();
+        markerList.clear();
         Log.d(TAG, "==============Search by Range First==========");
         Query q = myRef.orderByChild("lat").startAt(east + "").endAt(west + "");
         q.addValueEventListener(new ValueEventListener() {

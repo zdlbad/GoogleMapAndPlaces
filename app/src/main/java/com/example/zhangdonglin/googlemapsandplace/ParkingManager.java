@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,7 +32,8 @@ public class ParkingManager {
     private Double north;
     private Double east;
     private Double west;
-    private ArrayList<ParkingSpot> searchingResult;
+    public ArrayList<ParkingSpot> searchingResult;
+    public ArrayList<Marker> markerList;
     private ParkingSpot sampleParkingSpot;
     private int distance;
 
@@ -54,6 +56,7 @@ public class ParkingManager {
             }
         });
         searchingResult = new ArrayList<ParkingSpot>();
+        markerList = new ArrayList<Marker>();
         sampleParkingSpot = new ParkingSpot();
         sampleParkingSpot.setStatus("Unoccupied");
     }
@@ -124,6 +127,7 @@ public class ParkingManager {
 
     public void searchParkingAndFilterAndShow(final MapActivity mapActivity){
         searchingResult.clear();
+        markerList.clear();
         new AsyncTask<Void, Void, JsonArray>(){
             @Override
             protected JsonArray doInBackground(Void... voids) {

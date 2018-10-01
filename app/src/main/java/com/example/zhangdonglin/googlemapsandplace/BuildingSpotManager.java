@@ -15,15 +15,17 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 
-public class MetroStationManager {
-    private static final String TAG = "MetroStationManager";
+public class BuildingSpotManager {
+    //private static final String BASE_URL_BuildingSpot = "https://data.melbourne.vic.gov.au/resource/dsec-5y6t.json?$where=";
+    private static final String TAG = "BuildingSpotManager";
+    //private HttpURLConnection connection;
     private Double south;
     private Double north;
     private Double east;
     private Double west;
-    public ArrayList<MetroStation> resultList;
+    public ArrayList<BuildingSpot> resultList;
     public ArrayList<Marker> markerList;
-    private MetroStation sampleStation;
+    private BuildingSpot sampleBuildingSpot;
     public int distance;
 
     //firebase var
@@ -31,13 +33,13 @@ public class MetroStationManager {
     private DatabaseReference myRef;
 
 
-    public MetroStationManager(){
-        sampleStation = new MetroStation();
-        distance = 1500;
-        resultList = new ArrayList<MetroStation>();
+    public BuildingSpotManager(){
+        sampleBuildingSpot = new BuildingSpot();
+        //connection = null;
+        resultList = new ArrayList<BuildingSpot>();
         markerList = new ArrayList<Marker>();
         myFirebaseDatabase = FirebaseDatabase.getInstance();
-        myRef = myFirebaseDatabase.getReference().child("metro_stations");
+        myRef = myFirebaseDatabase.getReference().child("building_info");
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -74,43 +76,38 @@ public class MetroStationManager {
         return distance;
     }
 
-    public MetroStation getSampleStation() {
-        return sampleStation;
+    public BuildingSpot getSampleBuildingSpot() {
+        return sampleBuildingSpot;
     }
 
     public void searchByLatRange(final MapActivity mapActivity) {
         resultList.clear();
         markerList.clear();
-        Log.d(TAG, "==============Search by Range Start==========");
-        Query q = myRef.orderByChild("lat").startAt(east+"").endAt(west+"");
+        Log.d(TAG, "==============Search by Range First==========");
+        Query q = myRef.orderByChild("y_coordinate").startAt(east + "").endAt(west + "");
         q.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.d(TAG, "===got: " + dataSnapshot.getChildrenCount());
-                int count = 0;
                 for (DataSnapshot o : dataSnapshot.getChildren()) {
-                    MetroStation oneStation = o.getValue(MetroStation.class);
-                    Log.d(TAG, "===got: " + oneStation.toString());
-                    if (oneStation.getLon() >= south && oneStation.getLon() <= north){
-                        LatLng remote = mapActivity.remoteLatlng;
-                        Double distance = MyTools.getDistanceFromLatLonInMeter(remote.latitude, remote.longitude, oneStation.getLat(), oneStation.getLon());
-                        oneStation.setDistance(MyTools.roundDouble(distance));
-                        resultList.add(oneStation);
-                        Log.d(TAG, "===got a valid one. ");
-                    }else{
-                        Log.d(TAG, "===drop one invalid point.");
-                    }
+                    BuildingSpot oneBuildingSpot = o.getValue(BuildingSpot.class);
+                    LatLng remote = mapActivity.remoteLatlng;
+                    Log.d(TAG, "point Lat: " + oneBuildingSpot.getY_coordinate());
+                    Double distance = MyTools.getDistanceFromLatLonInMeter(remote.latitude, remote.longitude, oneBuildingSpot.getY_coordinate(), oneBuildingSpot.getX_coordinate());
+                    oneBuildingSpot.setDistance(MyTools.roundDouble(distance));
+                    resultList.add(oneBuildingSpot);
                 }
                 Log.d(TAG, "==========Search after LatRange Query===========got: " + resultList.size());
                 filter();
-                mapActivity.showMetroStations(resultList);
+                mapActivity.showBuildingSpots(resultList);
 
                 ArrayList<Object> objectArrayList = new ArrayList<>();
-                for (MetroStation oneMetro: resultList){
-                    objectArrayList.add((Object) oneMetro);
+                for (BuildingSpot oneBuildingSpot: resultList){
+                    objectArrayList.add((Object) oneBuildingSpot);
                 }
                 mapActivity.showSearchingResultList(objectArrayList);
             }
+
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
@@ -119,13 +116,16 @@ public class MetroStationManager {
 
     public void filter() {
         Log.d(TAG, "==============Search by Filter then==========now:" + resultList.size());
-        ArrayList<MetroStation> newList = new ArrayList<MetroStation>();
-        for (MetroStation oneStation : resultList) {
-            if (oneStation.checkWithSample(sampleStation)) {
-                newList.add(oneStation);
+        ArrayList<BuildingSpot> newList = new ArrayList<BuildingSpot>();
+        for (BuildingSpot oneBuildingSpot : resultList) {
+            if (oneBuildingSpot.checkLng(south, north) && oneBuildingSpot.checkWithSample(sampleBuildingSpot)) {
+                newList.add(oneBuildingSpot);
+            }else{
+                Log.d(TAG, "point not valid: " + oneBuildingSpot.getX_coordinate());
             }
         }
         resultList = newList;
         Log.d(TAG, "==============Search after Filter==========got: " + resultList.size());
     }
+
 }

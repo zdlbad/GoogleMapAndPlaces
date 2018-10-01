@@ -84,14 +84,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private AutoCompleteTextView mSearchText;
     private ImageView mGps, mInfo, mPlacePicker, mToilet, mParking, mNavigation, mReset, mBuilding, mClearSearch, mMetro, mGarden;
     private TextView tInfo;
-    private BottomSheetBehavior toiletBottomSheetBehavior, gardenBottomSheetBehavior, parkingBottomSheetBehavior, metroBottomSheetBehavior, bottomSheetBehavior;
-    private View toiletFilterSheet, gardenFilterSheet, parkingFilterSheet, metroFilterSheet, bottomSheet;
-    private View toiletFilterHandle, gardenFilterHandle, parkingFilterHandle, metroFilterHandle, bottomSheetHandle;
+    private BottomSheetBehavior toiletBottomSheetBehavior, buildingBottomSheetBehavior, gardenBottomSheetBehavior, parkingBottomSheetBehavior, metroBottomSheetBehavior, bottomSheetBehavior;
+    private View toiletFilterSheet, buildingFilterSheet, gardenFilterSheet, parkingFilterSheet, metroFilterSheet, bottomSheet;
+    private View toiletFilterHandle, buildingFilterHandle, gardenFilterHandle, parkingFilterHandle, metroFilterHandle, bottomSheetHandle;
     private Spinner spToiletFilterWheelchair, spToiletFilterFemale, spToiletFilterMale, spToiletFilterDistance;
     private Spinner spParkingFilterDuration, spParkingFilterDisableOnly, spParkingFilterCharge, spParkingFilterDistance, spParkingAvailable;
     private Spinner spMetroLoop, spMetroLift, spMetroPid, spMetroDistance;
     private Spinner spGardenFilterDistance;
-    private Button btToiletSearch, btParkingSearch, btMetroSearch, btGardenSearch;
+    private Spinner spBuildingFilterDistance;
+    private Button btToiletSearch, btParkingSearch, btMetroSearch, btGardenSearch, btBuildingSearch;
 
     //vars
     private Boolean mLocationPermissionsGranted = false;
@@ -102,11 +103,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public LatLng currentLatlng, destLatlng, remoteLatlng;
     private String remotePlaceTitle;
-    private ParkingManager parkingManager = new ParkingManager();
-    private ToiletManager toiletManager = new ToiletManager();
-    private Building building = new Building();
-    private MetroStationManager metroStationManager = new MetroStationManager();
-    private GardenManager gardenManager = new GardenManager();
+    public ParkingManager parkingManager = new ParkingManager();
+    public ToiletManager toiletManager = new ToiletManager();
+    //private Building building = new Building();
+    public MetroStationManager metroStationManager = new MetroStationManager();
+    public GardenManager gardenManager = new GardenManager();
+    public BuildingSpotManager buildingManager = new BuildingSpotManager();
 
     private String mode = "Driving";
 
@@ -138,6 +140,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         createParkingWidgetst();
         createMetroWidgets();
         createGardenWidgets();
+        createBuildingSpotWidgets();
 
         getLocationPermission();
     }
@@ -150,6 +153,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         registerParkingBottomSheetWidgets();
         registerMetroBottomSheetWidgets();
         registerGardenBottomSheetWidgets();
+        registerBuildingSpotBottomSheetWidgets();
 
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
@@ -232,26 +236,26 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 //                    Toast.makeText(MapActivity.this, "No Destination is Choosen.", Toast.LENGTH_SHORT).show();
 //                }
 
-        mBuilding.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cleanMap();
-                destLatlng = null;
-                Toast.makeText(MapActivity.this, "Searching for building accessibility info...", Toast.LENGTH_SHORT).show();
-                new AsyncTask<Void, Void, JsonArray>() {
-
-                    @Override
-                    protected JsonArray doInBackground(Void... voids) {
-                        return findBuildingAccessibility(remoteLatlng, 100);
-                    }
-
-                    @Override
-                    protected void onPostExecute(JsonArray doubles) {
-                        showBuildingAccessibility(doubles);
-                    }
-                }.execute();
-            }
-        });
+//        mBuilding.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                cleanMap();
+//                destLatlng = null;
+//                Toast.makeText(MapActivity.this, "Searching for building accessibility info...", Toast.LENGTH_SHORT).show();
+//                new AsyncTask<Void, Void, JsonArray>() {
+//
+//                    @Override
+//                    protected JsonArray doInBackground(Void... voids) {
+//                        return findBuildingAccessibility(remoteLatlng, 100);
+//                    }
+//
+//                    @Override
+//                    protected void onPostExecute(JsonArray doubles) {
+//                        showBuildingAccessibility(doubles);
+//                    }
+//                }.execute();
+//            }
+//        });
 
         mClearSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -345,7 +349,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 @Override
                 public boolean onMarkerClick(Marker marker) {
                 destLatlng = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
-                Toast.makeText(MapActivity.this, "Click Navigation on top right for directions...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MapActivity.this, "Navigation By Clicking Top Right Button", Toast.LENGTH_SHORT).show();
                 //mMap.clear();
                 marker.showInfoWindow();
                 closeBottomSheet();
@@ -371,6 +375,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+
+    //South Longitude is negative，North Longitude is positive;
+    //East Latitude is positive，West Latitude is negative.
     // ======================== Toilet related code here =========================
     private void createToiletWidgets(){
         toiletFilterSheet = findViewById(R.id.toilet_filter_bottomsheet);
@@ -403,42 +410,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-//        spToiletFilterFemale.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-//                if (spToiletFilterFemale.getSelectedItem().toString().toLowerCase().equals("yes")) {
-//                    toiletManager.getSampleToilet().setFemale("yes");
-//                }else if (spToiletFilterFemale.getSelectedItem().toString().toLowerCase().equals("no")) {
-//                    toiletManager.getSampleToilet().setFemale("no");
-//                }else {
-//                    toiletManager.getSampleToilet().setFemale("");
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
-//
-//        spToiletFilterMale.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-//                if (spToiletFilterMale.getSelectedItem().toString().toLowerCase().equals("yes")) {
-//                    toiletManager.getSampleToilet().setMale("yes");
-//                }else if (spToiletFilterMale.getSelectedItem().toString().toLowerCase().equals("no")) {
-//                    toiletManager.getSampleToilet().setMale("no");
-//                }else{
-//                    toiletManager.getSampleToilet().setMale("");
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
-
         spToiletFilterDistance.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -460,17 +431,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         btToiletSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(toiletBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-                    toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                }
-                else {
-                    toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                }
-                cleanMap();
-                destLatlng = null;
-                setToiletManagerRadius(remoteLatlng,toiletManager.getDistance());
-                Toast.makeText(MapActivity.this, "Searching for nearby public toilets...", Toast.LENGTH_SHORT).show();
-                toiletManager.searchByLatRange(MapActivity.this);
+            if(toiletBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            }
+            else {
+                toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+            cleanMap();
+            resetBackgroundForIcons();
+            mToilet.setBackgroundResource(R.drawable.background_circle_green);
+            destLatlng = null;
+            setToiletManagerRadius(remoteLatlng,toiletManager.getDistance());
+            Toast.makeText(MapActivity.this, "Searching for nearby public toilets...", Toast.LENGTH_SHORT).show();
+            toiletManager.searchByLatRange(MapActivity.this);
             }
         });
 
@@ -478,7 +451,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 closeBottomSheet();
-
                 toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             }
         });
@@ -506,7 +478,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void showToiletSpots(ArrayList<Toilet> toilets) {
         Log.d(TAG, "method: showSpots called ");
-
+        showRemotePoint();
         if (toilets.size() != 0) {
             for (int i = 0; i < toilets.size(); i++) {
                 Toilet oneToilet = toilets.get(i);
@@ -518,7 +490,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         .position(latlng).title("Public Toilet")
                         .snippet(" Distance: " + oneToilet.getDistance()  + " " + '\n' + " Wheelchair: " + wheelchair + " ")
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_toilet));
-                mMap.addMarker(options);
+                toiletManager.markerList.add(mMap.addMarker(options));
             }
         }else{
             Log.d(TAG, "method: showSpots : no spot found ");
@@ -566,6 +538,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     gardenBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 }
                 cleanMap();
+                resetBackgroundForIcons();
+                mGarden.setBackgroundResource(R.drawable.background_circle_green);
                 destLatlng = null;
                 setGardenManagerRadius(remoteLatlng,gardenManager.getDistance());
                 Toast.makeText(MapActivity.this, "Searching for nearby public parks...", Toast.LENGTH_SHORT).show();
@@ -577,7 +551,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 closeBottomSheet();
-
                 gardenBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             }
         });
@@ -605,7 +578,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void showGardenSpots(ArrayList<Garden> gardens) {
         Log.d(TAG, "method: showSpots called ");
-
+        showRemotePoint();
         if (gardens.size() != 0) {
             for (int i = 0; i < gardens.size(); i++) {
                 Garden oneGarden = gardens.get(i);
@@ -613,10 +586,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Double lon = oneGarden.getLon();
                 LatLng latlng = new LatLng(lat, lon);
                 MarkerOptions options = new MarkerOptions()
-                        .position(latlng).title("Public Park")
+                        .position(latlng).title(oneGarden.getName())
                         .snippet(oneGarden.toString())
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_garden));
-                mMap.addMarker(options);
+                gardenManager.markerList.add(mMap.addMarker(options));
             }
         }else{
             Log.d(TAG, "method: showSpots : no spot found ");
@@ -627,7 +600,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     // ======================== Parking related code here ==========================
     public void showParkingSpot(ParkingSpot oneSpot){
         Log.d(TAG, "method: showSpots called ");
-
+        showRemotePoint();
         String bayId = oneSpot.getBayID();
         Double lat = oneSpot.getLat();
         Double lon = oneSpot.getLon();
@@ -640,7 +613,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }else{
             options = new MarkerOptions().title("Parking:" + bayId).snippet(oneSpot.toString()).position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_parking_redicon));;
         }
-        mMap.addMarker(options);
+        parkingManager.markerList.add(mMap.addMarker(options));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
     }
 
@@ -712,42 +685,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-//        spParkingFilterDisableOnly.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-//                if (spParkingFilterDisableOnly.getSelectedItem().toString().toLowerCase().equals("yes")) {
-//                    parkingManager.getSampleParkingSpot().setDisableOnly("yes");
-//                }else if (spParkingFilterDisableOnly.getSelectedItem().toString().toLowerCase().equals("no")) {
-//                    parkingManager.getSampleParkingSpot().setDisableOnly("no");
-//                }else{
-//                    parkingManager.getSampleParkingSpot().setDisableOnly("");
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
-//
-//        spParkingAvailable.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-//                if (spParkingAvailable.getSelectedItem().toString().toLowerCase().equals("yes")) {
-//                    parkingManager.getSampleParkingSpot().setStatus("Unoccupied");
-//                }else if (spParkingAvailable.getSelectedItem().toString().toLowerCase().equals("no")) {
-//                    parkingManager.getSampleParkingSpot().setStatus("Present");
-//                }else{
-//                    parkingManager.getSampleParkingSpot().setDisableOnly("");
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
-
         btParkingSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -758,6 +695,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     parkingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 }
                 cleanMap();
+                resetBackgroundForIcons();
+                mParking.setBackgroundResource(R.drawable.background_circle_green);
                 destLatlng = null;
                 Toast.makeText(MapActivity.this, "Searching for nearby parking places...", Toast.LENGTH_SHORT).show();
                 setParkingManagerRadius(remoteLatlng,parkingManager.getDistance());
@@ -811,7 +750,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void showMetroStations(ArrayList<MetroStation> resultList) {
         Log.d(TAG, "method: showMetroStations called ");
-
+        showRemotePoint();
         if (resultList.size() != 0) {
             for (int i = 0; i < resultList.size(); i++) {
                 MetroStation oneStation = resultList.get(i);
@@ -823,7 +762,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         .snippet(oneStation.toString())
                         .icon(BitmapDescriptorFactory
                                 .fromResource(R.drawable.marker_train));
-                mMap.addMarker(options);
+                metroStationManager.markerList.add(mMap.addMarker(options));
             }
         }else{
             Log.d(TAG, "method: showSpots : no spot found ");
@@ -918,6 +857,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 metroBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 cleanMap();
+                resetBackgroundForIcons();
+                mMetro.setBackgroundResource(R.drawable.background_circle_green);
                 destLatlng = null;
                 setMetroStationManagerRadius(remoteLatlng,metroStationManager.getDistance());
                 Toast.makeText(MapActivity.this, "Searching for nearby metro stations...", Toast.LENGTH_SHORT).show();
@@ -943,58 +884,159 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     // ======================== Building related code here ==========================
-    private void showBuildingAccessibility(JsonArray accessibility){
-        Log.d(TAG, "method: showSpots called ");
-        if (accessibility.size() != 0) {
-            for (int i = 0; i < accessibility.size(); i++) {
-                JsonObject oneSpot = accessibility.get(i).getAsJsonObject();
-                Double lat = oneSpot.get("y_coordinate").getAsDouble();
-                Double lon = oneSpot.get("x_coordinate").getAsDouble();
-                JsonElement name = oneSpot.get("building_name");
-                String buildingName = "Target Building";
-                if (name != null){
-                    buildingName = oneSpot.get("building_name").getAsString();
+    private void createBuildingSpotWidgets(){
+        buildingFilterSheet = findViewById(R.id.building_filter_bottomsheet);
+        buildingBottomSheetBehavior = BottomSheetBehavior.from(buildingFilterSheet);
+        buildingFilterHandle = findViewById(R.id.building_filter_handle);
+        spBuildingFilterDistance = (Spinner) findViewById(R.id.spin_building_distance);
+        btBuildingSearch = (Button) findViewById(R.id.button_building_search);
+    }
+
+    public void registerBuildingSpotBottomSheetWidgets(){
+        spBuildingFilterDistance.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (spBuildingFilterDistance.getSelectedItem().toString().toLowerCase().equals("1000m")) {
+                    buildingManager.setDistance(1000);
+                }else if (spBuildingFilterDistance.getSelectedItem().toString().toLowerCase().equals("600m")) {
+                    buildingManager.setDistance(600);
+                }else{
+                    buildingManager.setDistance(300);
                 }
-                String rating = oneSpot.get("accessibility_rating").toString();
-                String level = oneSpot.get("accessibility_type").toString();
-                String snippet =  " Accessibility Rating: " + rating +  '\n' +
-                                    " Accessibility Type: " + level ;
-                LatLng latlng = new LatLng(lat, lon);
-                MarkerOptions options = null;
-                if (rating.equals("\"0\"")){
-                    options = new MarkerOptions().position(latlng).title(buildingName).snippet(snippet).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_red));
-                }else if(rating.equals("\"3\"")){
-                    options = new MarkerOptions().position(latlng).title(buildingName).snippet(snippet).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_green));
-                }else if(rating.equals("\"1\"")){
-                    options = new MarkerOptions().position(latlng).title(buildingName).snippet(snippet).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_orange));
-                }else if(rating.equals("\"2\"")){
-                    options = new MarkerOptions().position(latlng).title(buildingName).snippet(snippet).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_lightgreen));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        btBuildingSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(buildingBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                    buildingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+                else {
+                    buildingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 }
                 cleanMap();
-                mMap.addMarker(options);
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
+                resetBackgroundForIcons();
+                mBuilding.setBackgroundResource(R.drawable.background_circle_green);
+                destLatlng = null;
+                setBuildingSpotManagerRadius(remoteLatlng,buildingManager.getDistance());
+                Toast.makeText(MapActivity.this, "Searching for nearby buildings...", Toast.LENGTH_SHORT).show();
+                buildingManager.searchByLatRange(MapActivity.this);
             }
-        }else{
-            Log.d(TAG, "method: showSpots : no data found ");
-            Toast.makeText(MapActivity.this, "No information on the building", Toast.LENGTH_SHORT).show();
-        }
+        });
+
+        mBuilding.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeBottomSheet();
+                buildingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            }
+        });
+
+        buildingFilterHandle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buildingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+        });
     }
 
-    //South Longitude is negative，North Longitude is positive;
-    //East Latitude is positive，West Latitude is negative.
+    private void setBuildingSpotManagerRadius(LatLng latLng, double radiusinMeters){
 
-    private JsonArray findBuildingAccessibility(LatLng latLng, double radiusinMeters){
-        Log.d(TAG, "nethod: findBuildingAccessibility called ");
-        JsonArray results = null;
-        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters);
+        Log.d(TAG, "method: setBuildingManagerRadius called ");
+        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters*0.7);
         LatLng southwestCorner = latLngBounds.southwest; // -
         LatLng northeastCorner = latLngBounds.northeast; // +
-        building.setSouth(southwestCorner.longitude);
-        building.setNorth(northeastCorner.longitude);
-        building.setEast(northeastCorner.latitude);
-        building.setWest(southwestCorner.latitude);
-        return building.FindBuildingAccessibility();
+
+        buildingManager.setSouth(southwestCorner.longitude);
+        buildingManager.setNorth(northeastCorner.longitude);
+        buildingManager.setEast(northeastCorner.latitude);
+        buildingManager.setWest(southwestCorner.latitude);
     }
+
+    public void showBuildingSpots(ArrayList<BuildingSpot> buildingSpots) {
+        Log.d(TAG, "method: showSpots called ");
+        showRemotePoint();
+        if (buildingSpots.size() != 0) {
+            for (int i = 0; i < buildingSpots.size(); i++) {
+                BuildingSpot oneBuilding = buildingSpots.get(i);
+                Double lat = oneBuilding.getY_coordinate();
+                Double lon = oneBuilding.getX_coordinate();
+                LatLng latlng = new LatLng(lat, lon);
+                int rating = oneBuilding.getAccessibility_rating();
+                MarkerOptions options = new MarkerOptions()
+                        .position(latlng).title(oneBuilding.getBuilding_name())
+                        .snippet(oneBuilding.toString());
+                if (rating == 0){
+                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_red));
+                }else if(rating == 3){
+                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_green));
+                }else if(rating == 1){
+                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_orange));
+                }else if(rating == 2){
+                    options.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_lightgreen));
+                }
+                buildingManager.markerList.add(mMap.addMarker(options));
+            }
+        }else{
+            Log.d(TAG, "method: showSpots : no spot found ");
+            Toast.makeText(MapActivity.this, "No Nearby Buildings Information found", Toast.LENGTH_SHORT).show();
+        }
+    }
+//    private void showBuildingAccessibility(JsonArray accessibility){
+//        Log.d(TAG, "method: showSpots called ");
+//        if (accessibility.size() != 0) {
+//            for (int i = 0; i < accessibility.size(); i++) {
+//                JsonObject oneSpot = accessibility.get(i).getAsJsonObject();
+//                Double lat = oneSpot.get("y_coordinate").getAsDouble();
+//                Double lon = oneSpot.get("x_coordinate").getAsDouble();
+//                JsonElement name = oneSpot.get("building_name");
+//                String buildingName = "Target Building";
+//                if (name != null){
+//                    buildingName = oneSpot.get("building_name").getAsString();
+//                }
+//                String rating = oneSpot.get("accessibility_rating").toString();
+//                String level = oneSpot.get("accessibility_type").toString();
+//                String snippet =  " Accessibility Rating: " + rating +  '\n' +
+//                        " Accessibility Type: " + level ;
+//                LatLng latlng = new LatLng(lat, lon);
+//                MarkerOptions options = null;
+//                if (rating.equals("\"0\"")){
+//                    options = new MarkerOptions().position(latlng).title(buildingName).snippet(snippet).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_red));
+//                }else if(rating.equals("\"3\"")){
+//                    options = new MarkerOptions().position(latlng).title(buildingName).snippet(snippet).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_green));
+//                }else if(rating.equals("\"1\"")){
+//                    options = new MarkerOptions().position(latlng).title(buildingName).snippet(snippet).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_orange));
+//                }else if(rating.equals("\"2\"")){
+//                    options = new MarkerOptions().position(latlng).title(buildingName).snippet(snippet).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_lightgreen));
+//                }
+//                cleanMap();
+//                mMap.addMarker(options);
+//                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
+//            }
+//        }else{
+//            Log.d(TAG, "method: showSpots : no data found ");
+//            Toast.makeText(MapActivity.this, "No information on the building", Toast.LENGTH_SHORT).show();
+//        }
+//    }
+//
+//    private JsonArray findBuildingAccessibility(LatLng latLng, double radiusinMeters){
+//        Log.d(TAG, "nethod: findBuildingAccessibility called ");
+//        JsonArray results = null;
+//        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters);
+//        LatLng southwestCorner = latLngBounds.southwest; // -
+//        LatLng northeastCorner = latLngBounds.northeast; // +
+//        building.setSouth(southwestCorner.longitude);
+//        building.setNorth(northeastCorner.longitude);
+//        building.setEast(northeastCorner.latitude);
+//        building.setWest(southwestCorner.latitude);
+//        return building.FindBuildingAccessibility();
+//    }
 
     // ======================== functional code here =========================
     public LatLngBounds toBounds(LatLng center, double radiusInMeters) {
@@ -1017,24 +1059,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
-    private void showKeyPoint(){
+    private void showRemotePoint(){
         Log.d(TAG, "showKeyPoint: method called");
-//        if (currentLatlng != null){
-//            Log.d(TAG, "showKeyPoint: add current");
-//            mMap.addMarker(new MarkerOptions().position(currentLatlng));
-//        }
 
         if (remoteLatlng!= null && destLatlng == null){
             Log.d(TAG, "showKeyPoint: add remotemelbou");
-            MarkerOptions markerOptions = new MarkerOptions().position(remoteLatlng).title(remotePlaceTitle);
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .title("Selected Postion")
+                    .snippet("This is your Selected Positon")
+                    .position(remoteLatlng).title(remotePlaceTitle);
             mMap.addMarker(markerOptions).showInfoWindow();
         }
 
-        if (destLatlng != null){
-            Log.d(TAG, "showKeyPoint: add destination");
-            MarkerOptions markerOptions = new MarkerOptions().position(destLatlng).title("Destination");
-            mMap.addMarker(markerOptions).showInfoWindow();
-        }
     }
 
     private void getLocationPermission() {
@@ -1137,6 +1173,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return result;
     }
 
+    public void moveToMarker(Marker marker){
+        float zoom = mMap.getCameraPosition().zoom;
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(),zoom));
+        marker.showInfoWindow();
+        closeBottomSheet();
+    }
+
     private void hideSoftKeyboard(){
         View view = this.getCurrentFocus();
         if (view != null) {
@@ -1179,6 +1222,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void setDestLatlng(Double lat, Double lon){
         destLatlng = new LatLng(lat,lon);
+    }
+
+    public void resetBackgroundForIcons(){
+        mToilet.setBackgroundResource(R.drawable.background_circle_white);
+        mBuilding.setBackgroundResource(R.drawable.background_circle_white);
+        mParking.setBackgroundResource(R.drawable.background_circle_white);
+        mMetro.setBackgroundResource(R.drawable.background_circle_white);
+        mGarden.setBackgroundResource(R.drawable.background_circle_white);
+
     }
 
     // ======================== permission code here =========================

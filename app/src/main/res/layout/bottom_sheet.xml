@@ -29,7 +29,7 @@
             android:layout_marginBottom="10dp"
             android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
-            android:background="@drawable/bg_circle"
+            android:background="@drawable/background_circle_white"
             android:elevation="10dp"
             android:src="@drawable/ic_toilet_3" />
 
@@ -42,7 +42,7 @@
             android:layout_toEndOf="@+id/toilet"
             android:layout_marginStart="30dp"
             android:layout_marginTop="10dp"
-            android:background="@drawable/bg_circle"
+            android:background="@drawable/background_circle_white"
             android:elevation="10dp"
             android:src="@drawable/ic_parking_2" />
 
@@ -55,7 +55,7 @@
             android:layout_marginBottom="10dp"
             android:layout_marginStart="30dp"
             android:layout_marginTop="10dp"
-            android:background="@drawable/bg_circle"
+            android:background="@drawable/background_circle_white"
             android:elevation="10dp"
             android:src="@drawable/ic_train" />
 
@@ -68,7 +68,7 @@
             android:layout_marginStart="30dp"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
-            android:background="@drawable/bg_circle"
+            android:background="@drawable/background_circle_white"
             android:elevation="10dp"
             android:src="@drawable/ic_building_2" />
 
@@ -81,7 +81,7 @@
             android:layout_marginStart="30dp"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
-            android:background="@drawable/bg_circle"
+            android:background="@drawable/background_circle_white"
             android:elevation="10dp"
             android:src="@drawable/ic_garden" />
 
