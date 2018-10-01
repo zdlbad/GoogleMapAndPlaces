@@ -7,6 +7,7 @@ package com.example.zhangdonglin.googlemapsandplace;
 
 
 public class BuildingSpot extends Object{
+    private String childID;
     private String building_name;
     private int accessibility_rating;
     private String accessibility_type;
@@ -15,8 +16,15 @@ public class BuildingSpot extends Object{
     private Double y_coordinate;
     private Double x_coordinate;
     private Double distance;
+    private int feature1Count;
+    private int feature2Count;
+    private int feature3Count;
+    private int feature4Count;
+    private int ratingTotal;
+    private int reportCount;
 
     public BuildingSpot() {
+        this.childID = "0";
         this.building_name = "";
         this.accessibility_type = "";
         this.accessibility_type_description = "";
@@ -25,6 +33,68 @@ public class BuildingSpot extends Object{
         this.x_coordinate = 0.00;
         this.y_coordinate = 0.00;
         this.distance = 137.34;
+        this.reportCount = 0;
+        this.ratingTotal = 0;
+        this.feature1Count = 0;
+        this.feature2Count = 0;
+        this.feature3Count = 0;
+        this.feature4Count = 0;
+    }
+
+    public String getChildID() {
+        return childID;
+    }
+
+    public void setChildID(String childID) {
+        this.childID = childID;
+    }
+
+    public int getFeature1Count() {
+        return feature1Count;
+    }
+
+    public void setFeature1Count(int feature1Count) {
+        this.feature1Count = feature1Count;
+    }
+
+    public int getFeature2Count() {
+        return feature2Count;
+    }
+
+    public void setFeature2Count(int feature2Count) {
+        this.feature2Count = feature2Count;
+    }
+
+    public int getFeature3Count() {
+        return feature3Count;
+    }
+
+    public void setFeature3Count(int feature3Count) {
+        this.feature3Count = feature3Count;
+    }
+
+    public int getFeature4Count() {
+        return feature4Count;
+    }
+
+    public void setFeature4Count(int feature4Count) {
+        this.feature4Count = feature4Count;
+    }
+
+    public int getRatingTotal() {
+        return ratingTotal;
+    }
+
+    public void setRatingTotal(int ratingTotal) {
+        this.ratingTotal = ratingTotal;
+    }
+
+    public int getReportCount() {
+        return reportCount;
+    }
+
+    public void setReportCount(int reportCount) {
+        this.reportCount = reportCount;
     }
 
     public String getBuilding_name() {
@@ -93,11 +163,8 @@ public class BuildingSpot extends Object{
 
     @Override
     public String toString() {
-        return  "Distance: " + distance + "meters " + '\n' +
-                "Building: " + building_name  + '\n' +
-                "Rating: " + accessibility_rating + '\n' +
-                "Description: " + accessibility_type_description + '\n' +
-                "Address:" + street_address + " ";
+        return  " Distance:  " + distance + "meters " + '\n' +
+                " Building:  " + building_name  + '\n';
     }
 
     public boolean checkWithSample(BuildingSpot sample){
@@ -112,4 +179,5 @@ public class BuildingSpot extends Object{
         }
 
     }
+
 }

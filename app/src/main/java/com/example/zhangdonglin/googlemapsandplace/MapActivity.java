@@ -1,10 +1,12 @@
 package com.example.zhangdonglin.googlemapsandplace;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -25,8 +27,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RatingBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,8 +61,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.maps.android.PolyUtil;
 import com.google.maps.android.SphericalUtil;
 
@@ -94,6 +96,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Spinner spBuildingFilterDistance;
     private Button btToiletSearch, btParkingSearch, btMetroSearch, btGardenSearch, btBuildingSearch;
 
+    //reportDialog
+    public Dialog buildingReportDialog, buildingInfoDialog;
+    public CheckBox cbFeature1, cbFeature2, cbFeature3, cbFeature4;
+    public RatingBar starRatingBar;
+    public Button btReportSubmit, btInfoMakeReport;
+    public TextView tvFeature1Count, tvFeature2Count, tvFeature3Count, tvFeature4Count, tvAverageRating;
+
     //vars
     private Boolean mLocationPermissionsGranted = false;
     private GoogleMap mMap;
@@ -104,12 +113,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public LatLng currentLatlng, destLatlng, remoteLatlng;
     public ParkingManager parkingManager = new ParkingManager();
     public ToiletManager toiletManager = new ToiletManager();
-    //private Building building = new Building();
     public MetroStationManager metroStationManager = new MetroStationManager();
     public GardenManager gardenManager = new GardenManager();
     public BuildingSpotManager buildingManager = new BuildingSpotManager();
-
-    private String mode = "Driving";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -378,9 +384,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-
     //South Longitude is negative，North Longitude is positive;
     //East Latitude is positive，West Latitude is negative.
+
     // ======================== Toilet related code here =========================
     private void createToiletWidgets(){
         toiletFilterSheet = findViewById(R.id.toilet_filter_bottomsheet);
@@ -893,6 +899,28 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         buildingFilterHandle = findViewById(R.id.building_filter_handle);
         spBuildingFilterDistance = (Spinner) findViewById(R.id.spin_building_distance);
         btBuildingSearch = (Button) findViewById(R.id.button_building_search);
+
+        buildingReportDialog = new Dialog(MapActivity.this);
+        buildingReportDialog.setContentView(R.layout.dialog_building_report);
+        buildingReportDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+        cbFeature1 = (CheckBox) buildingReportDialog.findViewById(R.id.report_cb_feature1);
+        cbFeature2 = (CheckBox) buildingReportDialog.findViewById(R.id.report_cb_feature2);
+        cbFeature3 = (CheckBox) buildingReportDialog.findViewById(R.id.report_cb_feature3);
+        cbFeature4 = (CheckBox) buildingReportDialog.findViewById(R.id.report_cb_feature4);
+        btReportSubmit = (Button) buildingReportDialog.findViewById(R.id.bt_report_submit);
+        starRatingBar = (RatingBar) buildingReportDialog.findViewById(R.id.report_ratingBar);
+
+        buildingInfoDialog = new Dialog(MapActivity.this);
+        buildingInfoDialog.setContentView(R.layout.dialog_building_info);
+        buildingInfoDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+        tvFeature1Count = (TextView) buildingInfoDialog.findViewById(R.id.info_count_feature1);
+        tvFeature2Count = (TextView) buildingInfoDialog.findViewById(R.id.info_count_feature2);
+        tvFeature3Count = (TextView) buildingInfoDialog.findViewById(R.id.info_count_feature3);
+        tvFeature4Count = (TextView) buildingInfoDialog.findViewById(R.id.info_count_feature4);
+        tvAverageRating = (TextView) buildingInfoDialog.findViewById(R.id.info_average_rating);
+        btInfoMakeReport = (Button) buildingInfoDialog.findViewById(R.id.bt_info_make_report);
     }
 
     public void registerBuildingSpotBottomSheetWidgets(){
@@ -914,15 +942,50 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+        btInfoMakeReport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buildingInfoDialog.dismiss();
+                buildingReportDialog.show();
+            }
+        });
+
+        btReportSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //collectSelection();
+                if (cbFeature1.isChecked()){
+                    buildingManager.reportBuildingSpot.setFeature1Count(
+                            buildingManager.reportBuildingSpot.getFeature1Count() + 1);
+                }
+                if (cbFeature2.isChecked()){
+                    buildingManager.reportBuildingSpot.setFeature2Count(
+                            buildingManager.reportBuildingSpot.getFeature2Count() + 1);
+                }
+                if (cbFeature3.isChecked()){
+                    buildingManager.reportBuildingSpot.setFeature3Count(
+                            buildingManager.reportBuildingSpot.getFeature3Count() + 1);
+                }
+                if (cbFeature4.isChecked()){
+                    buildingManager.reportBuildingSpot.setFeature4Count(
+                            buildingManager.reportBuildingSpot.getFeature4Count() + 1);
+                }
+
+                buildingManager.reportBuildingSpot.setReportCount(buildingManager.reportBuildingSpot
+                                                                                .getReportCount() + 1);
+                buildingManager.reportBuildingSpot.setRatingTotal(buildingManager.reportBuildingSpot.getRatingTotal()
+                                                                    + Math.round(starRatingBar.getRating()));
+                //makeReport();
+                buildingManager.updateBuildingSpot();
+                btBuildingSearch.callOnClick();
+                buildingReportDialog.dismiss();
+            }
+        });
+
         btBuildingSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(buildingBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-                    buildingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                }
-                else {
-                    buildingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                }
+                buildingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 cleanMap();
                 resetBackgroundForIcons();
                 mBuilding.setBackgroundResource(R.drawable.background_circle_green);
@@ -936,15 +999,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mBuilding.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                closeBottomSheet();
-                buildingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            closeBottomSheet();
+            buildingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             }
         });
 
         buildingFilterHandle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                buildingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            buildingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             }
         });
     }
@@ -984,13 +1047,30 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }else if(rating == 2){
                     options.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_lightgreen));
                 }
-                buildingManager.markerList.add(mMap.addMarker(options));
+                Marker building = mMap.addMarker(options);
+                buildingManager.markerList.add(building);
             }
         }else{
             Log.d(TAG, "method: showSpots : no spot found ");
             Toast.makeText(MapActivity.this, "No Nearby Buildings Information found", Toast.LENGTH_SHORT).show();
         }
     }
+
+    public void updateInfoDialog() {
+        Log.d(TAG, "method: updateInfoDialog called: -- " + buildingManager.reportBuildingSpot.getFeature1Count() + "");
+
+        tvFeature1Count.setText(buildingManager.reportBuildingSpot.getFeature1Count() + "");
+        tvFeature2Count.setText(buildingManager.reportBuildingSpot.getFeature2Count() + "");
+        tvFeature3Count.setText(buildingManager.reportBuildingSpot.getFeature3Count() + "");
+        tvFeature4Count.setText(buildingManager.reportBuildingSpot.getFeature4Count() + "");
+        if (buildingManager.reportBuildingSpot.getReportCount() == 0) {
+            tvAverageRating.setText("0");
+        } else {
+            tvAverageRating.setText(MyTools.roundDouble(1.0 * buildingManager.reportBuildingSpot.getRatingTotal()
+                    / buildingManager.reportBuildingSpot.getReportCount()) + "");
+        }
+    }
+
 //    private void showBuildingAccessibility(JsonArray accessibility){
 //        Log.d(TAG, "method: showSpots called ");
 //        if (accessibility.size() != 0) {
@@ -1059,6 +1139,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         parkingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         metroBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        buildingBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
@@ -1232,6 +1313,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mMetro.setBackgroundResource(R.drawable.background_circle_white);
         mGarden.setBackgroundResource(R.drawable.background_circle_white);
 
+    }
+
+    public void resetReportDialog(){
+        cbFeature1.setChecked(false);
+        cbFeature2.setChecked(false);
+        cbFeature3.setChecked(false);
+        cbFeature4.setChecked(false);
+        starRatingBar.setRating((float)0.0);
     }
 
     // ======================== permission code here =========================

@@ -13,6 +13,8 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 public class BuildingSpotManager {
@@ -26,6 +28,7 @@ public class BuildingSpotManager {
     public ArrayList<BuildingSpot> resultList;
     public ArrayList<Marker> markerList;
     private BuildingSpot sampleBuildingSpot;
+    public BuildingSpot reportBuildingSpot;
     public int distance;
 
     //firebase var
@@ -85,11 +88,12 @@ public class BuildingSpotManager {
         markerList.clear();
         Log.d(TAG, "==============Search by Range First==========");
         Query q = myRef.orderByChild("y_coordinate").startAt(east + "").endAt(west + "");
-        q.addValueEventListener(new ValueEventListener() {
+        q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot o : dataSnapshot.getChildren()) {
                     BuildingSpot oneBuildingSpot = o.getValue(BuildingSpot.class);
+                    oneBuildingSpot.setChildID(o.getKey());
                     LatLng remote = mapActivity.remoteLatlng;
                     Log.d(TAG, "point Lat: " + oneBuildingSpot.getY_coordinate());
                     Double distance = MyTools.getDistanceFromLatLonInMeter(remote.latitude, remote.longitude, oneBuildingSpot.getY_coordinate(), oneBuildingSpot.getX_coordinate());
@@ -98,8 +102,16 @@ public class BuildingSpotManager {
                 }
                 Log.d(TAG, "==========Search after LatRange Query===========got: " + resultList.size());
                 filter();
+                Collections.sort(resultList, new Comparator<BuildingSpot>() {
+                    @Override
+                    public int compare(BuildingSpot o1, BuildingSpot o2) {
+                        return o1.getDistance().compareTo(o2.getDistance());
+                    }
+                });
+                if (resultList.size() >= 15){
+                    resultList = new ArrayList<BuildingSpot>(resultList.subList(0,14));
+                }
                 mapActivity.showBuildingSpots(resultList);
-
                 ArrayList<Object> objectArrayList = new ArrayList<>();
                 for (BuildingSpot oneBuildingSpot: resultList){
                     objectArrayList.add((Object) oneBuildingSpot);
@@ -127,5 +139,27 @@ public class BuildingSpotManager {
         resultList = newList;
         Log.d(TAG, "==============Search after Filter==========got: " + resultList.size());
     }
+
+    public boolean updateBuildingSpot(){
+        if (reportBuildingSpot != null){
+            try {
+                myRef.child(reportBuildingSpot.getChildID()).child("reportCount").setValue(reportBuildingSpot.getReportCount());
+                myRef.child(reportBuildingSpot.getChildID()).child("ratingTotal").setValue(reportBuildingSpot.getRatingTotal());
+                myRef.child(reportBuildingSpot.getChildID()).child("feature1Count").setValue(reportBuildingSpot.getFeature1Count());
+                myRef.child(reportBuildingSpot.getChildID()).child("feature2Count").setValue(reportBuildingSpot.getFeature2Count());
+                myRef.child(reportBuildingSpot.getChildID()).child("feature3Count").setValue(reportBuildingSpot.getFeature3Count());
+                myRef.child(reportBuildingSpot.getChildID()).child("feature4Count").setValue(reportBuildingSpot.getFeature4Count());
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }else{
+            return false;
+        }
+
+    }
+
+
 
 }

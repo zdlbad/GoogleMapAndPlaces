@@ -30,4 +30,12 @@ public class MyTools {
     public static Double roundDouble(Double numberIn){
         return Math. round(numberIn * 100.0) / 100.0;
     }
+
+//    public static int[] sumTwoIntArray(int[] array1, int[] array2){
+//        int[] result = new int[array1.length];
+//        for (int i = 0; i < array1.length; i++){
+//            result[i] = array1[i] + array2[i];
+//        }
+//        return result;
+//    }
 }

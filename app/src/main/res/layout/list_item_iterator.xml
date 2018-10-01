@@ -24,13 +24,26 @@
     <!--navigation-->
     <ImageView
         android:id="@+id/table_row_navigation_image"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="50dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginStart="25dp"
         android:layout_gravity="center"
         android:background="@drawable/background_circle_white"
         android:elevation="5dp"
-        android:src="@drawable/ic_directions" />
+        android:src="@drawable/ic_go" />
+
+    <!--navigation-->
+    <ImageView
+        android:id="@+id/table_row_report_image"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginStart="8dp"
+        android:layout_gravity="center"
+        android:background="@drawable/background_circle_white"
+        android:elevation="5dp"
+        android:visibility="invisible"
+        android:src="@drawable/ic_report" />
+
 
 </LinearLayout>
 

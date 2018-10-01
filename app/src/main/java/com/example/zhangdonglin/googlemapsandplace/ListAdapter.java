@@ -35,6 +35,7 @@ public class ListAdapter extends ArrayAdapter<Object>
         TextView txtTitle = (TextView) rowView.findViewById(R.id.table_row_text);
         ImageView imageView = (ImageView) rowView.findViewById(R.id.table_row_image);
         ImageView navigationImage = (ImageView) rowView.findViewById(R.id.table_row_navigation_image);
+        ImageView reportImage = (ImageView) rowView.findViewById(R.id.table_row_report_image);
 
         if (mItems.get(position) instanceof Toilet){
             imageView.setImageResource(R.drawable.ic_toilet_3);
@@ -127,6 +128,7 @@ public class ListAdapter extends ArrayAdapter<Object>
         if (mItems.get(position) instanceof BuildingSpot){
             imageView.setImageResource(R.drawable.ic_building_2);
             txtTitle.setText(mItems.get(position).toString());
+            reportImage.setVisibility(View.VISIBLE);
             final LatLng selectedPostion = new LatLng(((BuildingSpot) mItems.get(position)).getY_coordinate(), ((BuildingSpot) mItems.get(position)).getX_coordinate());
             final MapActivity mapActivity = (MapActivity) mContext;
             navigationImage.setOnClickListener(new View.OnClickListener() {
@@ -139,9 +141,20 @@ public class ListAdapter extends ArrayAdapter<Object>
             rowView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    mapActivity.buildingManager.reportBuildingSpot = (BuildingSpot) mItems.get(position);
                     mapActivity.moveToMarker(
                             mapActivity.buildingManager.markerList.get(position)
                     );
+                    mapActivity.updateInfoDialog();
+                    mapActivity.buildingInfoDialog.show();
+                }
+            });
+            reportImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mapActivity.buildingManager.reportBuildingSpot = (BuildingSpot) mItems.get(position);
+                    mapActivity.resetReportDialog();
+                    mapActivity.buildingReportDialog.show();
                 }
             });
         }

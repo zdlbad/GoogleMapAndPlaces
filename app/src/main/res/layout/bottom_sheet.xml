@@ -6,7 +6,7 @@
     android:layout_height="400dp"
     android:background="@drawable/background"
     app:behavior_hideable="false"
-    app:behavior_peekHeight="65dp"
+    app:behavior_peekHeight="60dp"
     android:orientation="vertical"
     android:clickable="true"
     android:outlineProvider="bounds"
@@ -87,64 +87,11 @@
 
     </RelativeLayout>
 
-
     <ListView
         android:id="@+id/search_result_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/background_filter_content">
     </ListView>
-
-    <!--<ScrollView-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:background="@drawable/background_filter_content">-->
-
-        <!--&lt;!&ndash;search result list&ndash;&gt;-->
-        <!--<ListView-->
-            <!--android:id="@+id/search_result_list"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent" >-->
-        <!--</ListView>-->
-
-    <!--</ScrollView>-->
-
-    <!--<android.support.v4.widget.NestedScrollView-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:background="@drawable/background_filter_content">-->
-        <!---->
-        <!--<LinearLayout-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:orientation="vertical">-->
-
-            <!--<TextView-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:layout_marginLeft="25dp"-->
-                <!--android:layout_marginRight="25dp"-->
-                <!--android:layout_marginTop="10dp"-->
-                <!--android:gravity="left"-->
-                <!--android:text="@string/info"-->
-                <!--android:textColor="@android:color/black"-->
-                <!--android:textSize="20dp" />-->
-
-            <!--<TextView-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginLeft="25dp"-->
-                <!--android:layout_marginRight="25dp"-->
-                <!--android:layout_marginTop="10dp"-->
-                <!--android:gravity="right"-->
-                <!--android:text="@string/group_signiture"-->
-                <!--android:textColor="@android:color/black"-->
-                <!--android:textSize="20dp" />-->
-
-        <!--</LinearLayout>-->
-
-
-    <!--</android.support.v4.widget.NestedScrollView>-->
-    
 
 </LinearLayout>

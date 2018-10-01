@@ -13,6 +13,8 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 public class GardenManager {
@@ -82,7 +84,7 @@ public class GardenManager {
         markerList.clear();
         Log.d(TAG, "==============Search by Range First==========");
         Query q = myRef.orderByChild("lat").startAt(east + "").endAt(west + "");
-        q.addValueEventListener(new ValueEventListener() {
+        q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 int count = 0;
@@ -95,6 +97,15 @@ public class GardenManager {
                 }
                 Log.d(TAG, "==========Search after LatRange Query===========got: " + resultList.size());
                 filter();
+                Collections.sort(resultList, new Comparator<Garden>() {
+                    @Override
+                    public int compare(Garden o1, Garden o2) {
+                        return o1.getDistance().compareTo(o2.getDistance());
+                    }
+                });
+                if (resultList.size() >= 15){
+                    resultList = new ArrayList<Garden>(resultList.subList(0,14));
+                }
                 mapActivity.showGardenSpots(resultList);
 
                 ArrayList<Object> objectArrayList = new ArrayList<>();

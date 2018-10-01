@@ -13,6 +13,8 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 public class MetroStationManager {
@@ -83,7 +85,7 @@ public class MetroStationManager {
         markerList.clear();
         Log.d(TAG, "==============Search by Range Start==========");
         Query q = myRef.orderByChild("lat").startAt(east+"").endAt(west+"");
-        q.addValueEventListener(new ValueEventListener() {
+        q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.d(TAG, "===got: " + dataSnapshot.getChildrenCount());
@@ -104,6 +106,15 @@ public class MetroStationManager {
                 Log.d(TAG, "==========Search after LatRange Query===========got: " + resultList.size());
                 filter();
                 mapActivity.showMetroStations(resultList);
+                Collections.sort(resultList, new Comparator<MetroStation>() {
+                    @Override
+                    public int compare(MetroStation o1, MetroStation o2) {
+                        return o1.getDistance().compareTo(o2.getDistance());
+                    }
+                });
+                if (resultList.size() >= 15){
+                    resultList = new ArrayList<MetroStation>(resultList.subList(0,14));
+                }
 
                 ArrayList<Object> objectArrayList = new ArrayList<>();
                 for (MetroStation oneMetro: resultList){

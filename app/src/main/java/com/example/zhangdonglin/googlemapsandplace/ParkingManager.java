@@ -20,6 +20,8 @@ import com.google.gson.JsonParser;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Scanner;
 
 public class ParkingManager {
@@ -141,42 +143,34 @@ public class ParkingManager {
                     );
                     Log.d(TAG, "------- Sample spot:" + sampleParkingSpot.toString());
 
-                    for (int i = 0; i < spots.size(); i++) {
-                        final JsonObject oneSpot = spots.get(i).getAsJsonObject();
-                        int bayId = oneSpot.get("bay_id").getAsInt();
-                        final Double lat = oneSpot.get("lat").getAsDouble();
-                        final Double lon = oneSpot.get("lon").getAsDouble();
-                        final String status = oneSpot.get("status").getAsString();
+                    ArrayList<ParkingStatus> firstResult = sortAndSelect(spots, mapActivity);
 
-                        Query q = myRef.orderByChild("BayID").equalTo(bayId+"");
-                        q.addValueEventListener(new ValueEventListener() {
+                    for (final ParkingStatus oneStatus: firstResult) {
+                        Query q = myRef.orderByChild("BayID").equalTo(oneStatus.getBayId() + "");
+                        q.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.getChildrenCount() == 0){
-                                        //
-                                }else {
+                                if (dataSnapshot.getChildrenCount() != 0) {
                                     for (DataSnapshot o : dataSnapshot.getChildren()) {
-                                        if (searchingResult.size() < 15){
-                                            ParkingSpot oneParking = o.getValue(ParkingSpot.class);
-                                            oneParking.setLat(lat);
-                                            oneParking.setLon(lon);
-                                            oneParking.setStatus(status);
-                                            oneParking.checkSpot();
-                                            Log.d(TAG, "------- one spot:" + oneParking.toString());
-                                            if (oneParking.chechWithSampleSpot(sampleParkingSpot)) {
-                                                Log.d(TAG, "------- one spot valid");
-                                                LatLng remote = mapActivity.remoteLatlng;
-                                                Double distance = MyTools.getDistanceFromLatLonInMeter(remote.latitude, remote.longitude, oneParking.getLat(), oneParking.getLon());
-                                                oneParking.setDistance(MyTools.roundDouble(distance));
-                                                searchingResult.add(oneParking);
-                                                mapActivity.showParkingSpot(oneParking);
-                                            }else{
-                                                Log.d(TAG, "!!!!!!! one spot invalid");
-                                            }
+                                        ParkingSpot oneParking = o.getValue(ParkingSpot.class);
+                                        oneParking.setLat(oneStatus.getLat());
+                                        oneParking.setLon(oneStatus.getLon());
+                                        oneParking.setStatus(oneStatus.getStatus());
+                                        oneParking.checkSpot();
+                                        Log.d(TAG, "------- one spot:" + oneParking.toString());
+                                        if (oneParking.chechWithSampleSpot(sampleParkingSpot)) {
+                                            Log.d(TAG, "------- one spot valid");
+                                            LatLng remote = mapActivity.remoteLatlng;
+                                            Double distance = MyTools.getDistanceFromLatLonInMeter(remote.latitude, remote.longitude, oneParking.getLat(), oneParking.getLon());
+                                            oneParking.setDistance(MyTools.roundDouble(distance));
+                                            searchingResult.add(oneParking);
+                                            mapActivity.showParkingSpot(oneParking);
+                                        } else {
+                                            Log.d(TAG, "!!!!!!! one spot invalid");
                                         }
                                     }
                                     ArrayList<Object> objectArrayList = new ArrayList<>();
-                                    for (ParkingSpot oneParkingSpot: searchingResult){
+                                    for (ParkingSpot oneParkingSpot : searchingResult) {
                                         objectArrayList.add((Object) oneParkingSpot);
                                     }
                                     mapActivity.showSearchingResultList(objectArrayList);
@@ -196,17 +190,14 @@ public class ParkingManager {
                     }
                 }
 
-
-
             }
         }.execute();
     }
 
-    private JsonArray searchParkingByRadius(){
+    private JsonArray searchParkingByRadius() {
         String serverResult = "";
         JsonArray response = null;
-
-        if(MakeAPIConnectionForLocation()) {
+        if (MakeAPIConnectionForLocation()) {
             try {
                 //Read the response
                 Scanner inStream = new Scanner(connection.getInputStream());
@@ -215,17 +206,44 @@ public class ParkingManager {
                     serverResult += inStream.nextLine();
                 }
                 response = new JsonParser().parse(serverResult).getAsJsonArray();
-
-            } catch (Exception e) {
+            } catch(Exception e){
                 e.printStackTrace();
-            } finally {
+            } finally{
                 RemoveAPIConnection();
             }
         }
-
         return response;
     }
 
+    public ArrayList<ParkingStatus> sortAndSelect(JsonArray rawData, final MapActivity mapActivity){
+        ArrayList<ParkingStatus> result = new ArrayList<ParkingStatus>();
+        for (int i = 0; i < rawData.size(); i++) {
+            final JsonObject oneSpot = rawData.get(i).getAsJsonObject();
+            int bayId = oneSpot.get("bay_id").getAsInt();
+            final Double lat = oneSpot.get("lat").getAsDouble();
+            final Double lon = oneSpot.get("lon").getAsDouble();
+            final String status = oneSpot.get("status").getAsString();
+            LatLng remote = mapActivity.remoteLatlng;
+            Double distance = MyTools.getDistanceFromLatLonInMeter(remote.latitude, remote.longitude, lat, lon);
+            ParkingStatus oneStatus = new ParkingStatus(bayId, lat, lon, status,MyTools.roundDouble(distance));
+            if (oneStatus.getStatus().equals("Unoccupied")){
+                result.add(oneStatus);
+            }
+        }
+
+        Collections.sort(result, new Comparator<ParkingStatus>() {
+            @Override
+            public int compare(ParkingStatus o1, ParkingStatus o2) {
+                return o1.getDistance().compareTo(o2.getDistance());
+            }
+        });
+
+        if (result.size() >= 15){
+            return new ArrayList<ParkingStatus>(result.subList(0,14));
+        }else {
+            return result;
+        }
+    }
 
 
 
