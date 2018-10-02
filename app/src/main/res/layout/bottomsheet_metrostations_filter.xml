@@ -64,11 +64,16 @@
                 android:textStyle="bold"
                 android:text="Have Lift: "/>
 
-            <Spinner
-                android:id="@+id/spin_metro_lift"
+            <CheckBox
+                android:id="@+id/cb_metro_lift"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:entries="@array/yes_or_no"/>
+                android:layout_height="wrap_content"/>
+
+            <!--<Spinner-->
+                <!--android:id="@+id/spin_metro_lift"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:entries="@array/yes_or_no"/>-->
         </LinearLayout>
 
         <!--he_loop-->
@@ -91,11 +96,16 @@
                 android:textStyle="bold"
                 android:text="Have Ramp: "/>
 
-            <Spinner
-                android:id="@+id/spin_metro_loop"
+            <CheckBox
+                android:id="@+id/cb_metro_ramp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/yes_or_no"/>
+                android:layout_height="wrap_content"/>
+
+            <!--<Spinner-->
+                <!--android:id="@+id/spin_metro_loop"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:entries="@array/yes_or_no"/>-->
         </LinearLayout>
 
         <!--Distance-->

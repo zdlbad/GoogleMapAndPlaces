@@ -28,6 +28,7 @@ import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RatingBar;
@@ -95,6 +96,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Spinner spGardenFilterDistance;
     private Spinner spBuildingFilterDistance;
     private Button btToiletSearch, btParkingSearch, btMetroSearch, btGardenSearch, btBuildingSearch;
+    private CheckBox cbToiletWheelchair, cbMetroLift, cbMetroRamp;
 
     //reportDialog
     public Dialog buildingReportDialog, buildingInfoDialog;
@@ -378,6 +380,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
             });
 
+            mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                @Override
+                public void onInfoWindowClick(Marker marker) {
+                    destLatlng = marker.getPosition();
+                    navigationToGoogle();
+                }
+            });
+
             init();
         } else {
             Toast.makeText(this, "Lack of permission", Toast.LENGTH_SHORT).show();
@@ -392,32 +402,33 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         toiletFilterSheet = findViewById(R.id.toilet_filter_bottomsheet);
         toiletBottomSheetBehavior = BottomSheetBehavior.from(toiletFilterSheet);
         toiletFilterHandle = findViewById(R.id.toilet_filter_handle);
-        spToiletFilterWheelchair = (Spinner) findViewById(R.id.spin_toilet_wheelchair);
+        //spToiletFilterWheelchair = (Spinner) findViewById(R.id.spin_toilet_wheelchair);
 //        spToiletFilterFemale = (Spinner) findViewById(R.id.spin_toilet_female);
 //        spToiletFilterMale = (Spinner) findViewById(R.id.spin_toilet_male);
         spToiletFilterDistance = (Spinner) findViewById(R.id.spin_toilet_distance);
         btToiletSearch = (Button) findViewById(R.id.button_toilet_search);
+        cbToiletWheelchair = (CheckBox) findViewById(R.id.cb_toilet_wheelchair);
     }
 
     public void registerToiletBottomSheetWidgets(){
-        spToiletFilterWheelchair.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (spToiletFilterWheelchair.getSelectedItem().toString().toLowerCase().equals("yes")) {
-                    toiletManager.getSampleToilet().setWheelchair("yes");
-                }else if (spToiletFilterWheelchair.getSelectedItem().toString().toLowerCase().equals("no")) {
-                    toiletManager.getSampleToilet().setWheelchair("no");
-                }else{
-                    toiletManager.getSampleToilet().setWheelchair("");
-                }
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+//        spToiletFilterWheelchair.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+//                if (spToiletFilterWheelchair.getSelectedItem().toString().toLowerCase().equals("yes")) {
+//                    toiletManager.getSampleToilet().setWheelchair("yes");
+//                }else if (spToiletFilterWheelchair.getSelectedItem().toString().toLowerCase().equals("no")) {
+//                    toiletManager.getSampleToilet().setWheelchair("no");
+//                }else{
+//                    toiletManager.getSampleToilet().setWheelchair("");
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
 
         spToiletFilterDistance.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -440,11 +451,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         btToiletSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            if(toiletBottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-                toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-            }
-            else {
-                toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            toiletBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            if (cbToiletWheelchair.isChecked()) {
+                toiletManager.getSampleToilet().setWheelchair("yes");
+            }else{
+                toiletManager.getSampleToilet().setWheelchair("");
             }
             cleanMap();
             resetBackgroundForIcons();
@@ -607,25 +618,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     // ======================== Parking related code here ==========================
-    public void showParkingSpot(ParkingSpot oneSpot){
-        Log.d(TAG, "method: showSpots called ");
-        showRemotePoint();
-        String bayId = oneSpot.getBayID();
-        Double lat = oneSpot.getLat();
-        Double lon = oneSpot.getLon();
-        String status = oneSpot.getStatus();
-        LatLng latlng = new LatLng(lat, lon);
-        Log.d(TAG, "method: showSpots : " + oneSpot.toString());
-        MarkerOptions options = null;
-        if (status.equals("Unoccupied")){
-            options = new MarkerOptions().title("Parking:" + bayId).snippet(oneSpot.toString()).position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_parking_icon));
-        }else{
-            options = new MarkerOptions().title("Parking:" + bayId).snippet(oneSpot.toString()).position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_parking_redicon));;
-        }
-        parkingManager.markerList.add(mMap.addMarker(options));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
-    }
-
     private void createParkingWidgetst(){
         parkingFilterSheet = findViewById(R.id.parking_filter_bottomsheet);
         parkingBottomSheetBehavior = BottomSheetBehavior.from(parkingFilterSheet);
@@ -743,91 +735,77 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    // ======================== Metro related code here ==========================
-    private void setMetroStationManagerRadius(LatLng latLng, double radiusinMeters){
-
-        Log.d(TAG, "method: setMetroStationManagerRadius called ");
-        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters*0.7);
-        LatLng southwestCorner = latLngBounds.southwest; // -
-        LatLng northeastCorner = latLngBounds.northeast; // +
-
-        metroStationManager.setSouth(southwestCorner.longitude);
-        metroStationManager.setNorth(northeastCorner.longitude);
-        metroStationManager.setEast(northeastCorner.latitude);
-        metroStationManager.setWest(southwestCorner.latitude);
-    }
-
-    public void showMetroStations(ArrayList<MetroStation> resultList) {
-        Log.d(TAG, "method: showMetroStations called ");
+    public void showParkingSpot(ParkingSpot oneSpot){
+        Log.d(TAG, "method: showSpots called ");
         showRemotePoint();
-        if (resultList.size() != 0) {
-            for (int i = 0; i < resultList.size(); i++) {
-                MetroStation oneStation = resultList.get(i);
-                Double lat = oneStation.getLat();
-                Double lon = oneStation.getLon();
-                LatLng latlng = new LatLng(lat, lon);
-                MarkerOptions options = new MarkerOptions()
-                        .position(latlng).title(oneStation.getStation())
-                        .snippet(oneStation.toString())
-                        .icon(BitmapDescriptorFactory
-                                .fromResource(R.drawable.marker_train));
-                metroStationManager.markerList.add(mMap.addMarker(options));
-            }
+        String bayId = oneSpot.getBayID();
+        Double lat = oneSpot.getLat();
+        Double lon = oneSpot.getLon();
+        String status = oneSpot.getStatus();
+        LatLng latlng = new LatLng(lat, lon);
+        Log.d(TAG, "method: showSpots : " + oneSpot.toString());
+        MarkerOptions options = null;
+        if (status.equals("Unoccupied")){
+            options = new MarkerOptions().title("Parking:" + bayId).snippet(oneSpot.toString()).position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_parking_icon));
         }else{
-            Log.d(TAG, "method: showSpots : no spot found ");
-            Toast.makeText(MapActivity.this, "No Nearby Metro Stations found", Toast.LENGTH_SHORT).show();
+            options = new MarkerOptions().title("Parking:" + bayId).snippet(oneSpot.toString()).position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_parking_redicon));;
         }
+        parkingManager.markerList.add(mMap.addMarker(options));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
     }
 
+    // ======================== Metro related code here ==========================
     public void createMetroWidgets(){
         metroFilterSheet = findViewById(R.id.metro_filter_bottomsheet);
         metroBottomSheetBehavior = BottomSheetBehavior.from(metroFilterSheet);
         spMetroDistance = (Spinner) findViewById(R.id.spin_metro_distance);
         //spMetroPid = (Spinner) findViewById(R.id.spin_metro_pid);
-        spMetroLift = (Spinner) findViewById(R.id.spin_metro_lift);
-        spMetroLoop = (Spinner) findViewById(R.id.spin_metro_loop);
+//        spMetroLift = (Spinner) findViewById(R.id.spin_metro_lift);
+//        spMetroLoop = (Spinner) findViewById(R.id.spin_metro_loop);
         btMetroSearch = (Button) findViewById(R.id.button_metro_search);
         mMetro = (ImageView) findViewById(R.id.ic_metro_station);
         metroFilterHandle = findViewById(R.id.metro_filter_handle);
+        cbMetroLift = (CheckBox) findViewById(R.id.cb_metro_lift);
+        cbMetroRamp = (CheckBox) findViewById(R.id.cb_metro_ramp);
     }
 
     public void registerMetroBottomSheetWidgets(){
-        spMetroLoop.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (spMetroLoop.getSelectedItem().toString().toLowerCase().equals("yes")) {
-                    metroStationManager.getSampleStation().setHe_loop("Yes");
-                }else if (spMetroLoop.getSelectedItem().toString().toLowerCase().equals("no")) {
-                    metroStationManager.getSampleStation().setHe_loop("No");
-                }else{
-                    metroStationManager.getSampleStation().setHe_loop("");
-                }
+//        spMetroLoop.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+//                if (spMetroLoop.getSelectedItem().toString().toLowerCase().equals("yes")) {
+//                    metroStationManager.getSampleStation().setHe_loop("Yes");
+//                }else if (spMetroLoop.getSelectedItem().toString().toLowerCase().equals("no")) {
+//                    metroStationManager.getSampleStation().setHe_loop("No");
+//                }else{
+//                    metroStationManager.getSampleStation().setHe_loop("");
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
 
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        spMetroLift.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (spMetroLift.getSelectedItem().toString().toLowerCase().equals("yes")) {
-                    metroStationManager.getSampleStation().setLift("Yes");
-                }else if (spMetroLift.getSelectedItem().toString().toLowerCase().equals("no")) {
-                    metroStationManager.getSampleStation().setLift("No");
-                }else {
-                    metroStationManager.getSampleStation().setLift("");
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+//        spMetroLift.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+//                if (spMetroLift.getSelectedItem().toString().toLowerCase().equals("yes")) {
+//                    metroStationManager.getSampleStation().setLift("Yes");
+//                }else if (spMetroLift.getSelectedItem().toString().toLowerCase().equals("no")) {
+//                    metroStationManager.getSampleStation().setLift("No");
+//                }else {
+//                    metroStationManager.getSampleStation().setLift("");
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
 //        spMetroPid.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 //            @Override
 //            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -865,7 +843,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 metroBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                if (cbMetroRamp.isChecked()) {
+                    metroStationManager.getSampleStation().setHe_loop("Yes");
+                }else{
+                    metroStationManager.getSampleStation().setHe_loop("");
+                }
+
+                if (cbMetroLift.isChecked()) {
+                    metroStationManager.getSampleStation().setLift("Yes");
+                }else{
+                    metroStationManager.getSampleStation().setLift("");
+                }
+
                 cleanMap();
+                showRemotePoint();
                 resetBackgroundForIcons();
                 mMetro.setBackgroundResource(R.drawable.background_circle_green);
                 destLatlng = null;
@@ -890,6 +881,41 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+    }
+
+    private void setMetroStationManagerRadius(LatLng latLng, double radiusinMeters){
+
+        Log.d(TAG, "method: setMetroStationManagerRadius called ");
+        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters*0.7);
+        LatLng southwestCorner = latLngBounds.southwest; // -
+        LatLng northeastCorner = latLngBounds.northeast; // +
+
+        metroStationManager.setSouth(southwestCorner.longitude);
+        metroStationManager.setNorth(northeastCorner.longitude);
+        metroStationManager.setEast(northeastCorner.latitude);
+        metroStationManager.setWest(southwestCorner.latitude);
+    }
+
+    public void showMetroStations(ArrayList<MetroStation> resultList) {
+        Log.d(TAG, "method: showMetroStations called ");
+        showRemotePoint();
+        if (resultList.size() != 0) {
+            for (int i = 0; i < resultList.size(); i++) {
+                MetroStation oneStation = resultList.get(i);
+                Double lat = oneStation.getLat();
+                Double lon = oneStation.getLon();
+                LatLng latlng = new LatLng(lat, lon);
+                MarkerOptions options = new MarkerOptions()
+                        .position(latlng).title(oneStation.getStation())
+                        .snippet(oneStation.toString())
+                        .icon(BitmapDescriptorFactory
+                                .fromResource(R.drawable.marker_train));
+                metroStationManager.markerList.add(mMap.addMarker(options));
+            }
+        }else{
+            Log.d(TAG, "method: showSpots : no spot found ");
+            Toast.makeText(MapActivity.this, "No Nearby Metro Stations found", Toast.LENGTH_SHORT).show();
+        }
     }
 
     // ======================== Building related code here ==========================
@@ -1243,7 +1269,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d(TAG, "moveCamera: moving the camera to: lat:" + latlng.latitude + ", lng:" + latlng.longitude);
 
         Marker result = null;
-        remoteLatlng = latlng;
+//        remoteLatlng = latlng;
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng,zoom));
 
         if (!title.equals("My Location")){
