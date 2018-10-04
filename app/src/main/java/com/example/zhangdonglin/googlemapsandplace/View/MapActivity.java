@@ -163,7 +163,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
         bottomSheetHandle = findViewById(R.id.bottom_sheet_handle);
 
-        remoteLatlng = new LatLng(-37.87681761019685, 145.04447914659977);
         createToiletWidgets();
         createParkingWidgetst();
         createMetroWidgets();
@@ -420,6 +419,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             resetBackgroundForIcons();
             mToilet.setBackgroundResource(R.drawable.background_circle_warning);
             destLatlng = null;
+            checkRemoteLocation();
             setToiletManagerRadius(remoteLatlng,toiletManager.getDistance());
             Toast.makeText(MapActivity.this, "Searching for nearby public toilets...", Toast.LENGTH_SHORT).show();
             toiletManager.searchByLatRange(MapActivity.this);
@@ -519,6 +519,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 resetBackgroundForIcons();
                 mGarden.setBackgroundResource(R.drawable.background_circle_warning);
                 destLatlng = null;
+                checkRemoteLocation();
                 setGardenManagerRadius(remoteLatlng,gardenManager.getDistance());
                 Toast.makeText(MapActivity.this, "Searching for nearby public parks...", Toast.LENGTH_SHORT).show();
                 gardenManager.searchByLatRange(MapActivity.this);
@@ -657,6 +658,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 resetBackgroundForIcons();
                 mParking.setBackgroundResource(R.drawable.background_circle_warning);
                 destLatlng = null;
+                checkRemoteLocation();
                 Toast.makeText(MapActivity.this, "Searching for nearby parking places...", Toast.LENGTH_SHORT).show();
                 setParkingManagerRadius(remoteLatlng,parkingManager.getDistance());
                 parkingManager.searchParkingAndFilterAndShow(MapActivity.this);
@@ -818,6 +820,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 resetBackgroundForIcons();
                 mMetro.setBackgroundResource(R.drawable.background_circle_warning);
                 destLatlng = null;
+                checkRemoteLocation();
                 setMetroStationManagerRadius(remoteLatlng,metroStationManager.getDistance());
                 Toast.makeText(MapActivity.this, "Searching for nearby metro stations...", Toast.LENGTH_SHORT).show();
                 metroStationManager.searchByLatRange(MapActivity.this);
@@ -980,6 +983,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 resetBackgroundForIcons();
                 mBuilding.setBackgroundResource(R.drawable.background_circle_warning);
                 destLatlng = null;
+                checkRemoteLocation();
                 setBuildingSpotManagerRadius(remoteLatlng,buildingManager.getDistance());
                 Toast.makeText(MapActivity.this, "Searching for nearby buildings...", Toast.LENGTH_SHORT).show();
                 buildingManager.searchByLatRange(MapActivity.this);
@@ -1331,6 +1335,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         cbFeature3.setChecked(false);
         cbFeature4.setChecked(false);
         starRatingBar.setRating((float)0.0);
+    }
+
+    public void checkRemoteLocation(){
+        if (remoteLatlng == null){
+            if (currentLatlng != null){
+                remoteLatlng = currentLatlng;
+            }else{
+                remoteLatlng = new LatLng(-37.87681761019685, 145.04447914659977);
+            }
+        }
     }
 
     // ======================== permission code here =========================
