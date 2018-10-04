@@ -2,9 +2,11 @@ package com.example.zhangdonglin.googlemapsandplace.View;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import java.util.TimerTask;
 import java.util.Timer;
@@ -18,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private static final int ERROR_DIALOG_REQUEST = 9001;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void run() {
-                Intent intent = new Intent(MainActivity.this, MapActivity.class);
+                Intent intent = new Intent(MainActivity.this, SliderActivity.class);
                 startActivity(intent);
                 finish();
             }

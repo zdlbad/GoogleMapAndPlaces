@@ -45,9 +45,9 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="backgroundColor" value="ffffff" />
+                                      <entry key="backgroundColor" value="b5d19e" />
                                       <entry key="foregroundAssetType" value="CLIP_ART" />
-                                      <entry key="outputName" value="ic_waring_1" />
+                                      <entry key="outputName" value="ic_waring_3" />
                                     </map>
                                   </option>
                                 </PersistentState>
