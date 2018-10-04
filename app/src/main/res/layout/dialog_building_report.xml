@@ -16,7 +16,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Making A Report"/>
+            android:textStyle="bold"
+            android:text="Feedback"/>
     </LinearLayout>
 
     <LinearLayout
@@ -32,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:text="Great Accessibilty for Wheelchair!"/>
+            android:text="@string/reoort_feature1"/>
     </LinearLayout>
 
     <LinearLayout
@@ -48,7 +49,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:text="Relatively good visiting experience."/>
+            android:text="@string/reoort_feature2"/>
     </LinearLayout>
 
     <LinearLayout
@@ -63,7 +64,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hard to access the building."
+            android:text="@string/reoort_feature3"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -80,7 +81,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:text="Hard to move inside the building."/>
+            android:text="@string/reoort_feature4"/>
     </LinearLayout>
 
 

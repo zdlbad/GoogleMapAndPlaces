@@ -6,7 +6,7 @@
     android:layout_height="400dp"
     android:background="@drawable/background"
     app:behavior_hideable="false"
-    app:behavior_peekHeight="60dp"
+    app:behavior_peekHeight="80dp"
     android:orientation="vertical"
     android:clickable="true"
     android:outlineProvider="bounds"

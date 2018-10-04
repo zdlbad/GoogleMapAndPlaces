@@ -31,6 +31,10 @@ public class MyTools {
         return Math. round(numberIn * 100.0) / 100.0;
     }
 
+    public static String captialFirstChar(String input){
+        return input.substring(0, 1).toUpperCase() + input.substring(1);
+    }
+
 //    public static int[] sumTwoIntArray(int[] array1, int[] array2){
 //        int[] result = new int[array1.length];
 //        for (int i = 0; i < array1.length; i++){

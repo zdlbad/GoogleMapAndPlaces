@@ -3,7 +3,7 @@ package com.example.zhangdonglin.googlemapsandplace;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import com.example.zhangdonglin.googlemapsandplace.MapActivity;
+import com.example.zhangdonglin.googlemapsandplace.View.MapActivity;
 
 public class MapActivityTest {
     private MapActivity map;

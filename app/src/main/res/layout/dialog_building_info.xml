@@ -14,9 +14,10 @@
         android:gravity="center"
         android:background="@drawable/background">
         <TextView
+            android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Building Report Count"/>
+            android:text="Building Report"/>
     </LinearLayout>
 
     <LinearLayout
@@ -42,7 +43,7 @@
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="'Great Accessibilty for Wheelchair!'"/>
+            android:text="@string/reoort_feature1"/>
     </LinearLayout>
 
     <LinearLayout
@@ -68,7 +69,7 @@
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="'Relatively good visiting experience.'"/>
+            android:text="@string/reoort_feature2"/>
     </LinearLayout>
 
     <LinearLayout
@@ -94,7 +95,7 @@
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="'Hard to access the building.'"/>
+            android:text="@string/reoort_feature3"/>
     </LinearLayout>
 
     <LinearLayout
@@ -120,7 +121,7 @@
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="'Hard to move inside the building.'"/>
+            android:text="@string/reoort_feature4"/>
     </LinearLayout>
 
 
@@ -145,6 +146,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:textStyle="bold"
             android:text=" [Average Rating] "/>
 
     </LinearLayout>

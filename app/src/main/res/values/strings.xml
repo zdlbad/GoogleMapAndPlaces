@@ -14,6 +14,12 @@
 
     <string name="group_signiture">--Wonder Team\n\n\n\n</string>
 
+    <string name="reoort_feature1">Easy To Enter The Building</string>
+    <string name="reoort_feature2">Easy To Navigate Once Inside</string>
+    <string name="reoort_feature3">Great Accessibility For Wheelchair Users</string>
+    <string name="reoort_feature4">Building Is Not Accessible Friendly</string>
+
+
     <string-array name="yes_or_no">
         <item>--</item>
         <item>Yes</item>
