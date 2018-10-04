@@ -72,8 +72,8 @@
         android:layout_height="35dp"
         android:layout_margin="5dp"
         android:layout_gravity="center"
-        android:background="@drawable/background_circle_warning"
-        android:elevation="5dp"
+        android:background="@drawable/background_circle_white"
+        android:elevation="10dp"
         android:src="@drawable/ic_go" />
 
 

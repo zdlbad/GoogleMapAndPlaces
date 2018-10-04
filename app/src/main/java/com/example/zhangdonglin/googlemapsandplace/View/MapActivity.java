@@ -1351,7 +1351,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     }
                     Log.d(TAG, "onRequestPermissionsResult: permission granted.");
                     mLocationPermissionsGranted = true;
-                    //initialize our map
                     initMap();
                 }
             }
@@ -1559,5 +1558,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             places.release();
         }
     };
+
+
 
 }
