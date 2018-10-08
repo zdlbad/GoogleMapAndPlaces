@@ -20,7 +20,7 @@ public class MyTools {
                 ;
         Double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         Double d = R * c ; // Distance in Km
-        return d * 1000;
+        return d * 1000; //return in meter
     }
 
     private static Double deg2rad(Double deg) {
@@ -29,6 +29,10 @@ public class MyTools {
 
     public static Double roundDouble(Double numberIn){
         return Math. round(numberIn * 100.0) / 100.0;
+    }
+
+    public static int roundDoubleWithOutDecimal(Double numberIn){
+        return (int)Math. round(numberIn);
     }
 
     public static String captialFirstChar(String input){

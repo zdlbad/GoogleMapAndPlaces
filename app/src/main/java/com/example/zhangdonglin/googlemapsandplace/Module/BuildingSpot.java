@@ -171,11 +171,13 @@ public class BuildingSpot extends Object{
         }
 
         if (distance >= 1000){
-            return  "Distance:  " + MyTools.roundDouble(distance/1000) + "km " + '\n' +
-                    "Building:  " + building_name_forShow;
+            return  "Distance:  " + MyTools.roundDouble(distance/1000) + " km " + '\n' +
+                    "Building:  " + building_name_forShow + '\n' +
+                    "Access Info: " + accessibility_type_description;
         }else{
-            return  "Distance:  " + distance + "meters " + '\n' +
-                    "Building:  " + building_name_forShow;
+            return  "Distance:  " + MyTools.roundDoubleWithOutDecimal(distance) + " m " + '\n' +
+                    "Building:  " + building_name_forShow + '\n' +
+                    "Access Info: " + accessibility_type_description;
         }
     }
 

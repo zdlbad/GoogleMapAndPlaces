@@ -6,6 +6,7 @@ import android.util.Log;
 import com.example.zhangdonglin.googlemapsandplace.View.MapActivity;
 import com.example.zhangdonglin.googlemapsandplace.MyTools;
 import com.example.zhangdonglin.googlemapsandplace.Module.MetroStation;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.database.DataSnapshot;
@@ -38,7 +39,8 @@ public class MetroStationManager {
 
     public MetroStationManager(){
         sampleStation = new MetroStation();
-        distance = 1500;
+        sampleStation.setDistance(500.00);
+        distance = 500;
         resultList = new ArrayList<MetroStation>();
         markerList = new ArrayList<Marker>();
         myFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -108,7 +110,6 @@ public class MetroStationManager {
                 }
                 Log.d(TAG, "==========Search after LatRange Query===========got: " + resultList.size());
                 filter();
-                mapActivity.showMetroStations(resultList);
                 Collections.sort(resultList, new Comparator<MetroStation>() {
                     @Override
                     public int compare(MetroStation o1, MetroStation o2) {
@@ -119,6 +120,8 @@ public class MetroStationManager {
                     resultList = new ArrayList<MetroStation>(resultList.subList(0,14));
                 }
 
+                mapActivity.showMetroStations(resultList);
+                mapActivity.mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mapActivity.remoteLatlng, 14f));
                 ArrayList<Object> objectArrayList = new ArrayList<>();
                 for (MetroStation oneMetro: resultList){
                     objectArrayList.add((Object) oneMetro);

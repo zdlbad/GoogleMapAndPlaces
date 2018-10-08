@@ -121,9 +121,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public Dialog redirectConfirmDialog;
     public Button btRedirectCancel, btRedirectConfirm;
 
+    //result list
+    public ListView resultList;
+
     //vars
     private Boolean mLocationPermissionsGranted = false;
-    private GoogleMap mMap;
+    public GoogleMap mMap;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private PlaceAutocompleteAdapter mPlaceAutocompleteAdapter;
     private GoogleApiClient mGoogleApiClient;
@@ -327,8 +330,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 public void onMapLongClick(LatLng latLng) {
                 cleanMap();
                 MarkerOptions options = new MarkerOptions()
-                        .title("You Are Here")
-                        .snippet("This is your Selected Positon")
+                        .title("Target Location")
+                        .snippet("You are here")
                         .position(latLng)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
                 remoteLatlng = latLng;
@@ -445,7 +448,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void setToiletManagerRadius(LatLng latLng, double radiusinMeters){
 
         Log.d(TAG, "method: setToiletManagerRadius called ");
-        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters*0.7);
+        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters);
         LatLng southwestCorner = latLngBounds.southwest; // -
         LatLng northeastCorner = latLngBounds.northeast; // +
 
@@ -464,9 +467,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Double lat = oneToilet.getLat();
                 Double lon = oneToilet.getLon();
                 LatLng latlng = new LatLng(lat, lon);
+                Double distance = oneToilet.getDistance();
+                String distanceString = "";
+                if (distance >= 1000){
+                    distanceString = "Distance:  " + MyTools.roundDouble(distance/1000) + " km ";
+                }else{
+                    distanceString = "Distance:  " +  MyTools.roundDoubleWithOutDecimal(distance) + " m ";
+                }
                 MarkerOptions options = new MarkerOptions()
                         .position(latlng).title("Public Toilet")
-                        .snippet(oneToilet.toString())
+                        .snippet(distanceString)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_toilet));
                 toiletManager.markerList.add(mMap.addMarker(options));
             }
@@ -564,9 +574,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Double lat = oneGarden.getLat();
                 Double lon = oneGarden.getLon();
                 LatLng latlng = new LatLng(lat, lon);
+                Double distance = oneGarden.getDistance();
+                String distanceString = "";
+                if (distance >= 1000){
+                    distanceString = "Distance:  " + MyTools.roundDouble(distance/1000) + " km ";
+                }else{
+                    distanceString = "Distance:  " +  MyTools.roundDoubleWithOutDecimal(distance) + " m ";
+                }
                 MarkerOptions options = new MarkerOptions()
                         .position(latlng).title(oneGarden.getName())
-                        .snippet(oneGarden.toString())
+                        .snippet(distanceString)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_garden));
                 gardenManager.markerList.add(mMap.addMarker(options));
             }
@@ -695,23 +712,35 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    public void showParkingSpot(ParkingSpot oneSpot){
+    public void showParkingSpot(ParkingSpot oneParkingSpot){
         Log.d(TAG, "method: showSpots called ");
         showRemotePoint();
-        String bayId = oneSpot.getBayID();
-        Double lat = oneSpot.getLat();
-        Double lon = oneSpot.getLon();
-        String status = oneSpot.getStatus();
+        String bayId = oneParkingSpot.getBayID();
+        Double lat = oneParkingSpot.getLat();
+        Double lon = oneParkingSpot.getLon();
+        String status = oneParkingSpot.getStatus();
         LatLng latlng = new LatLng(lat, lon);
-        Log.d(TAG, "method: showSpots : " + oneSpot.toString());
+        Log.d(TAG, "method: showSpots : " + oneParkingSpot.toString());
         MarkerOptions options = null;
-        if (status.equals("Unoccupied")){
-            options = new MarkerOptions().title("Parking:" + bayId).snippet(oneSpot.toString()).position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_parking_icon));
+        Double distance = oneParkingSpot.getDistance();
+        String distanceString = "";
+        if (distance >= 1000){
+            distanceString = "Distance:  " + MyTools.roundDouble(distance/1000) + " km ";
         }else{
-            options = new MarkerOptions().title("Parking:" + bayId).snippet(oneSpot.toString()).position(latlng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_parking_redicon));;
+            distanceString = "Distance:  " +  MyTools.roundDoubleWithOutDecimal(distance) + " m ";
+        }
+        if (status.equals("Unoccupied")){
+            options = new MarkerOptions().title("Parking Spot")
+                    .snippet(distanceString)
+                    .position(latlng)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_parking_icon));
+        }else{
+            options = new MarkerOptions().title("Parking Spot")
+                    .snippet(distanceString)
+                    .position(latlng)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_parking_redicon));;
         }
         parkingManager.markerList.add(mMap.addMarker(options));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(remoteLatlng, 16f));
     }
 
     // ======================== Metro related code here ==========================
@@ -847,7 +876,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void setMetroStationManagerRadius(LatLng latLng, double radiusinMeters){
 
         Log.d(TAG, "method: setMetroStationManagerRadius called ");
-        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters*0.7);
+        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters);
         LatLng southwestCorner = latLngBounds.southwest; // -
         LatLng northeastCorner = latLngBounds.northeast; // +
 
@@ -866,9 +895,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Double lat = oneStation.getLat();
                 Double lon = oneStation.getLon();
                 LatLng latlng = new LatLng(lat, lon);
+                Double distance = oneStation.getDistance();
+                String distanceString = "";
+                if (distance >= 1000){
+                    distanceString = "Distance:  " + MyTools.roundDouble(distance/1000) + " km ";
+                }else{
+                    distanceString = "Distance:  " +  MyTools.roundDoubleWithOutDecimal(distance) + " m ";
+                }
                 MarkerOptions options = new MarkerOptions()
                         .position(latlng).title(oneStation.getStation())
-                        .snippet(oneStation.toString())
+                        .snippet(distanceString)
                         .icon(BitmapDescriptorFactory
                                 .fromResource(R.drawable.marker_train));
                 metroStationManager.markerList.add(mMap.addMarker(options));
@@ -1017,7 +1053,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void setBuildingSpotManagerRadius(LatLng latLng, double radiusinMeters){
 
         Log.d(TAG, "method: setBuildingManagerRadius called ");
-        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters*0.7);
+        LatLngBounds latLngBounds = toBounds(latLng, radiusinMeters);
         LatLng southwestCorner = latLngBounds.southwest; // -
         LatLng northeastCorner = latLngBounds.northeast; // +
 
@@ -1037,10 +1073,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Double lon = oneBuilding.getX_coordinate();
                 LatLng latlng = new LatLng(lat, lon);
                 int rating = oneBuilding.getAccessibility_rating();
+                Double distance = oneBuilding.getDistance();
+                String distanceString = "";
+                if (distance >= 1000){
+                    distanceString = "Distance:  " + MyTools.roundDouble(distance/1000) + " km ";
+                }else{
+                    distanceString = "Distance:  " +  MyTools.roundDoubleWithOutDecimal(distance) + " m ";
+                }
                 MarkerOptions options = new MarkerOptions()
                         .position(latlng).title(oneBuilding.getBuilding_name())
-                        .snippet(oneBuilding.toString() + '\n'
-                                + "Information: " + oneBuilding.getAccessibility_type_description());
+                        .snippet(distanceString);
                 if (rating == 0){
                     options.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_building_red));
                 }else if(rating == 3){
@@ -1152,8 +1194,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (remoteLatlng!= null){
             Log.d(TAG, "showKeyPoint: add remote point");
             MarkerOptions markerOptions = new MarkerOptions()
-                    .title("Selected Postion")
-                    .snippet("This is your Selected Positon")
+                    .title("Target Location")
+                    .snippet("You are here")
                     .position(remoteLatlng);
             mMap.addMarker(markerOptions);
         }
@@ -1249,11 +1291,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 //        remoteLatlng = latlng;
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng,zoom));
 
+
         if (!title.equals("My Location")){
             MarkerOptions markerOptions = new MarkerOptions()
                     .position(latlng)
                     .title(title)
-                    .snippet("Your selected location");
+                    .snippet("Your are here");
             result = mMap.addMarker(markerOptions);
             result.showInfoWindow();
         }
@@ -1278,9 +1321,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     public void showSearchingResultList(ArrayList<Object> objects){
         ListAdapter listAdapter = new ListAdapter(MapActivity.this, objects);
-        ListView list = (ListView)findViewById(R.id.search_result_list);
-        list.setAdapter(listAdapter);
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        resultList = (ListView)findViewById(R.id.search_result_list);
+        resultList.setAdapter(listAdapter);
+        resultList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {

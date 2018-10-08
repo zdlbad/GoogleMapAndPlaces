@@ -50,10 +50,10 @@ public class Garden extends Object{
     @Override
     public String toString() {
         if (distance >= 1000){
-            return  "Distance:  " + MyTools.roundDouble(distance/1000) + "km " + '\n' +
+            return  "Distance:  " + MyTools.roundDouble(distance/1000) + " km " + '\n' +
                     "Name: " + name + " ";
         }else{
-            return  "Distance:  " + distance + "meters " + '\n' +
+            return  "Distance:  " +  MyTools.roundDoubleWithOutDecimal(distance) + " m " + '\n' +
                     "Name: " + name + " ";
         }
     }

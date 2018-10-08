@@ -6,6 +6,7 @@ import android.util.Log;
 import com.example.zhangdonglin.googlemapsandplace.View.MapActivity;
 import com.example.zhangdonglin.googlemapsandplace.MyTools;
 import com.example.zhangdonglin.googlemapsandplace.Module.BuildingSpot;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.database.DataSnapshot;
@@ -42,6 +43,7 @@ public class BuildingSpotManager {
     public BuildingSpotManager(){
         sampleBuildingSpot = new BuildingSpot();
         //connection = null;
+        distance = 300;
         resultList = new ArrayList<BuildingSpot>();
         markerList = new ArrayList<Marker>();
         myFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -116,6 +118,7 @@ public class BuildingSpotManager {
                     resultList = new ArrayList<BuildingSpot>(resultList.subList(0,14));
                 }
                 mapActivity.showBuildingSpots(resultList);
+                mapActivity.mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mapActivity.remoteLatlng, 15f));
                 ArrayList<Object> objectArrayList = new ArrayList<>();
                 for (BuildingSpot oneBuildingSpot: resultList){
                     objectArrayList.add((Object) oneBuildingSpot);

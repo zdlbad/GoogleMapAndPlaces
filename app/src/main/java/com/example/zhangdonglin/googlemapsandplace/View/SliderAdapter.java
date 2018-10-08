@@ -25,15 +25,15 @@ public class SliderAdapter extends PagerAdapter{
             R.drawable.swivel_find_parking,
             R.drawable.swivel_building_rating_intro,
             R.drawable.swivel_make_report,
-            R.drawable.swivel_check_report,
+//            R.drawable.swivel_check_report,
     };
 
     public String[] slide_headings = {
-            "Find wheelchair accessible public toilets.",
-            "Find available parking places with wanted duration.",
-            "Find building accessiblilty before you go.",
-            "Make building accessiblilty report to help improve.",
-            "Scan building information made by others.",
+            "\"Find Wheelchair Accessible Public Toilets\"",
+            "\"Find Your Nearest Parking Spots\"",
+            "\"Get Accessibility Information On Buildings\"",
+            "\"Help The Disabled Community By Giving Feedback\"",
+//            "Scan building information made by others.",
     };
 
     public SliderAdapter(Context context) {

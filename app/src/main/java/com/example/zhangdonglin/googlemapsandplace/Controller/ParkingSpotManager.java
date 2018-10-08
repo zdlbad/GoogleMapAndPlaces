@@ -9,6 +9,7 @@ import com.example.zhangdonglin.googlemapsandplace.View.MapActivity;
 import com.example.zhangdonglin.googlemapsandplace.MyTools;
 import com.example.zhangdonglin.googlemapsandplace.Module.ParkingStatus;
 import com.example.zhangdonglin.googlemapsandplace.Module.ParkingSpot;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.database.DataSnapshot;
@@ -49,6 +50,7 @@ public class ParkingSpotManager {
 
     public ParkingSpotManager(){
         connection = null;
+        distance = 300;
         myFirebaseDatabase = FirebaseDatabase.getInstance();
         myRef = myFirebaseDatabase.getReference().child("parking_restriction");
         myRef.addValueEventListener(new ValueEventListener() {
@@ -141,59 +143,60 @@ public class ParkingSpotManager {
             }
             @Override
             protected void onPostExecute(JsonArray spots) {
+                if (spots != null){
+                    if (spots.size() != 0) {
+                        Log.d(TAG, "------- geting result from first level search. count: " + spots.size()
+                        );
+                        Log.d(TAG, "------- Sample spot:" + sampleParkingSpot.toString());
 
-                if (spots.size() != 0) {
-                    Log.d(TAG, "------- geting result from first level search. count: " + spots.size()
-                    );
-                    Log.d(TAG, "------- Sample spot:" + sampleParkingSpot.toString());
+                        ArrayList<ParkingStatus> firstResult = sortAndSelect(spots, mapActivity);
 
-                    ArrayList<ParkingStatus> firstResult = sortAndSelect(spots, mapActivity);
-
-                    for (final ParkingStatus oneStatus: firstResult) {
-                        Query q = myRef.orderByChild("BayID").equalTo(oneStatus.getBayId() + "");
-                        q.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.getChildrenCount() != 0) {
-                                    for (DataSnapshot o : dataSnapshot.getChildren()) {
-                                        ParkingSpot oneParking = o.getValue(ParkingSpot.class);
-                                        oneParking.setLat(oneStatus.getLat());
-                                        oneParking.setLon(oneStatus.getLon());
-                                        oneParking.setStatus(oneStatus.getStatus());
-                                        oneParking.checkSpot();
-                                        Log.d(TAG, "------- one spot:" + oneParking.toString());
-                                        if (oneParking.chechWithSampleSpot(sampleParkingSpot)) {
-                                            Log.d(TAG, "------- one spot valid");
-                                            LatLng remote = mapActivity.remoteLatlng;
-                                            Double distance = MyTools.getDistanceFromLatLonInMeter(remote.latitude, remote.longitude, oneParking.getLat(), oneParking.getLon());
-                                            oneParking.setDistance(MyTools.roundDouble(distance));
-                                            searchingResult.add(oneParking);
-                                            mapActivity.showParkingSpot(oneParking);
-                                        } else {
-                                            Log.d(TAG, "!!!!!!! one spot invalid");
+                        for (final ParkingStatus oneStatus: firstResult) {
+                            Query q = myRef.orderByChild("BayID").equalTo(oneStatus.getBayId() + "");
+                            q.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.getChildrenCount() != 0) {
+                                        for (DataSnapshot o : dataSnapshot.getChildren()) {
+                                            ParkingSpot oneParking = o.getValue(ParkingSpot.class);
+                                            oneParking.setLat(oneStatus.getLat());
+                                            oneParking.setLon(oneStatus.getLon());
+                                            oneParking.setStatus(oneStatus.getStatus());
+                                            oneParking.checkSpot();
+                                            Log.d(TAG, "------- one spot:" + oneParking.toString());
+                                            if (oneParking.chechWithSampleSpot(sampleParkingSpot)) {
+                                                Log.d(TAG, "------- one spot valid");
+                                                LatLng remote = mapActivity.remoteLatlng;
+                                                Double distance = MyTools.getDistanceFromLatLonInMeter(remote.latitude, remote.longitude, oneParking.getLat(), oneParking.getLon());
+                                                oneParking.setDistance(MyTools.roundDouble(distance));
+                                                searchingResult.add(oneParking);
+                                                mapActivity.showParkingSpot(oneParking);
+                                            } else {
+                                                Log.d(TAG, "!!!!!!! one spot invalid");
+                                            }
                                         }
+                                        mapActivity.mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mapActivity.remoteLatlng, 15f));
+                                        ArrayList<Object> objectArrayList = new ArrayList<>();
+                                        for (ParkingSpot oneParkingSpot : searchingResult) {
+                                            objectArrayList.add((Object) oneParkingSpot);
+                                        }
+                                        mapActivity.showSearchingResultList(objectArrayList);
                                     }
-                                    ArrayList<Object> objectArrayList = new ArrayList<>();
-                                    for (ParkingSpot oneParkingSpot : searchingResult) {
-                                        objectArrayList.add((Object) oneParkingSpot);
-                                    }
-                                    mapActivity.showSearchingResultList(objectArrayList);
                                 }
-                            }
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-                                mapActivity.cleanMap();
-                            }
-                        });
-                    }
-                    Log.d(TAG, "==========Search after LatRange Query===========got: " + searchingResult.size());
-                    if (searchingResult.size() == 0){
-                        Toast.makeText(mapActivity, "No valid parking places found...", Toast.LENGTH_SHORT).show();
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                    mapActivity.cleanMap();
+                                }
+                            });
+                        }
+                        Log.d(TAG, "==========Search after LatRange Query===========got: " + searchingResult.size());
+                        if (searchingResult.size() == 0){
+                            Toast.makeText(mapActivity, "No valid parking places found...", Toast.LENGTH_SHORT).show();
 
+                        }
                     }
                 }
-
             }
         }.execute();
     }

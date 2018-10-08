@@ -6,6 +6,7 @@ import android.util.Log;
 import com.example.zhangdonglin.googlemapsandplace.View.MapActivity;
 import com.example.zhangdonglin.googlemapsandplace.MyTools;
 import com.example.zhangdonglin.googlemapsandplace.Module.Garden;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.firebase.database.DataSnapshot;
@@ -38,6 +39,7 @@ public class GardenManager {
 
     public GardenManager(){
         sampleGarden = new Garden();
+        distance = 300;
         resultList = new ArrayList<Garden>();
         markerList = new ArrayList<Marker>();
         myFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -110,6 +112,7 @@ public class GardenManager {
                     resultList = new ArrayList<Garden>(resultList.subList(0,14));
                 }
                 mapActivity.showGardenSpots(resultList);
+                mapActivity.mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mapActivity.remoteLatlng, 14f));
 
                 ArrayList<Object> objectArrayList = new ArrayList<>();
                 for (Garden oneGarden: resultList){

@@ -28,18 +28,8 @@ public class MapActivityTest {
     }
 
     @Test (expected = Exception.class)
-    public void testNullOnCreate() {
-        map.onCreate(null);
-    }
-
-    @Test (expected = Exception.class)
     public void testNullToBounds(){
         map.toBounds(null,0);
-    }
-
-    @Test (expected = Exception.class)
-    public void testOnActivityResult(){
-        map.onActivityResult(0,0,null);
     }
 
     @Test (expected = Exception.class)

@@ -146,7 +146,7 @@ public class ListAdapter extends ArrayAdapter<Object>
             }
 
             txtTitle.setText(mItems.get(position).toString()
-                    + '\n' + "  - Click to show Report -");
+                    + '\n' + " <- Click to Show Report ->");
             reportImage.setVisibility(View.VISIBLE);
             final LatLng selectedPostion = new LatLng(((BuildingSpot) mItems.get(position)).getY_coordinate(), ((BuildingSpot) mItems.get(position)).getX_coordinate());
             final MapActivity mapActivity = (MapActivity) mContext;

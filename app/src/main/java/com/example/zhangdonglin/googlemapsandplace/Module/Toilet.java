@@ -106,11 +106,11 @@ public class Toilet extends Object{
     @Override
     public String toString() {
         if (distance >= 1000){
-            return  "Distance:  " + MyTools.roundDouble(distance/1000) + "km " + '\n' +
-                    "Wheelchair: " + MyTools.captialFirstChar(wheelchair);
+            return  "Distance:  " + MyTools.roundDouble(distance/1000) + " km " + '\n' +
+                    "Wheelchair Access: " + MyTools.captialFirstChar(wheelchair);
         }else{
-            return  "Distance:  " + distance + "meters " + '\n' +
-                    "Wheelchair: " + MyTools.captialFirstChar(wheelchair);
+            return  "Distance:  " + MyTools.roundDoubleWithOutDecimal(distance) + " m " + '\n' +
+                    "Wheelchair Access: " + MyTools.captialFirstChar(wheelchair);
         }
     }
 

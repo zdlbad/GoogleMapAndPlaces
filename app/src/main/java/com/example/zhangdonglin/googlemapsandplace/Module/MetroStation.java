@@ -81,12 +81,12 @@ public class MetroStation extends Object{
     @Override
     public String toString() {
         if (distance >= 1000){
-            return  "Distance:  " + MyTools.roundDouble(distance/1000) + "km " + '\n' +
+            return  "Distance:  " + MyTools.roundDouble(distance/1000) + " km " + '\n' +
                     "Station: " + station + '\n' +
                     "Ramp: " + he_loop + '\n' +
                     "Lift: " + lift ;
         }else{
-            return  "Distance:  " + distance + "meters " + '\n' +
+            return  "Distance:  " +  MyTools.roundDoubleWithOutDecimal(distance) + " m " + '\n' +
                     "Station: " + station + '\n' +
                     "Ramp: " + he_loop + '\n' +
                     "Lift: " + lift ;

@@ -679,10 +679,12 @@ public class ParkingSpot extends Object{
     @Override
     public String toString() {
         if (distance >= 1000){
-            return  "Distance:  " + MyTools.roundDouble(distance/1000) + "km " + '\n' +
+            return  "Distance: " + MyTools.roundDouble(distance/1000) + " km " + '\n' +
+                    "Parking Time: " + (normalDuration-1) + " mins" + '\n' +
                     "Status: " + status + '\n';
         }else{
-            return  "Distance:  " + distance + "meters " + '\n' +
+            return  "Distance: " +  MyTools.roundDoubleWithOutDecimal(distance) + " m " + '\n' +
+                    "Parking Time: " + (normalDuration-1) + " mins" + '\n' +
                     "Status: " + status + '\n';
         }
     }
